@@ -4,10 +4,10 @@ import warnings
 
 try:
     import jax.numpy as np
-    print("Module waltlabtools loaded, using jax.")
+    print("Loaded waltlabtools using jax.")
 except Exception:
     import numpy as np
-    print("Module waltlabtools loaded, using numpy.")
+    print("Loaded waltlabtools using numpy.")
 
 import scipy.optimize as opt
 import scipy.special as spec
@@ -48,10 +48,10 @@ def flatten(data, on_bad_data="warn"):
         if isiterable(data):
             flattened_data = []
             if hasattr(data, "iteritems"):
-                the_iterator = data.iteritems()
+                iterator = data.iteritems()
             else:
-                the_iterator = enumerate(data)
-            for name, datum in the_iterator:
+                iterator = enumerate(data)
+            for __, datum in iterator:
                 if isiterable(datum):
                     flattened_data.extend(flatten(datum))
                 else:
@@ -67,7 +67,6 @@ def flatten(data, on_bad_data="warn"):
             elif on_bad_data == "ignore":
                 return flattened_data
             else:
-                # This includes the default, where on_bad_data="warn".
                 warnings.warn(_error_text(
                     [type(data), type(flattened_data)], "coercion"), Warning)
                 return flattened_data
@@ -157,13 +156,20 @@ class Model:
         The names of the parameters for the function. This should be
         the same length as the number of arguments which `fun` and
         `inverse` take after their inputs `x` and `y`, respectively.
+    `xscale`, `yscale` : {"linear", "log", "symlog", "logit"}
+        The natural scaling transformations for x and y. For example,
+        "log" means that the data may be distributed log-normally and
+        be best visualized on a log scale. Defaults to "linear".
    
     """
-    def __init__(self, fun=None, inverse=None, name="", params=()):
+    def __init__(self, fun=None, inverse=None, name="", params=(),
+            xscale="linear", yscale="linear"):
         self.fun = fun
         self.inverse = inverse
         self.name = name
         self.params = params
+        self.xscale = xscale
+        self.yscale = yscale
 #        self.grad = grad(self.fun,
 #            argnums=tuple(range(len(self.params)+1)))
 #        self.invgrad = grad(self.inverse,
@@ -174,40 +180,53 @@ class Model:
 
 # CONSTANTS
 
-# linear
+# linear function
 def fLINEAR(x, a, b):
     return a*x + b
 def iLINEAR(y, a, b):
     return (y - b) / a
-mLINEAR = Model(fLINEAR, iLINEAR, "linear", ("a", "b"))
+mLINEAR = Model(fLINEAR, iLINEAR, "linear",
+    ("a", "b"), "linear", "linear")
+
+# power function
+def fPOWER(x, a, b):
+    return a * x**b
+def iPOWER(y, a, b):
+    return (y / a)**(1/b)
+mPOWER = Model(fPOWER, iPOWER, "power",
+    ("a", "b"), "log", "log")
 
 # Hill function
 def fHILL(x, a, b, c):
     return (a * x**b) / (c**b + x**b)
 def iHILL(y, a, b, c):
     return c * (a/y - 1)**(-1/b)
-mHILL = Model(fHILL, iHILL, "Hill", ("a", "b", "c"))
+mHILL = Model(fHILL, iHILL, "Hill",
+    ("a", "b", "c"), "log", "log")
 
 # logistic function
 def fLOGISTIC(x, a, b, c, d):
     return d + (a - d) / (1 + np.exp(-b*(x - c)))
 def iLOGISTIC(y, a, b, c, d):
     return c - np.log((a - d)/(y - d) - 1) / b
-mLOGISTIC = Model(fLOGISTIC, iLOGISTIC, "logistic", ("a", "b", "c", "d"))
+mLOGISTIC = Model(fLOGISTIC, iLOGISTIC, "logistic",
+    ("a", "b", "c", "d"), "linear", "linear")
 
 # 4-parameter logistic
 def f4PL(x, a, b, c, d):
     return d + (a - d)/(1 + (x/c)**b)
 def i4PL(y, a, b, c, d):
     return c*((a-d)/(y-d) - 1)**(1/b)
-m4PL = Model(f4PL, i4PL, "4PL", ("a", "b", "c", "d"))
+m4PL = Model(f4PL, i4PL, "4PL",
+    ("a", "b", "c", "d"), "log", "log")
 
 # 5-parameter logistic
 def f5PL(x, a, b, c, d, g):
     return d + (a - d)/(1 + (x/c)**b)**g
 def i5PL(y, a, b, c, d, g):
     return c*(((a-d)/(y-d))**(1/g) - 1)**(1/b)
-m5PL = Model(f5PL, i5PL, "5PL", ("a", "b", "c", "d", "g"))
+m5PL = Model(f5PL, i5PL, "5PL",
+    ("a", "b", "c", "d", "g"), "log", "log")
 
 model_list = [mLINEAR, mHILL, mLOGISTIC, m4PL, m5PL]
 model_dict = {model.name: model for model in model_list}
@@ -332,8 +351,8 @@ def regress(model, x, y, inverse=False, weights="1/y^2",
     elif weights == "1":
         sigma = None
     else:
-        raise NotImplementedError("The weighting scheme " + str(weights)
-                                  + " does not exist. Please try another one.")
+        raise NotImplementedError(_error_text(
+            ["weighting scheme", weights], "implementation"))
     kwarg_names = ["p0", "sigma", "bounds", "method"]
     kwargs = dict()
     for k, kwarg in enumerate([p0, sigma, bounds, method]):
@@ -491,6 +510,10 @@ class CalCurve:
     @classmethod
     def from_data(cls, x, y, model, lod_sds=3, force_lod=False, inverse=False,
             weights="1/y^2", p0=None, bounds=None, method=None, corr="c4"):
+        """
+        Create calibration curve from data.
+
+        """
         x_flat = flatten(x, on_bad_data="error")
         y_flat = flatten(y, on_bad_data="error")
         coefs = regress(model=model, x=x_flat, y=y_flat, inverse=inverse,
@@ -501,7 +524,10 @@ class CalCurve:
             coefs=coefs, sds=lod_sds, corr=corr)
         return cal_curve
 
-#    @classmethod
-#    def from_function(cls, fun=None, inverse=None, lod=-np.inf,
-#            ulod=np.inf, lod_sds=3, force_lod=False):
-#        return cls(fun, (), lod, ulod, lod_sds, force_lod)
+    @classmethod
+    def from_function(cls, fun=None, inverse=None, lod=-np.inf,
+            ulod=np.inf, lod_sds=3, force_lod=False, 
+            xscale="linear", yscale="linear"):
+        model = Model(fun=fun, inverse=inverse, 
+            xscale=xscale, yscale=yscale)
+        return cls(model=model, lod=lod, lod_sds=lod_sds, force_lod=force_lod)

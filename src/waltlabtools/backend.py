@@ -24,6 +24,8 @@ def _error_text(error_inputs, error_type):
             `[provided_collection, desired_collection, plural_title]`.
             - "coercion": `error_inputs` should be of the form
             `[initial_data_type, flattened_data_type]`. 
+            - "implementation": `error_inputs` should be of the form
+            `[argument_keyword, provided_argument]`. 
    
     Returns
     -------
@@ -45,6 +47,10 @@ def _error_text(error_inputs, error_type):
         error_text = ("Input data were coerced from type "
             + str(error_inputs[0]) + " to type " + str(error_inputs[1])
             + ", but could not be coerced to an ndarray.")
+    elif (error_type == "implementation"):
+        error_text = ("The " + str(error_inputs[0]) + " "
+            + str(error_inputs[1])
+            + " does not exist. Please try another one.")
     else:
         error_text = "An unknown error occurred with " + str(error_inputs)
     return error_text
