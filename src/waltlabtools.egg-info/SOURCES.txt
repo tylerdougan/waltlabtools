@@ -1,0 +1,12 @@
+LICENSE
+README.md
+pyproject.toml
+setup.cfg
+src/waltlabtools/__init__.py
+src/waltlabtools/backend.py
+src/waltlabtools/waltlabtools.py
+src/waltlabtools.egg-info/PKG-INFO
+src/waltlabtools.egg-info/SOURCES.txt
+src/waltlabtools.egg-info/dependency_links.txt
+src/waltlabtools.egg-info/requires.txt
+src/waltlabtools.egg-info/top_level.txt
