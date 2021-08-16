@@ -1,30 +1,33 @@
 # IMPORT MODULES
 
 import warnings
+import sys
 
-try:
+if "jax" in sys.modules.keys():
     import jax.numpy as np
-    print("Loaded waltlabtools using jax.")
-except Exception:
+    from jax import jit
+else:
     import numpy as np
-    print("Loaded waltlabtools using numpy.")
+    def jit(fun):
+        return fun
 
 import scipy.optimize as opt
 import scipy.special as spec
 
-from backend import isiterable, _match_coefs, _error_text
+from .nonnumeric import isiterable, _match_coefs, _error_text
+
+
+TF_CPP_MIN_LOG_LEVEL = 0
 
 
 def flatten(data, on_bad_data="warn"):
-    """
-    Flattens most data structures. Will flatten to a 1D
-    ndarray if possible, or otherwise to a list of primitives.
+    """Flattens most data structures.
    
-    Parameters:
+    Parameters
     ----------
     `data` : any
         The data structure to be flattened. Can also be a primitive.
-    `on_bad_data` : `{"error", "ignore", "warn"}`, optional
+    `on_bad_data` : {"error", "ignore", "warn"}, optional
         Specifies what to do when the data cannot be coerced to an
         ndarray. Options are as follows:
             - `"error"` : Raises a TypeError if data cannot be coerced
@@ -37,9 +40,9 @@ def flatten(data, on_bad_data="warn"):
    
     Returns
     -------
-    `flattened_array` : 1D ndarray, list, or primitive
+    `flattened_data` : array, list, or primitive
         Flattened version of `data`. If `on_bad_data="error"`, always
-        an ndarray.
+        an array.
    
     """
     try:
@@ -73,32 +76,43 @@ def flatten(data, on_bad_data="warn"):
 
 
 def aeb(fon):
-    """
-    Converts the fraction of beads which are "on" (F_on) to the average
-    number of enzymes per bead (AEB) using Poisson statistics. Inverse
-    of `fon`.
+    """The average number of enzymes per bead.
+
+    Converts the fraction of on-beads (fon) to the average number of
+    enzymes per bead (AEB) using Poisson statistics. The formula used
+    is `aeb = -log(1 - fon)`.
    
-    Parameters:
+    Parameters
     ----------
     `fon` : numeric or array-like
         A scalar or array of fractions of beads which are "on."
    
     Returns
     -------
-    `aeb` : same as input
-        The average number of enzymes per bead.
+    `aeb` : same as input, or array
+        The average number of enzymes per bead. If `fon` is array-like,
+        then `aeb` will be an array.
+
+
+    See Also
+    --------
+    `fon` : inverse of `aeb`
    
     """
-    return -np.log(1 - fon)
+    try:
+        return -np.log(1 - fon)
+    except TypeError:
+        return -np.log(1 - flatten(fon, on_bad_data="ignore"))
 
 
 def fon(aeb):
-    """
-    Converts the average number of enzymes per bead (AEB) to the the
-    fraction of beads which are "on" (F_on) using Poisson statistics.
-    Inverse of `aeb`.
+    """The fraction of beads which are on.
+
+    Converts the average enzymes per bead (AEB) to the fraction of
+    on-beads (fon) using Poisson statistics. The formula used is
+    `fon = 1 - exp(-aeb)`.
    
-    Parameters:
+    Parameters
     ----------
     `aeb` : numeric or array-like
         A scalar or array of the average number of enzymes per bead.
@@ -107,56 +121,66 @@ def fon(aeb):
     -------
     `aeb` : same as input
         The fractions of beads which are "on."
+
+    See Also
+    --------
+    `aeb` : inverse of `fon`
    
     """
-    return 1 - np.exp(-aeb)
+    try:
+        return 1 - np.exp(-aeb)
+    except TypeError:
+        return 1 - np.exp(-flatten(fon, on_bad_data="ignore"))
 
 
 def c4(n):
-    """
-    Returns the factor c4 which corrects for the bias in estimating the
-    standard deviation of a population. Without this correction, it
-    may erroneously appear that adding more samples increases the
-    standard deviation.
+    """The factor c4 for unbiased estimation of the standard deviation.
+
+    For a finite sample, the sample standard deviation tends to
+    underestimate the population standard deviation. See, e.g.,
+    <www.spcpress.com/pdf/DJW353.pdf> for details. Dividing the sample
+    standard deviation by c4 gives an unbiased estimator of the
+    population standard deviation.
    
-    Parameters:
+    Parameters
     ----------
     `n` : numeric or array-like
         The number of samples.
    
     Returns
     -------
-    `corr_factor` : same as input
+    numeric or array-like
         The correction factor, usually written c4 or b(n).
    
     """
-    try:
-        corr_factor = np.sqrt(2/(n-1)) * spec.gamma(n/2) / spec.gamma((n-1)/2)
-    except NameError:
-        warnings.warn("Gamma function not available. Using n-1.5 instead.")
-        corr_factor = np.sqrt((n-1.5) / (n-1))
-    return corr_factor
+    return np.sqrt(2/(n-1)) * spec.gamma(n/2) / spec.gamma((n-1)/2)
 
 
 class Model:
-    """
-    Mathematical model for calibration curve fitting.
+    """Mathematical model for calibration curve fitting.
+
+    A `Model` is an object with a function and its inverse, with one or
+    more free parameters that can be fit to calibration curve data.
    
-    Parameters:
+    Parameters
     ----------
     `fun` : function
         Forward functional form. Should be a function which takes in
-        `x` and other parameters and returns `y`.
+        `x` and other parameters and returns `y`. The first parameter of
+        `fun` should be `x`, and the remaining parameters should be the
+        coefficients which are fit to the data (typically floats).
     `inverse` : function
         Inverse functional form. Should be a function which takes in
-        `y` and other parameters and returns `x`.
+        `y` and other parameters and returns `x`. The first parameter of
+        `inverse` should be `y`, and the remaining parameters should be
+        the same coefficients as in `fun`.
     `name` : str
         The name of the function. For example, "4PL" or "linear".
     `params` : list-like of str
         The names of the parameters for the function. This should be
         the same length as the number of arguments which `fun` and
         `inverse` take after their inputs `x` and `y`, respectively.
-    `xscale`, `yscale` : {"linear", "log", "symlog", "logit"}
+    `xscale`, `yscale` : {"linear", "log", "symlog", "logit"}, optional
         The natural scaling transformations for x and y. For example,
         "log" means that the data may be distributed log-normally and
         be best visualized on a log scale. Defaults to "linear".
@@ -170,10 +194,6 @@ class Model:
         self.params = params
         self.xscale = xscale
         self.yscale = yscale
-#        self.grad = grad(self.fun,
-#            argnums=tuple(range(len(self.params)+1)))
-#        self.invgrad = grad(self.inverse,
-#            argnums=tuple(range(len(self.params)+1)))
 
     def __iter__(self):
         return self.params
@@ -235,9 +255,7 @@ model_dict = {model.name: model for model in model_list}
 # CURVE FITTING
 
 def _match_model(model_name):
-    """
-    Starting with a string, match the model name which is a key in
-    `model_dict`.
+    """Return a Model object from a string matching its name.
    
     Parameters:
     ----------
@@ -254,7 +272,9 @@ def _match_model(model_name):
         
     """
     if isinstance(model_name, Model):
-        named_model = model_name        
+        named_model = model_name 
+    elif model_name in model_dict.keys():
+        named_model = model_dict[model_name]
     else:
         m = str(model_name)
         if m in model_dict.keys():
@@ -277,10 +297,8 @@ def _match_model(model_name):
 
 def regress(model, x, y, inverse=False, weights="1/y^2",
             p0=None, bounds=None, method=None):
-    """
-    Base function for performing regressions. Basically a wrapper for
-    `scipy.optimize.curve_fit`.
-   
+    """Perform a (nonlinear) regression and return coefficients.
+
     Parameters:
     ----------
     `model` : waltlabtools.Model or str
@@ -328,6 +346,10 @@ def regress(model, x, y, inverse=False, weights="1/y^2",
         Optimal values for the parameters so that the sum of the
         squared residuals of f(xdata, *popt) - ydata is minimized.
 
+    See Also
+    --------
+    `scipy.optimize.curve_fit` : backend function used by `regress`
+
     """
     if inverse == "both":
         return [regress(model, x, y, inverse=True, weights=weights, p0=p0,
@@ -367,8 +389,7 @@ def regress(model, x, y, inverse=False, weights="1/y^2",
 
 def lod(blank_signal, inverse_fun, coefs=None, sds=3, corr="c4"):
     """
-    Computes the limit of detection (LOD) given a calibration curve and
-    blank signal.
+    Compute the limit of detection (LOD).
     
     Parameters:
     ----------
@@ -425,6 +446,10 @@ def lod(blank_signal, inverse_fun, coefs=None, sds=3, corr="c4"):
     -------
     `lod_x` : numeric
         The limit of detection, in units of x (typically concentration).
+
+    See Also
+    --------
+    `c4` : unbiased estimation of the population standard deviation
    
     """
     blank_array = flatten(blank_signal)
@@ -452,8 +477,10 @@ def lod(blank_signal, inverse_fun, coefs=None, sds=3, corr="c4"):
 # CLASSES
 
 class CalCurve:
-    """
-    Calibration curve.
+    """Calibration curve.
+
+    A calibration curve is the result of regressing the calibrator data
+    with a specific functional form.
    
     Parameters:
     ----------
@@ -531,3 +558,71 @@ class CalCurve:
         model = Model(fun=fun, inverse=inverse, 
             xscale=xscale, yscale=yscale)
         return cls(model=model, lod=lod, lod_sds=lod_sds, force_lod=force_lod)
+
+
+def gmnd(data):
+    """Geometric meandian.
+
+    For details, see <https://xkcd.com/2435/>. This function compares
+    the three most common measures of central tendency for a given
+    dataset: the arithmetic mean, the geometric mean, and the median.
+
+    Parameters
+    ----------
+    `data` : array-like
+        The data for which to take the measure of central tendency.
+   
+    Returns
+    -------
+    `central_tendencies` : dict of str -> float
+        The measures of central tendency, ordered by their distance
+        from the geometric meandian. Its keys are:
+            - `"gmnd"` : geometric meandian (always first)
+            - `"arithmetic"` : arithmetic mean
+            - `"geometric"` : geometric mean
+            - `"median"` : median
+
+    """
+    flat_data = flatten(data)
+    data_amin = np.amin(flat_data)
+    if not data_amin > 0:
+        warnings.warn(_error_text([data_amin], "nonpositive"))
+    mean_ = np.nanmean(flat_data)
+    geomean_ = np.exp(np.nanmean(np.log(flat_data)))
+    median_ = np.nanmedian(flat_data)
+    data_i = np.asarray((mean_, geomean_, median_))
+    converged = False
+    while not converged:
+        data_i, converged = _gmnd_f(data_i)
+    gmnd_ = data_i[0]
+    avgs = np.asarray([gmnd_, mean_, geomean_, median_])
+    errors = abs(np.repeat(gmnd_, 4) - avgs)
+    named_errors = sorted(zip(
+        errors, ["gmnd", "arithmetic", "geometric", "median"], avgs))
+    central_tendencies = {ne[1]: ne[2] for ne in named_errors}
+    return central_tendencies
+
+
+@jit
+def _gmnd_f(data_i):
+    """Backend geometric meandian.
+
+    Parameters
+    ----------
+    `data_i` : ndarray of length 3
+        The current iteration's arithmetic mean, geometric mean, and
+        median.
+
+    Returns
+    -------
+    `data_iplus1` : ndarray of length 3
+        The next iteration's arithmetic mean, geometric mean, and
+        median.
+   
+    """
+    mean_ = np.nanmean(data_i)
+    geomean_ = np.exp(np.mean(np.log(data_i)))
+    median_ = np.nanmedian(data_i)
+    data_iplus1 = np.asarray((mean_, geomean_, median_))
+    converged = np.all(data_iplus1 == data_i)
+    return data_iplus1, converged

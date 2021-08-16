@@ -10,8 +10,7 @@ def _len_for_message(collection):
 
 
 def _error_text(error_inputs, error_type):
-    """
-    Return the text for an error.
+    """Text for an error.
    
     Parameters:
     ----------
@@ -26,6 +25,7 @@ def _error_text(error_inputs, error_type):
             `[initial_data_type, flattened_data_type]`. 
             - "implementation": `error_inputs` should be of the form
             `[argument_keyword, provided_argument]`. 
+            - "nonpositive": `error_inputs` should be 
    
     Returns
     -------
@@ -47,10 +47,15 @@ def _error_text(error_inputs, error_type):
         error_text = ("Input data were coerced from type "
             + str(error_inputs[0]) + " to type " + str(error_inputs[1])
             + ", but could not be coerced to an ndarray.")
-    elif (error_type == "implementation"):
+    elif (error_type == "implementation") and (len(error_inputs) >= 2):
         error_text = ("The " + str(error_inputs[0]) + " "
             + str(error_inputs[1])
             + " does not exist. Please try another one.")
+    elif (error_type == "nonpositive") and (len(error_inputs) >= 2):
+        error_text = ("Geometric mean requires all numbers to be nonnegative. "
+            + "Because the data provided included " + str(error_inputs[0])
+            + ", the geometric meandian is unlikely to provide any insight.")
+
     else:
         error_text = "An unknown error occurred with " + str(error_inputs)
     return error_text
@@ -58,8 +63,7 @@ def _error_text(error_inputs, error_type):
 
 # GENERAL FUNCTIONS
 def Id(x):
-    """
-    The identity function.
+    """The identity function.
    
     Parameters:
     ----------
@@ -75,9 +79,10 @@ def Id(x):
 
 
 def isiterable(data):
-    """
-    Determines whether an object is iterable, as determined by it
-    having a nonzero length and not being a string.
+    """Determines whether an object is iterable.
+
+    Here, an object is iterable if it has a nonzero length and is not
+    a string.
    
     Parameters:
     ----------
@@ -86,7 +91,7 @@ def isiterable(data):
     Returns
     -------
     `iterable` : bool
-        Returns `True` iff `data` is not a string, has `len`, and
+        Returns `True` if `data` is not a string, has `len`, and
         `len(data) > 0`.
        
     """

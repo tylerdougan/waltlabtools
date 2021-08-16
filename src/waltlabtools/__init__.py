@@ -1,3 +1,2 @@
-from . import waltlabtools
+from .backend import *
 from .waltlabtools import *
-from . import backend
