@@ -12,7 +12,7 @@ def _len_for_message(collection):
 def _error_text(error_inputs, error_type):
     """Text for an error.
    
-    Parameters:
+    Parameters
     ----------
     `error_inputs` : list-like
         The information required to construct the error message. Depends
@@ -64,16 +64,16 @@ def _error_text(error_inputs, error_type):
 # GENERAL FUNCTIONS
 def Id(x):
     """The identity function.
-   
-    Parameters:
+    
+    Parameters
     ----------
     `x` : any
-   
+    
     Returns
     -------
     `x` : same as `x`
         The same `x`, unchanged.
-       
+    
     """
     return x
 
@@ -84,7 +84,7 @@ def isiterable(data):
     Here, an object is iterable if it has a nonzero length and is not
     a string.
    
-    Parameters:
+    Parameters
     ----------
     `data` : any
    

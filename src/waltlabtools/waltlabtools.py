@@ -257,7 +257,7 @@ model_dict = {model.name: model for model in model_list}
 def _match_model(model_name):
     """Return a Model object from a string matching its name.
    
-    Parameters:
+    Parameters
     ----------
     `model` : str or waltlabtools.Model
         Model name or waltlabtools.Model. Ideally a member of 
@@ -299,7 +299,7 @@ def regress(model, x, y, inverse=False, weights="1/y^2",
             p0=None, bounds=None, method=None):
     """Perform a (nonlinear) regression and return coefficients.
 
-    Parameters:
+    Parameters
     ----------
     `model` : waltlabtools.Model or str
         The functional model to use. Should be a valid
@@ -391,7 +391,7 @@ def lod(blank_signal, inverse_fun, coefs=None, sds=3, corr="c4"):
     """
     Compute the limit of detection (LOD).
     
-    Parameters:
+    Parameters
     ----------
     `blank_signal` : array_like
         Signal (e.g., average number of enzymes per bead, AEB) of the
@@ -482,7 +482,7 @@ class CalCurve:
     A calibration curve is the result of regressing the calibrator data
     with a specific functional form.
    
-    Parameters:
+    Parameters
     ----------
     `model` : waltlabtools.Model
         Mathematical model used.
