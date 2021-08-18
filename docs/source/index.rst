@@ -22,6 +22,9 @@ A collection of tools for biomedical research assay analysis in Python.
 
    waltlabtools.core
    waltlabtools.nonnumeric
+   core
+   nonnumeric
+   waltlabtools
 
 
 .. toctree::

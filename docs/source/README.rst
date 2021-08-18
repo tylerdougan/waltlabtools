@@ -40,7 +40,7 @@ Functions and Classes
 .. include:: /generated/waltlabtools.nonnumeric.rst
    :start-line: 3
 
------
+
 
 Development of **waltlabtools** is led by the `Walt
 Lab <https://waltlab.bwh.harvard.edu>`__ for Advanced Diagnostics at
