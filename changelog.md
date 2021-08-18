@@ -6,3 +6,10 @@
 
 0.2.14
  - bug fix
+
+0.2.31
+ - renamed `waltlabtools` module to `core`
+
+0.2.32
+ - ReadTheDocs test
+ 

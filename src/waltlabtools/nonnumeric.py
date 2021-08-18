@@ -1,5 +1,11 @@
+"""
+:noindex:
+
+"""
+
 # Functions and classes that do not have dependencies.
 # (_len_for_message, _error_text, I, isiterable, match_coefs)
+
 
 def _len_for_message(collection):
     try:
@@ -14,26 +20,29 @@ def _error_text(error_inputs, error_type):
    
     Parameters
     ----------
-    `error_inputs` : list-like
+    error_inputs : list-like
         The information required to construct the error message. Depends
-        on the `error_type`.
-    `error_type` : str
+        on the **error_type**.
+    error_type : ``str``
         The type of error to be returned. Should be one of:
-            - `"length": `error_inputs` should be of the form
-            `[provided_collection, desired_collection, plural_title]`.
-            - "coercion": `error_inputs` should be of the form
-            `[initial_data_type, flattened_data_type]`. 
-            - "implementation": `error_inputs` should be of the form
-            `[argument_keyword, provided_argument]`. 
-            - "nonpositive": `error_inputs` should be 
+
+            - "length": **error_inputs** should be of the form
+              `[provided_collection, desired_collection, plural_title]`.
+
+            - "coercion": **error_inputs** should be of the form
+              `[initial_data_type, flattened_data_type]`. 
+
+            - "implementation": **error_inputs** should be of the
+              form `[argument_keyword, provided_argument]`.
+
+            - "nonpositive": **error_inputs** should be of the form 
    
     Returns
     -------
-    `error_text` : str
+    error_text : ``str``
         An error message.
 
     """
-
     if (error_type == "length") and (len(error_inputs) >= 3):
         provided_len = _len_for_message(error_inputs[0])
         desired_len = _len_for_message(error_inputs[1])
@@ -67,12 +76,12 @@ def Id(x):
     
     Parameters
     ----------
-    `x` : any
+    x : any
     
     Returns
     -------
-    `x` : same as `x`
-        The same `x`, unchanged.
+    x : same as input
+        The same **x**, unchanged.
     
     """
     return x
@@ -86,13 +95,13 @@ def isiterable(data):
    
     Parameters
     ----------
-    `data` : any
+    data : any
    
     Returns
     -------
-    `iterable` : bool
-        Returns `True` if `data` is not a string, has `len`, and
-        `len(data) > 0`.
+    iterable : ``bool``
+        Returns True if **data** is not a string and has a length that
+        is greater than zero.
        
     """
     try:

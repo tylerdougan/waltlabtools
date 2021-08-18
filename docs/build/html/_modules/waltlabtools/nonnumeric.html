@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>waltlabtools.nonnumeric &mdash; waltlabtools 0.2.31 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> waltlabtools
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../README.html">waltlabtools</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.core.html">waltlabtools.core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.nonnumeric.html">waltlabtools.nonnumeric</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.html">Full waltlabtools API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">waltlabtools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>waltlabtools.nonnumeric</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for waltlabtools.nonnumeric</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Functions and classes that do not have dependencies.</span>
+<span class="c1"># (_len_for_message, _error_text, I, isiterable, match_coefs)</span>
+
+<span class="k">def</span> <span class="nf">_len_for_message</span><span class="p">(</span><span class="n">collection</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">str_len</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">collection</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">str_len</span> <span class="o">=</span> <span class="s2">&quot;an unknown number of&quot;</span>
+    <span class="k">return</span> <span class="n">str_len</span>
+
+
+<span class="k">def</span> <span class="nf">_error_text</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">,</span> <span class="n">error_type</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Text for an error.</span>
+<span class="sd">   </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    error_inputs : list-like</span>
+<span class="sd">        The information required to construct the error message. Depends</span>
+<span class="sd">        on the **error_type**.</span>
+<span class="sd">    error_type : ``str``</span>
+<span class="sd">        The type of error to be returned. Should be one of:</span>
+
+<span class="sd">            - &quot;length&quot;: **error_inputs** should be of the form</span>
+<span class="sd">              `[provided_collection, desired_collection, plural_title]`.</span>
+
+<span class="sd">            - &quot;coercion&quot;: **error_inputs** should be of the form</span>
+<span class="sd">              `[initial_data_type, flattened_data_type]`. </span>
+
+<span class="sd">            - &quot;implementation&quot;: **error_inputs** should be of the</span>
+<span class="sd">              form `[argument_keyword, provided_argument]`.</span>
+
+<span class="sd">            - &quot;nonpositive&quot;: **error_inputs** should be of the form </span>
+<span class="sd">   </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    error_text : ``str``</span>
+<span class="sd">        An error message.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">error_type</span> <span class="o">==</span> <span class="s2">&quot;length&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="n">provided_len</span> <span class="o">=</span> <span class="n">_len_for_message</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">desired_len</span> <span class="o">=</span> <span class="n">_len_for_message</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">title_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">error_text</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Incorrect length. Wrong number of &quot;</span> <span class="o">+</span> <span class="n">title_str</span>
+            <span class="o">+</span> <span class="s2">&quot;. The function requires &quot;</span> <span class="o">+</span> <span class="n">desired_len</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">title_str</span> 
+            <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;. You provided a&quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">+</span> <span class="s2">&quot; with &quot;</span> <span class="o">+</span> <span class="n">provided_len</span>
+            <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">title_str</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">error_type</span> <span class="o">==</span> <span class="s2">&quot;coercion&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">error_text</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Input data were coerced from type &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; to type &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="o">+</span> <span class="s2">&quot;, but could not be coerced to an ndarray.&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">error_type</span> <span class="o">==</span> <span class="s2">&quot;implementation&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">error_text</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;The &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="o">+</span> <span class="s2">&quot; does not exist. Please try another one.&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">error_type</span> <span class="o">==</span> <span class="s2">&quot;nonpositive&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">error_text</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Geometric mean requires all numbers to be nonnegative. &quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;Because the data provided included &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="o">+</span> <span class="s2">&quot;, the geometric meandian is unlikely to provide any insight.&quot;</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">error_text</span> <span class="o">=</span> <span class="s2">&quot;An unknown error occurred with &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">error_text</span>
+
+
+<span class="c1"># GENERAL FUNCTIONS</span>
+<div class="viewcode-block" id="Id"><a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.nonnumeric.Id">[docs]</a><span class="k">def</span> <span class="nf">Id</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The identity function.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : any</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    x : same as input</span>
+<span class="sd">        The same **x**, unchanged.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">x</span></div>
+
+
+<div class="viewcode-block" id="isiterable"><a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.nonnumeric.isiterable">[docs]</a><span class="k">def</span> <span class="nf">isiterable</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determines whether an object is iterable.</span>
+
+<span class="sd">    Here, an object is iterable if it has a nonzero length and is not</span>
+<span class="sd">    a string.</span>
+<span class="sd">   </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : any</span>
+<span class="sd">   </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    iterable : ``bool``</span>
+<span class="sd">        Returns True if **data** is not a string and has a length that</span>
+<span class="sd">        is greater than zero.</span>
+<span class="sd">       </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<span class="k">def</span> <span class="nf">_match_coefs</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">coefs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">coefs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> 
+            <span class="ow">and</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">coefs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">params</span><span class="p">))):</span>
+        <span class="n">coefs_dict</span> <span class="o">=</span> <span class="n">coefs</span>
+    <span class="k">elif</span> <span class="n">isiterable</span><span class="p">(</span><span class="n">coefs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coefs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+            <span class="n">coefs_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">coefs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coefs</span><span class="p">))}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">_error_text</span><span class="p">([</span><span class="n">coefs</span><span class="p">,</span> <span class="n">params</span><span class="p">],</span> <span class="s2">&quot;length&quot;</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">coefs_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">coefs</span><span class="p">}</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="n">params</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">coefs</span><span class="p">):</span>
+        <span class="n">coefs_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">_error_text</span><span class="p">([</span><span class="n">coefs</span><span class="p">,</span> <span class="n">params</span><span class="p">],</span> <span class="s2">&quot;length&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">coefs_dict</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Tyler Dougan.
+
+    </p>
+  </div> 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

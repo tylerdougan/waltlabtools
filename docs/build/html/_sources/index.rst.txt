@@ -1,20 +1,43 @@
 .. waltlabtools documentation master file, created by
-   sphinx-quickstart on Mon Aug 16 01:24:17 2021.
+   sphinx-quickstart on Wed Aug 18 12:29:17 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to waltlabtools's documentation!
-========================================
+waltlabtools
+============
+
+.. currentmodule:: waltlabtools
+
+A collection of tools for biomedical research assay analysis in Python.
+
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :caption: Introduction
+
+   README
 
 
+.. toctree::
+   :caption: Modules
 
-Indices and tables
-==================
+   waltlabtools.core
+   waltlabtools.nonnumeric
+
+
+.. toctree::
+   :caption: API
+
+   waltlabtools
+
+Info
+----
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
+
+----
+
+Development of **waltlabtools** is led by the `Walt
+Lab <https://waltlab.bwh.harvard.edu>`__ for Advanced Diagnostics at
+Brigham and Women's Hospital, Harvard Medical School, and the Wyss
+Institute.

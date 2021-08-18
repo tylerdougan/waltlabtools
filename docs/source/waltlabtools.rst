@@ -1,29 +1,20 @@
-waltlabtools package
-====================
+Full waltlabtools API
+=====================
 
-Submodules
-----------
+waltlabtools.core
+-----------------
 
-waltlabtools.nonnumeric module
-------------------------------
+.. automodule:: waltlabtools.core
+   :members:
+   :noindex:
+   :undoc-members:
+   :show-inheritance:
+
+waltlabtools.nonnumeric
+-----------------------
 
 .. automodule:: waltlabtools.nonnumeric
    :members:
-   :undoc-members:
-   :show-inheritance:
-
-waltlabtools.waltlabtools module
---------------------------------
-
-.. automodule:: waltlabtools.waltlabtools
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: waltlabtools
-   :members:
+   :noindex:
    :undoc-members:
    :show-inheritance:

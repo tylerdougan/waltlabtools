@@ -1,2 +1,2 @@
 from .nonnumeric import *
-from .waltlabtools import *
+from .core import *

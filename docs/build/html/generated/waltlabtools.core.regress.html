@@ -1,0 +1,262 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>waltlabtools.core.regress &mdash; waltlabtools 0.2.31 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> waltlabtools
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">waltlabtools</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../waltlabtools.core.html">waltlabtools.core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../waltlabtools.nonnumeric.html">waltlabtools.nonnumeric</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../waltlabtools.html">Full waltlabtools API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">waltlabtools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>waltlabtools.core.regress</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/generated/waltlabtools.core.regress.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="waltlabtools-core-regress">
+<h1>waltlabtools.core.regress<a class="headerlink" href="#waltlabtools-core-regress" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="waltlabtools.core.regress">
+<span class="sig-name descname"><span class="pre">regress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1/y^2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/waltlabtools/core.html#regress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.core.regress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a (nonlinear) regression and return coefficients.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>model</strong> (<code class="docutils literal notranslate"><span class="pre">Model</span></code> or <code class="docutils literal notranslate"><span class="pre">str</span></code>) -- The functional model to use. Should be a valid <code class="docutils literal notranslate"><span class="pre">Model</span></code> object
+or a string referring to a built-in <code class="docutils literal notranslate"><span class="pre">Model</span></code>.</p></li>
+<li><p><strong>x</strong> (<em>array-like</em>) -- The independent variable, e.g., concentration.</p></li>
+<li><p><strong>y</strong> (<em>array-like</em>) -- The dependent variable, e.g., fluorescence.</p></li>
+<li><p><strong>use_inverse</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, default False) -- Should <code class="docutils literal notranslate"><span class="pre">x</span></code> be regressed as a function of <code class="docutils literal notranslate"><span class="pre">y</span></code> instead?</p></li>
+<li><p><strong>weights</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code> or array-like, default &quot;1/y^2&quot;) -- Weights to be used. If array-like, should be the same size as
+<strong>x</strong> and <strong>y</strong>. Otherwise, can be one of the following:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>&quot;1/y^2&quot; : Inverse-squared (1/y^2) weighting.</p></li>
+<li><p>&quot;1&quot; : Equal weighting for all data points.</p></li>
+</ul>
+</div></blockquote>
+<p>Other strings raise a <code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code>.</p>
+</li>
+<li><p><strong>p0</strong> (<em>array-like, optional</em>) -- Initial guess for the parameters. If provided, must have the
+same length as the number of parameters. If None, then the
+initial values will all be 1 (if the number of parameters for
+the function can be determined using introspection,
+otherwise a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> is raised).</p></li>
+<li><p><strong>bounds</strong> (<em>2-tuple of array-like, optional</em>) -- Lower and upper bounds on parameters. Defaults to no bounds.
+Each element of the tuple must be either an array with the
+length equal to the number of parameters, or a scalar (in
+which case the bound is taken to be the same for all
+parameters). Use np.inf with an appropriate sign to disable
+bounds on all or some parameters.</p></li>
+<li><p><strong>method</strong> (<em>{&quot;lm&quot;, &quot;trf&quot;, &quot;dogbox&quot;}, optional</em>) -- Method to use for optimization. See
+scipy.optimize.least_squares for more details. Default is
+&quot;lm&quot; for unconstrained problems and &quot;trf&quot; if bounds are
+provided. The method &quot;lm&quot; won’t work when the number of
+observations is less than the number of variables; use
+&quot;trf&quot; or &quot;dogbox&quot; in this case.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>popt</strong> (<em>array</em>) -- Optimal values for the parameters so that the sum of the
+squared residuals is minimized.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.optimize.curve_fit</span></code></dt><dd><p>backend function used by <code class="docutils literal notranslate"><span class="pre">regress</span></code></p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Tyler Dougan.
+
+    </p>
+  </div> 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
