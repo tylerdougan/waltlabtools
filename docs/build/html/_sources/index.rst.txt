@@ -18,19 +18,11 @@ A collection of tools for biomedical research assay analysis in Python.
 
 
 .. toctree::
-   :caption: Modules
-
-   waltlabtools.core
-   waltlabtools.nonnumeric
-   core
-   nonnumeric
-   waltlabtools
-
-
-.. toctree::
    :caption: API
+   :glob:
 
-   waltlabtools
+   generated/*
+
 
 Info
 ----
