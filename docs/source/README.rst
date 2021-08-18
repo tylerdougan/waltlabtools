@@ -16,13 +16,13 @@ Key Features
 Installation
 ------------
 
--  Download **waltlabtools** from
+-  Download ``waltlabtools`` from
    `PyPI <https://pypi.org/project/waltlabtools/>`__.
--  Dependencies: **waltlabtools** requires
+-  Dependencies: ``waltlabtools`` requires
    `scipy <https://docs.scipy.org/doc/scipy/getting_started.html>`__ ≥
    1.3.1, and either `jax <https://jax.readthedocs.io/en/latest/>`__ ≥
    0.1.64 or `numpy <https://numpy.org/doc/stable/index.html>`__ ≥
-   1.10.0. To make the best use of **waltlabtools**, you may want to
+   1.10.0. To make the best use of ``waltlabtools``, you may want to
    install `pandas <https://pandas.pydata.org>`__ (for data
    import/export and organization),
    `matplotlib <https://matplotlib.org>`__ (for plotting), and
@@ -35,14 +35,14 @@ Functions and Classes
 ---------------------
 
 .. include:: /generated/waltlabtools.core.rst
-   :start-line: 3
+   :start-line: 2
 
 .. include:: /generated/waltlabtools.nonnumeric.rst
-   :start-line: 3
+   :start-line: 2
 
 
 
-Development of **waltlabtools** is led by the `Walt
+Development of ``waltlabtools`` is led by the `Walt
 Lab <https://waltlab.bwh.harvard.edu>`__ for Advanced Diagnostics at
 Brigham and Women's Hospital, Harvard Medical School, and the Wyss
 Institute.

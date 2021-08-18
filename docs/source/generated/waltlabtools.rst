@@ -21,12 +21,3 @@ waltlabtools.nonnumeric module
    :members:
    :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: waltlabtools
-   :noindex:
-   :members:
-   :undoc-members:
-   :show-inheritance:
