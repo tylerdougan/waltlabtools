@@ -363,9 +363,9 @@ def regress(model, x, y, use_inverse=False, weights="1/y^2",
 
     """
     if use_inverse == "both":
-        return [regress(model, x, y, inverse=True, weights=weights, p0=p0,
+        return [regress(model, x, y, use_inverse=True, weights=weights, p0=p0,
                 bounds=bounds, method=method),
-            regress(model, x, y, inverse=True, weights=weights, p0=p0,
+            regress(model, x, y, use_inverse=True, weights=weights, p0=p0,
                 bounds=bounds, method=method)]
     else:
         valid_model = _match_model(model)
@@ -670,8 +670,9 @@ class CalCurve:
         """
         x_flat = flatten(x, on_bad_data="error")
         y_flat = flatten(y, on_bad_data="error")
-        coefs = regress(model=model, x=x_flat, y=y_flat, inverse=use_inverse,
-            weights=weights, p0=p0, bounds=bounds, method=method)
+        coefs = regress(model=model, x=x_flat, y=y_flat, 
+            use_inverse=use_inverse, weights=weights, p0=p0, bounds=bounds,
+            method=method)
         cal_curve = cls(model=model, coefs=coefs, lod_sds=lod_sds, 
             force_lod=force_lod)
         cal_curve.lod = lod(y_flat[x_flat == 0], cal_curve.inverse, 
