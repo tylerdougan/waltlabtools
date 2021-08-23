@@ -22,6 +22,12 @@ sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../"))
 sys.path.insert(0, os.path.abspath(".."))
 
+with open(os.path.abspath('../../setup.cfg'), "r", encoding="utf-8") as scfg:
+    for line in scfg:
+        if line.startswith("version = "):
+            release = line.split()[-1]
+            break
+
 # -- Project information -----------------------------------------------------
 
 project = 'waltlabtools'
@@ -29,7 +35,6 @@ copyright = '2021, Tyler Dougan'
 author = 'Tyler Dougan'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.36'
 
 
 # -- General configuration ---------------------------------------------------

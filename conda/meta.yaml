@@ -1,10 +1,17 @@
+{% set name = "waltlabtools" %}
+{% set version = "0.2.36" %}
+
 package:
-  name: waltlabtools
-  version: 0.2.35
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
 
 source:
-  git_url: https://github.com/tylerdougan/waltlabtools.git
-  url: https://github.com/tylerdougan/waltlabtools/archive/refs/tags/v0.2.34.tar.gz
+  url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
+  sha256: 154e553229153d6d1e5e78319d5a5a3533cb84915ac41eff8429a43f1d0a63a9
+
+build:
+  number: 0
+  script: "{{ PYTHON }} -m pip install . -vv"
 
 requirements:
   build:
@@ -13,7 +20,9 @@ requirements:
     - numpy >=1.10.0
     - scipy >=1.3.1
     - pandas >=0.25.0
-
+  host:
+    - pip
+    - python >=3.6
   run:
     - python >=3.6
     - numpy >=1.10.0
@@ -25,6 +34,13 @@ test:
     - waltlabtools
 
 about:
-  home: https://waltlabtools.readthedocs.io
-  license: GPL-3.0-only
+  home: "https://github.com/tylerdougan/waltlabtools"
+  license: "GNU General Public v3 (GPLv3)"
+  license_family: GPL3
+  license_file: 
+  summary: "A collection of tools for biomedical research assay analysis in Python."
+  doc_url: "https://waltlabtools.readthedocs.io"
 
+extra:
+  recipe-maintainers:
+    - tylerdougan

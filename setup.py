@@ -3,9 +3,15 @@ import setuptools
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+with open("setup.cfg", "r", encoding="utf-8") as scfg:
+    for line in scfg:
+        if line.startswith("version = "):
+            version = line.split()[-1]
+            break
+
 setuptools.setup(
     name="waltlabtools",
-    version="0.2.36",
+    version=version,
     author="Tyler Dougan",
     author_email="author@example.com",
     description="A collection of tools for biomedical research assay analysis in Python.",
