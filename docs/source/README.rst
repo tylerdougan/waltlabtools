@@ -26,7 +26,9 @@ Installation
    `conda <https://anaconda.org/tylerdougan/waltlabtools>`__ or from
    `pip <https://pypi.org/project/waltlabtools/>`__. In the command
    line,
+
    - conda: ``conda install -c tylerdougan waltlabtools``
+
    - pip: ``pip install waltlabtools``
 
 -  Dependencies: ``waltlabtools`` requires
