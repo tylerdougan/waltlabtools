@@ -2,9 +2,9 @@
 title: waltlabtools
 ---
 
-![image](https://anaconda.org/tylerdougan/waltlabtools/badges/platforms.svg)
+[![Platforms](https://anaconda.org/tylerdougan/waltlabtools/badges/version.svg)](https://anaconda.org/tylerdougan/waltlabtools)
 
-![image](https://anaconda.org/tylerdougan/waltlabtools/badges/downloads.svg)
+[![downloads](https://anaconda.org/tylerdougan/waltlabtools/badges/platforms.svg)](https://anaconda.org/tylerdougan/waltlabtools)
 
 A collection of tools for biomedical research assay analysis in Python.
 
