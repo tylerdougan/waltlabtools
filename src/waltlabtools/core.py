@@ -19,7 +19,7 @@ else:
 import scipy.optimize as opt
 import scipy.special as spec
 
-from .nonnumeric import isiterable, _match_coefs, _error_text
+from .nonnumeric import _match_coefs, _error_text
 
 
 TF_CPP_MIN_LOG_LEVEL = 0
@@ -53,14 +53,10 @@ def flatten(data, on_bad_data="warn"):
     try:
         return np.ravel(np.asarray(data))
     except Exception:
-        if isiterable(data):
+        if hasattr(data, "__iter__"):
             flattened_data = []
-            if hasattr(data, "iteritems"):
-                iterator = data.iteritems()
-            else:
-                iterator = enumerate(data)
-            for __, datum in iterator:
-                if isiterable(datum):
+            for datum in data:
+                if hasattr(datum, "__iter__"):
                     flattened_data.extend(flatten(datum))
                 else:
                     flattened_data.append(datum)
@@ -69,16 +65,14 @@ def flatten(data, on_bad_data="warn"):
         try:
             return np.asarray(flattened_data)
         except Exception:
-            if on_bad_data == "ignore":
-                return flattened_data
-            else:
+            if on_bad_data != "ignore":
                 error_text = _error_text(
                     [type(data), type(flattened_data)], "coercion")
                 if on_bad_data == "error":
                     raise TypeError(error_text)
                 else:
                     warnings.warn(error_text, Warning)
-                    return flattened_data
+            return flattened_data
 
 
 def aeb(fon):
@@ -97,7 +91,6 @@ def aeb(fon):
     -------
     aeb : same as input, or array
         The average number of enzymes per bead.
-
 
     See Also
     --------
@@ -299,10 +292,9 @@ def _match_model(model_name):
             if len(matches) == 1:
                 named_model = model_dict[matches[0]]
             elif len(matches) > 1:
-                raise KeyError("Model " + m
-                    + " not found. Did you mean one of " + str(matches) + "?")
+                raise KeyError(_error_text([m, str(matches)], "_match_model"))
             else:
-                raise KeyError("Model " + m + " not found.")
+                raise KeyError(_error_text([m], "_match_model"))
     return named_model
 
 
@@ -362,35 +354,30 @@ def regress(model, x, y, use_inverse=False, weights="1/y^2",
     scipy.optimize.curve_fit : backend function used by ``regress``
 
     """
-    if use_inverse == "both":
-        return [regress(model, x, y, use_inverse=True, weights=weights, p0=p0,
-                bounds=bounds, method=method),
-            regress(model, x, y, use_inverse=True, weights=weights, p0=p0,
-                bounds=bounds, method=method)]
+    named_model = _match_model(model)
+    if use_inverse:
+        calibration_function = named_model.inverse
+        xdata = flatten(y)
+        ydata = flatten(x)
     else:
-        valid_model = _match_model(model)
-        if use_inverse:
-            calibration_function = valid_model.inverse
-            xdata = flatten(y)
-            ydata = flatten(x)
-        else:
-            calibration_function = valid_model.fun
-            xdata = flatten(x)
-            ydata = flatten(y)
-    if isiterable(weights):
+        calibration_function = named_model.fun
+        xdata = flatten(x)
+        ydata = flatten(y)
+    if hasattr(weights, "__iter__"):
         sigma = flatten(weights)**-2
     elif weights == "1/y^2":
-        sigma = ydata
+        sigma = ydata if not use_inverse else xdata
     elif weights == "1":
         sigma = None
     else:
         raise NotImplementedError(_error_text(
             ["weighting scheme", weights], "implementation"))
-    kwarg_names = ["p0", "sigma", "bounds", "method"]
     kwargs = dict()
-    for k, kwarg in enumerate([p0, sigma, bounds, method]):
+    for kwarg_name, kwarg in zip(
+            ["p0", "sigma", "bounds", "method"],
+            [p0, sigma, bounds, method]):
         if kwarg is not None:
-            kwargs[kwarg_names[k]] = kwarg
+            kwargs[kwarg_name] = kwarg
     popt, pcov = opt.curve_fit(f=calibration_function,
                                xdata=xdata,
                                ydata=ydata,
@@ -450,17 +437,15 @@ def lod(blank_signal, inverse_fun=None, sds=3, corr="c4"):
    
     """
     blank_array = flatten(blank_signal)
-    n = len(blank_array)
     try:
         ddof = {"n": 0, "n-1": 1, "n-1.5": 1.5, "c4": 1}[corr]
     except KeyError:
         try:
             ddof = float(corr)
-        except Exception:
-            raise ValueError("Not able to convert corr=" + str(corr)
-                             + " into degrees of freedom for standard "
-                             + "deviation.")
-    corr_factor = c4(n) if (corr == "c4") else 1
+        except ValueError:
+            raise ValueError(
+                _error_text([corr, "correction factor"], "implementation"))
+    corr_factor = c4(len(blank_array)) if (corr == "c4") else 1
     mean = np.mean(blank_array)
     stdev = np.std(blank_array, ddof=ddof)/corr_factor
     lod_y = mean + sds*stdev
@@ -500,7 +485,7 @@ class CalCurve:
     def __init__(self, model=None, coefs=(), lod=-np.inf, lod_sds=3, 
             force_lod=False):
         self.model = _match_model(model)
-        self.coefs = _match_coefs(self.model.params, coefs)
+        self.coefs = _match_coefs(model.params, coefs)
         self.lod = lod
         self.lod_sds = lod_sds
         self.force_lod = force_lod
@@ -658,7 +643,7 @@ class CalCurve:
                   deviation.
 
                 - "c4" : Divide by the correction factor to yield the
-                exact unbiased sample standard deviation.
+                  exact unbiased sample standard deviation.
 
                 - If numeric, gives the delta degrees of freedom.
                 
@@ -676,11 +661,11 @@ class CalCurve:
         cal_curve = cls(model=model, coefs=coefs, lod_sds=lod_sds, 
             force_lod=force_lod)
         cal_curve.lod = lod(y_flat[x_flat == 0], cal_curve.inverse, 
-            coefs=coefs, sds=lod_sds, corr=corr)
+            sds=lod_sds, corr=corr)
         return cal_curve
 
     @classmethod
-    def from_function(cls, fun=None, inverse=None, lod=-np.inf, lod_sds=3,
+    def from_function(cls, fun, inverse, lod=-np.inf, lod_sds=3,
             force_lod=False, xscale="linear", yscale="linear"):
         """Constructs a calibration curve from a function.
 
@@ -755,7 +740,7 @@ def gmnd(data):
         data_i, converged = _gmnd_f(data_i)
     gmnd_ = data_i[0]
     avgs = np.asarray([gmnd_, mean_, geomean_, median_])
-    errors = abs(np.repeat(gmnd_, 4) - avgs)
+    errors = abs(np.repeat(gmnd_, 4) - avgs) - np.asarray([1, 0, 0, 0])
     named_errors = sorted(zip(
         errors, ["gmnd", "arithmetic", "geometric", "median"], avgs))
     central_tendencies = {ne[1]: ne[2] for ne in named_errors}

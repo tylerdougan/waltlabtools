@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>waltlabtools package &mdash; waltlabtools 0.2.34 documentation</title>
+  <title>waltlabtools package &mdash; waltlabtools 0.2.36 documentation</title>
   
 
   
@@ -288,10 +288,8 @@ yield the square root of the unbiased sample variance.</p></li>
 <li><p>&quot;n-1.5&quot; : Divide by the number of samples minus 1.5
 to yield the approximate unbiased sample standard
 deviation.</p></li>
-<li><p>&quot;c4&quot; : Divide by the correction factor to yield the</p></li>
-</ul>
-<p>exact unbiased sample standard deviation.</p>
-<ul class="simple">
+<li><p>&quot;c4&quot; : Divide by the correction factor to yield the
+exact unbiased sample standard deviation.</p></li>
 <li><p>If numeric, gives the delta degrees of freedom.</p></li>
 </ul>
 </div></blockquote>
@@ -306,7 +304,7 @@ deviation.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod_sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_lod</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/waltlabtools/core.html#CalCurve.from_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod_sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_lod</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/waltlabtools/core.html#CalCurve.from_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Constructs a calibration curve from a function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -661,23 +659,6 @@ squared residuals is minimized.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>x</strong> (<em>same as input</em>) -- The same <strong>x</strong>, unchanged.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">isiterable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/waltlabtools/nonnumeric.html#isiterable"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Determines whether an object is iterable.</p>
-<p>Here, an object is iterable if it has a nonzero length and is not
-a string.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>any</em>)</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>iterable</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>) -- Returns True if <strong>data</strong> is not a string and has a length that
-is greater than zero.</p>
 </dd>
 </dl>
 </dd></dl>

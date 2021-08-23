@@ -1,0 +1,30 @@
+package:
+  name: waltlabtools
+  version: 0.2.35
+
+source:
+  git_url: https://github.com/tylerdougan/waltlabtools.git
+  url: https://github.com/tylerdougan/waltlabtools/archive/refs/tags/v0.2.34.tar.gz
+
+requirements:
+  build:
+    - python >=3.6
+    - setuptools
+    - numpy >=1.10.0
+    - scipy >=1.3.1
+    - pandas >=0.25.0
+
+  run:
+    - python >=3.6
+    - numpy >=1.10.0
+    - scipy >=1.3.1
+    - pandas >=0.25.0
+
+test:
+  imports:
+    - waltlabtools
+
+about:
+  home: https://waltlabtools.readthedocs.io
+  license: GPL-3.0-only
+

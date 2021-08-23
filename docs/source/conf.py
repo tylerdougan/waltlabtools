@@ -29,7 +29,7 @@ copyright = '2021, Tyler Dougan'
 author = 'Tyler Dougan'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.34'
+release = '0.2.36'
 
 
 # -- General configuration ---------------------------------------------------

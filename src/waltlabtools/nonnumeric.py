@@ -35,7 +35,11 @@ def _error_text(error_inputs, error_type):
             - "implementation": **error_inputs** should be of the
               form `[argument_keyword, provided_argument]`.
 
-            - "nonpositive": **error_inputs** should be of the form 
+            - "nonpositive": **error_inputs** should be of the form
+              `[nonpositive_values]`.
+
+            - "_match_model": **error_inputs** should be of the form
+              `[m]` or `[m, matches]`.
    
     Returns
     -------
@@ -47,7 +51,7 @@ def _error_text(error_inputs, error_type):
         provided_len = _len_for_message(error_inputs[0])
         desired_len = _len_for_message(error_inputs[1])
         title_str = str(error_inputs[2])
-        error_text = ("Incorrect length. Wrong number of " + title_str
+        error_text = ("Incorrect input size. Wrong number of " + title_str
             + ". The function requires " + desired_len + " " + title_str 
             + ": " + str(error_inputs[1]) + ". You provided a"
             + str(type(error_inputs[0])) + " with " + provided_len
@@ -57,14 +61,17 @@ def _error_text(error_inputs, error_type):
             + str(error_inputs[0]) + " to type " + str(error_inputs[1])
             + ", but could not be coerced to an ndarray.")
     elif (error_type == "implementation") and (len(error_inputs) >= 2):
-        error_text = ("The " + str(error_inputs[0]) + " "
-            + str(error_inputs[1])
-            + " does not exist. Please try another one.")
-    elif (error_type == "nonpositive") and (len(error_inputs) >= 2):
+        error_text = (str(error_inputs[0]) + " is not a valid "
+            + str(error_inputs[1]) + ". Please try another one.")
+    elif (error_type == "nonpositive") and (len(error_inputs) >= 1):
         error_text = ("Geometric mean requires all numbers to be nonnegative. "
             + "Because the data provided included " + str(error_inputs[0])
             + ", the geometric meandian is unlikely to provide any insight.")
-
+    elif (error_type == "_match_model") and (len(error_inputs) >= 1):
+        error_text = "Model " + error_inputs[0] + " not found."
+        if len(error_inputs) >= 2:
+            error_text = (error_text
+                + " Did you mean one of " + str(error_inputs[1]) + "?")
     else:
         error_text = "An unknown error occurred with " + str(error_inputs)
     return error_text
@@ -87,34 +94,13 @@ def Id(x):
     return x
 
 
-def isiterable(data):
-    """Determines whether an object is iterable.
-
-    Here, an object is iterable if it has a nonzero length and is not
-    a string.
-   
-    Parameters
-    ----------
-    data : any
-   
-    Returns
-    -------
-    iterable : ``bool``
-        Returns True if **data** is not a string and has a length that
-        is greater than zero.
-       
-    """
-    try:
-        return ((len(data) > 0) and not isinstance(data, str))
-    except Exception:
-        return False
-
-
 def _match_coefs(params, coefs):
-    if (isinstance(coefs, dict) 
-            and (set(coefs.keys()) == set(params))):
-        coefs_dict = coefs
-    elif isiterable(coefs):
+    if isinstance(coefs, dict):
+        if set(coefs.keys()) == set(params):
+            coefs_dict = coefs
+        else:
+            raise ValueError(_error_text([coefs, params], "length"))
+    elif hasattr(coefs, "__iter__"):
         if len(coefs) == len(params):
             coefs_dict = {params[i]: coefs[i] for i in range(len(coefs))}
         else:

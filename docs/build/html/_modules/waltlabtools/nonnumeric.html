@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>waltlabtools.nonnumeric &mdash; waltlabtools 0.2.34 documentation</title>
+  <title>waltlabtools.nonnumeric &mdash; waltlabtools 0.2.36 documentation</title>
   
 
   
@@ -209,7 +209,11 @@
 <span class="sd">            - &quot;implementation&quot;: **error_inputs** should be of the</span>
 <span class="sd">              form `[argument_keyword, provided_argument]`.</span>
 
-<span class="sd">            - &quot;nonpositive&quot;: **error_inputs** should be of the form </span>
+<span class="sd">            - &quot;nonpositive&quot;: **error_inputs** should be of the form</span>
+<span class="sd">              `[nonpositive_values]`.</span>
+
+<span class="sd">            - &quot;_match_model&quot;: **error_inputs** should be of the form</span>
+<span class="sd">              `[m]` or `[m, matches]`.</span>
 <span class="sd">   </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -221,7 +225,7 @@
         <span class="n">provided_len</span> <span class="o">=</span> <span class="n">_len_for_message</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">desired_len</span> <span class="o">=</span> <span class="n">_len_for_message</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">title_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-        <span class="n">error_text</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Incorrect length. Wrong number of &quot;</span> <span class="o">+</span> <span class="n">title_str</span>
+        <span class="n">error_text</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Incorrect input size. Wrong number of &quot;</span> <span class="o">+</span> <span class="n">title_str</span>
             <span class="o">+</span> <span class="s2">&quot;. The function requires &quot;</span> <span class="o">+</span> <span class="n">desired_len</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">title_str</span> 
             <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;. You provided a&quot;</span>
             <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">+</span> <span class="s2">&quot; with &quot;</span> <span class="o">+</span> <span class="n">provided_len</span>
@@ -231,14 +235,17 @@
             <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; to type &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="o">+</span> <span class="s2">&quot;, but could not be coerced to an ndarray.&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="p">(</span><span class="n">error_type</span> <span class="o">==</span> <span class="s2">&quot;implementation&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
-        <span class="n">error_text</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;The &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span>
-            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="o">+</span> <span class="s2">&quot; does not exist. Please try another one.&quot;</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="p">(</span><span class="n">error_type</span> <span class="o">==</span> <span class="s2">&quot;nonpositive&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">error_text</span> <span class="o">=</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; is not a valid &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;. Please try another one.&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">error_type</span> <span class="o">==</span> <span class="s2">&quot;nonpositive&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">error_text</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Geometric mean requires all numbers to be nonnegative. &quot;</span>
             <span class="o">+</span> <span class="s2">&quot;Because the data provided included &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="o">+</span> <span class="s2">&quot;, the geometric meandian is unlikely to provide any insight.&quot;</span><span class="p">)</span>
-
+    <span class="k">elif</span> <span class="p">(</span><span class="n">error_type</span> <span class="o">==</span> <span class="s2">&quot;_match_model&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">error_text</span> <span class="o">=</span> <span class="s2">&quot;Model &quot;</span> <span class="o">+</span> <span class="n">error_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; not found.&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">error_text</span> <span class="o">=</span> <span class="p">(</span><span class="n">error_text</span>
+                <span class="o">+</span> <span class="s2">&quot; Did you mean one of &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;?&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">error_text</span> <span class="o">=</span> <span class="s2">&quot;An unknown error occurred with &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error_inputs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">error_text</span>
@@ -261,34 +268,13 @@
     <span class="k">return</span> <span class="n">x</span></div>
 
 
-<div class="viewcode-block" id="isiterable"><a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.nonnumeric.isiterable">[docs]</a><span class="k">def</span> <span class="nf">isiterable</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Determines whether an object is iterable.</span>
-
-<span class="sd">    Here, an object is iterable if it has a nonzero length and is not</span>
-<span class="sd">    a string.</span>
-<span class="sd">   </span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data : any</span>
-<span class="sd">   </span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    iterable : ``bool``</span>
-<span class="sd">        Returns True if **data** is not a string and has a length that</span>
-<span class="sd">        is greater than zero.</span>
-<span class="sd">       </span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
-    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
-
-
 <span class="k">def</span> <span class="nf">_match_coefs</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">coefs</span><span class="p">):</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">coefs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> 
-            <span class="ow">and</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">coefs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">params</span><span class="p">))):</span>
-        <span class="n">coefs_dict</span> <span class="o">=</span> <span class="n">coefs</span>
-    <span class="k">elif</span> <span class="n">isiterable</span><span class="p">(</span><span class="n">coefs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coefs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">coefs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+            <span class="n">coefs_dict</span> <span class="o">=</span> <span class="n">coefs</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">_error_text</span><span class="p">([</span><span class="n">coefs</span><span class="p">,</span> <span class="n">params</span><span class="p">],</span> <span class="s2">&quot;length&quot;</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">coefs</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coefs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
             <span class="n">coefs_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">coefs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coefs</span><span class="p">))}</span>
         <span class="k">else</span><span class="p">:</span>
