@@ -19,11 +19,11 @@ Key Features
 -  Free and open-source software under the
    `GNU General Public License v3 <https://www.gnu.org/licenses/gpl-3.0.en.html>`__.
 
-Installation
-------------
+Getting Started
+---------------
 
--  ``waltlabtools`` can be installed using
-   `conda <https://anaconda.org/tylerdougan/waltlabtools>`__ or from
+-  Installation: ``waltlabtools`` can be installed using
+   `conda <https://anaconda.org/tylerdougan/waltlabtools>`__ or
    `pip <https://pypi.org/project/waltlabtools/>`__. In the command
    line,
 
@@ -38,10 +38,10 @@ Installation
    1.10.0. To make the best use of ``waltlabtools``, you may want to
    install `pandas <https://pandas.pydata.org>`__ (for data
    import/export and organization),
-   `scikit-learn <https://scikit-learn.org/stable/>`__, 
-   `matplotlib <https://matplotlib.org>`__ (for plotting), and
-   `JupyterLab <https://jupyterlab.readthedocs.io/en/stable/>`__ (for
-   writing code). These can all be installed using
+   `scikit-learn <https://scikit-learn.org/stable/>`__ (for data
+   analysis), `matplotlib <https://matplotlib.org>`__ (for plotting),
+   and `JupyterLab <https://jupyterlab.readthedocs.io/en/stable/>`__
+   (for writing code). These can all be installed using
    `conda <https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html>`__
    or `pip <https://pypi.org>`__, and may become dependencies in future
    releases.
@@ -49,12 +49,14 @@ Installation
 Functions and Classes
 ---------------------
 
-``waltlabtools`` includes classes for mathematical models and
+API: ``waltlabtools`` includes classes for mathematical models and
 calibration curves, and a set of functions to make use of these objects
-and others.
+and others. These are covered in the
+`documentation <https://waltlabtools.readthedocs.io/README.html>`__.
 
 .. include:: /generated/waltlabtools.core.rst
    :start-line: 2
+   :alt: Hello World
 
 .. include:: /generated/waltlabtools.nonnumeric.rst
    :start-line: 2
