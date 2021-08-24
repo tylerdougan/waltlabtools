@@ -1,3 +1,20 @@
+Metadata-Version: 2.1
+Name: waltlabtools
+Version: 0.2.39
+Summary: A collection of tools for biomedical research assay analysis in Python.
+Home-page: https://github.com/tylerdougan/waltlabtools
+Author: Tyler Dougan
+Author-email: author@example.com
+License: UNKNOWN
+Project-URL: Bug Tracker, https://github.com/tylerdougan/waltlabtools/issues
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
 waltlabtools
 ============
 
@@ -10,9 +27,6 @@ waltlabtools
 .. image:: https://anaconda.org/tylerdougan/waltlabtools/badges/platforms.svg
    :target: https://anaconda.org/tylerdougan/waltlabtools
    :alt: Platforms
-.. image:: https://readthedocs.org/projects/waltlabtools/badge/?version=latest
-   :target: https://waltlabtools.readthedocs.io/?badge=latest
-   :alt: Documentation Status
 A collection of tools for biomedical research assay analysis in Python.
 
 Key Features
@@ -28,8 +42,7 @@ Key Features
 Getting Started
 ---------------
 
--  The full documentation is at
-   `Read the Docs <https://waltlabtools.readthedocs.io>`__.
+-  The full documentation is at `<https://waltlabtools.readthedocs.io>`__.
 -  Installation: ``waltlabtools`` can be installed using
    `conda <https://anaconda.org/tylerdougan/waltlabtools>`__ or
    `pip <https://pypi.org/project/waltlabtools/>`__. In the command
@@ -59,7 +72,7 @@ Functions and Classes
 
 The ``waltlabtools`` package includes classes for mathematical models
 and calibration curves, and a set of functions to make use of these
-objects and others. These are all covered in the
+objects and others. These are covered in the
 `documentation <https://waltlabtools.readthedocs.io/README.html>`__.
 
 .. include:: /generated/waltlabtools.core.rst
@@ -77,3 +90,5 @@ Development of ``waltlabtools`` is led by the
 at `Brigham and Women's Hospital <https://www.brighamandwomens.org>`__,
 `Harvard Medical School <https://hms.harvard.edu>`__, and the
 `Wyss Institute for Biologically Inspired Engineering <https://wyss.harvard.edu>`__.
+
+
