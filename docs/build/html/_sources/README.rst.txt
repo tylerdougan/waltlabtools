@@ -1,12 +1,15 @@
 waltlabtools
 ============
 
-.. image:: https://anaconda.org/tylerdougan/waltlabtools/badges/platforms.svg
+.. image:: https://anaconda.org/tylerdougan/waltlabtools/badges/installer/conda.svg
    :target: https://anaconda.org/tylerdougan/waltlabtools
-   :alt: Platforms
+   :alt: Install with conda
 .. image:: https://anaconda.org/tylerdougan/waltlabtools/badges/downloads.svg
    :target: https://anaconda.org/tylerdougan/waltlabtools
    :alt: downloads
+.. image:: https://anaconda.org/tylerdougan/waltlabtools/badges/platforms.svg
+   :target: https://anaconda.org/tylerdougan/waltlabtools
+   :alt: Platforms
 A collection of tools for biomedical research assay analysis in Python.
 
 Key Features
@@ -22,6 +25,7 @@ Key Features
 Getting Started
 ---------------
 
+-  The full documentation is at `<https://waltlabtools.readthedocs.io>`__.
 -  Installation: ``waltlabtools`` can be installed using
    `conda <https://anaconda.org/tylerdougan/waltlabtools>`__ or
    `pip <https://pypi.org/project/waltlabtools/>`__. In the command
@@ -49,9 +53,9 @@ Getting Started
 Functions and Classes
 ---------------------
 
-API: ``waltlabtools`` includes classes for mathematical models and
-calibration curves, and a set of functions to make use of these objects
-and others. These are covered in the
+The ``waltlabtools`` package includes classes for mathematical models
+and calibration curves, and a set of functions to make use of these
+objects and others. These are covered in the
 `documentation <https://waltlabtools.readthedocs.io/README.html>`__.
 
 .. include:: /generated/waltlabtools.core.rst
