@@ -1,5 +1,5 @@
 {% set name = "waltlabtools" %}
-{% set version = "0.2.36" %}
+{% set version = "0.2.39" %}
 
 package:
   name: "{{ name|lower }}"
@@ -7,7 +7,6 @@ package:
 
 source:
   url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
-  sha256: 154e553229153d6d1e5e78319d5a5a3533cb84915ac41eff8429a43f1d0a63a9
 
 build:
   number: 0
@@ -37,9 +36,10 @@ about:
   home: "https://github.com/tylerdougan/waltlabtools"
   license: "GNU General Public v3 (GPLv3)"
   license_family: GPL3
-  license_file: 
+  license_file: LICENSE
   summary: "A collection of tools for biomedical research assay analysis in Python."
   doc_url: "https://waltlabtools.readthedocs.io"
+  doc_source_url: https://github.com/tylerdougan/waltlabtools/blob/main/README.rst
 
 extra:
   recipe-maintainers:

@@ -56,7 +56,6 @@ and others. These are covered in the
 
 .. include:: /generated/waltlabtools.core.rst
    :start-line: 2
-   :alt: Hello World
 
 .. include:: /generated/waltlabtools.nonnumeric.rst
    :start-line: 2
