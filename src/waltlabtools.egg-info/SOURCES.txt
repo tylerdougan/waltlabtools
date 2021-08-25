@@ -6,6 +6,7 @@ setup.py
 src/waltlabtools/__init__.py
 src/waltlabtools/core.py
 src/waltlabtools/nonnumeric.py
+src/waltlabtools/read.py
 src/waltlabtools.egg-info/PKG-INFO
 src/waltlabtools.egg-info/SOURCES.txt
 src/waltlabtools.egg-info/dependency_links.txt

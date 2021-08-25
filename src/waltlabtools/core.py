@@ -191,8 +191,9 @@ class Model:
         log-normally and are best visualized on a log scale.
    
     """
-    def __init__(self, fun=None, inverse=None, name="", params=(),
-            xscale="linear", yscale="linear"):
+    def __init__(self, fun=None, inverse=None, name: str = "", params=(),
+            xscale: {"linear", "log", "symlog", "logit"}= "linear",
+            yscale: {"linear", "log", "symlog", "logit"} = "linear"):
         self.fun = fun
         self.inverse = inverse
         self.name = name
@@ -259,7 +260,7 @@ model_dict = {model.name: model for model in model_list}
 
 # CURVE FITTING
 
-def _match_model(model_name):
+def _match_model(model_name) -> Model:
     """Returns a ``Model`` object from a string matching its name.
    
     Parameters
@@ -298,7 +299,7 @@ def _match_model(model_name):
     return named_model
 
 
-def regress(model, x, y, use_inverse=False, weights="1/y^2",
+def regress(model, x, y, use_inverse: bool = False, weights="1/y^2",
             p0=None, bounds=None, method=None):
     """Performs a (nonlinear) regression and return coefficients.
 
@@ -363,15 +364,16 @@ def regress(model, x, y, use_inverse=False, weights="1/y^2",
         calibration_function = named_model.fun
         xdata = flatten(x)
         ydata = flatten(y)
-    if hasattr(weights, "__iter__"):
-        sigma = flatten(weights)**-2
-    elif weights == "1/y^2":
+    if weights == "1/y^2":
         sigma = ydata if not use_inverse else xdata
     elif weights == "1":
         sigma = None
     else:
-        raise NotImplementedError(_error_text(
-            ["weighting scheme", weights], "implementation"))
+        try:
+            sigma = flatten(weights)**-2
+        except Exception:
+            raise NotImplementedError(_error_text(
+                ["weighting scheme", weights], "implementation"))
     kwargs = dict()
     for kwarg_name, kwarg in zip(
             ["p0", "sigma", "bounds", "method"],
@@ -574,8 +576,8 @@ class CalCurve:
         return self.coefs
 
     @classmethod
-    def from_data(cls, x, y, model, lod_sds=3, force_lod=False,
-            use_inverse=False, weights="1/y^2", p0=None, bounds=None,
+    def from_data(cls, x, y, model, lod_sds=3, force_lod: bool = False,
+            use_inverse: bool = False, weights="1/y^2", p0=None, bounds=None,
             method=None, corr="c4"):
         """Constructs a calibration curve from data.
 
@@ -665,8 +667,10 @@ class CalCurve:
         return cal_curve
 
     @classmethod
-    def from_function(cls, fun, inverse, lod=-np.inf, lod_sds=3,
-            force_lod=False, xscale="linear", yscale="linear"):
+    def from_function(cls, fun, inverse, lod: float = -np.inf, lod_sds=3,
+            force_lod=False, 
+            xscale: {"linear", "log", "symlog", "logit"}= "linear",
+            yscale: {"linear", "log", "symlog", "logit"}= "linear"):
         """Constructs a calibration curve from a function.
 
         Parameters

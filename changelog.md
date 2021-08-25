@@ -13,3 +13,5 @@
 0.2.32
  - ReadTheDocs test
  
+0.2.40
+ - Added type hints

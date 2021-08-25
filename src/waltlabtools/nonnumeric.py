@@ -7,7 +7,7 @@
 # (_len_for_message, _error_text, I, isiterable, match_coefs)
 
 
-def _len_for_message(collection):
+def _len_for_message(collection) -> str:
     try:
         str_len = str(len(collection))
     except Exception:
@@ -15,7 +15,7 @@ def _len_for_message(collection):
     return str_len
 
 
-def _error_text(error_inputs, error_type):
+def _error_text(error_inputs: list, error_type: str) -> str:
     """Text for an error.
    
     Parameters
@@ -94,7 +94,7 @@ def Id(x):
     return x
 
 
-def _match_coefs(params, coefs):
+def _match_coefs(params, coefs) -> dict:
     if isinstance(coefs, dict):
         if set(coefs.keys()) == set(params):
             coefs_dict = coefs
