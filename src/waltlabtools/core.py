@@ -487,7 +487,7 @@ class CalCurve:
     def __init__(self, model=None, coefs=(), lod=-np.inf, lod_sds=3, 
             force_lod=False):
         self.model = _match_model(model)
-        self.coefs = _match_coefs(model.params, coefs)
+        self.coefs = _match_coefs(self.model.params, coefs)
         self.lod = lod
         self.lod_sds = lod_sds
         self.force_lod = force_lod

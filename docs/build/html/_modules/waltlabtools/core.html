@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>waltlabtools.core &mdash; waltlabtools 0.2.40 documentation</title>
+  <title>waltlabtools.core &mdash; waltlabtools 0.2.41 documentation</title>
   
 
   
@@ -661,7 +661,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coefs</span><span class="o">=</span><span class="p">(),</span> <span class="n">lod</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">lod_sds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> 
             <span class="n">force_lod</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">_match_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">coefs</span> <span class="o">=</span> <span class="n">_match_coefs</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">coefs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coefs</span> <span class="o">=</span> <span class="n">_match_coefs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">coefs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lod</span> <span class="o">=</span> <span class="n">lod</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lod_sds</span> <span class="o">=</span> <span class="n">lod_sds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">force_lod</span> <span class="o">=</span> <span class="n">force_lod</span>
