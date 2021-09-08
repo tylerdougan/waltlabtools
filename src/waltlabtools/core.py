@@ -22,7 +22,8 @@ import scipy.special as spec
 from .nonnumeric import _match_coefs, _error_text
 
 
-TF_CPP_MIN_LOG_LEVEL = 0
+__all__ = ["flatten", "aeb", "fon", "c4", "Model", "model_dict", "regress",
+    "lod", "CalCurve", "gmnd"]
 
 
 def flatten(data, on_bad_data="warn"):

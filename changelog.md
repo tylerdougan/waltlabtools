@@ -15,3 +15,7 @@
  
 0.2.40
  - Added type hints
+
+0.3.0
+ - Added modules read_hdx and mosaic
+ 

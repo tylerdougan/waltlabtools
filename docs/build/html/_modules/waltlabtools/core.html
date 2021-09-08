@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>waltlabtools.core &mdash; waltlabtools 0.2.41 documentation</title>
+  <title>waltlabtools.core &mdash; waltlabtools 0.3.3 documentation</title>
   
 
   
@@ -187,7 +187,7 @@
     <span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">jit</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<div class="viewcode-block" id="jit"><a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.core.jit">[docs]</a>    <span class="k">def</span> <span class="nf">jit</span><span class="p">(</span><span class="n">fun</span><span class="p">):</span>
+<div class="viewcode-block" id="jit"><a class="viewcode-back" href="../../generated/waltlabtools.core.jit.html#waltlabtools.core.jit">[docs]</a>    <span class="k">def</span> <span class="nf">jit</span><span class="p">(</span><span class="n">fun</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">fun</span></div>
 
 <span class="kn">import</span> <span class="nn">scipy.optimize</span> <span class="k">as</span> <span class="nn">opt</span>
@@ -196,7 +196,8 @@
 <span class="kn">from</span> <span class="nn">.nonnumeric</span> <span class="kn">import</span> <span class="n">_match_coefs</span><span class="p">,</span> <span class="n">_error_text</span>
 
 
-<span class="n">TF_CPP_MIN_LOG_LEVEL</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;flatten&quot;</span><span class="p">,</span> <span class="s2">&quot;aeb&quot;</span><span class="p">,</span> <span class="s2">&quot;fon&quot;</span><span class="p">,</span> <span class="s2">&quot;c4&quot;</span><span class="p">,</span> <span class="s2">&quot;Model&quot;</span><span class="p">,</span> <span class="s2">&quot;model_dict&quot;</span><span class="p">,</span> <span class="s2">&quot;regress&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lod&quot;</span><span class="p">,</span> <span class="s2">&quot;CalCurve&quot;</span><span class="p">,</span> <span class="s2">&quot;gmnd&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="flatten"><a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.core.flatten">[docs]</a><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">on_bad_data</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span><span class="p">):</span>

@@ -77,23 +77,6 @@ def _error_text(error_inputs: list, error_type: str) -> str:
     return error_text
 
 
-# GENERAL FUNCTIONS
-def Id(x):
-    """The identity function.
-    
-    Parameters
-    ----------
-    x : any
-    
-    Returns
-    -------
-    x : same as input
-        The same **x**, unchanged.
-    
-    """
-    return x
-
-
 def _match_coefs(params, coefs) -> dict:
     if isinstance(coefs, dict):
         if set(coefs.keys()) == set(params):

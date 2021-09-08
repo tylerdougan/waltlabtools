@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>waltlabtools &mdash; waltlabtools 0.2.41 documentation</title>
+  <title>waltlabtools &mdash; waltlabtools 0.3.3 documentation</title>
   
 
   
@@ -92,7 +92,6 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">waltlabtools</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#key-features">Key Features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#functions-and-classes">Functions and Classes</a></li>
 </ul>
 </li>
 </ul>
@@ -182,42 +181,63 @@
             
   <div class="section" id="waltlabtools">
 <h1>waltlabtools<a class="headerlink" href="#waltlabtools" title="Permalink to this headline">¶</a></h1>
-<a class="reference external image-reference" href="https://anaconda.org/tylerdougan/waltlabtools"><img alt="Anaconda.org version" src="https://anaconda.org/tylerdougan/waltlabtools/badges/version.svg" /></a>
-<a class="reference external image-reference" href="https://anaconda.org/tylerdougan/waltlabtools"><img alt="Install with conda" src="https://anaconda.org/tylerdougan/waltlabtools/badges/installer/conda.svg" /></a>
-<a class="reference external image-reference" href="https://anaconda.org/tylerdougan/waltlabtools"><img alt="downloads" src="https://anaconda.org/tylerdougan/waltlabtools/badges/downloads.svg" /></a>
-<a class="reference external image-reference" href="https://waltlabtools.readthedocs.io/?badge=latest"><img alt="Documentation Status" src="https://readthedocs.org/projects/waltlabtools/badge/?version=latest" /></a>
-<a class="reference external image-reference" href="https://anaconda.org/tylerdougan/waltlabtools"><img alt="Platforms" src="https://anaconda.org/tylerdougan/waltlabtools/badges/platforms.svg" /></a>
+<a class="reference external image-reference" href="https://anaconda.org/tylerdougan/waltlabtools"><img alt="Conda" src="https://img.shields.io/conda/v/tylerdougan/waltlabtools" /></a>
+<a class="reference external image-reference" href="https://pypi.org/project/waltlabtools"><img alt="PyPI" src="https://img.shields.io/pypi/v/waltlabtools?label=PyPI" /></a>
+<a class="reference external image-reference" href="https://waltlabtools.readthedocs.io/README.html"><img alt="Documentation" src="https://readthedocs.org/projects/waltlabtools/badge" /></a>
+<a class="reference external image-reference" href="https://github.com/tylerdougan/waltlabtools"><img alt="GitHub" src="https://img.shields.io/github/repo-size/tylerdougan/waltlabtools?label=GitHub%20repo" /></a>
+<a class="reference external image-reference" href="https://anaconda.org/tylerdougan/waltlabtools"><img alt="Platforms" src="https://img.shields.io/conda/pn/tylerdougan/waltlabtools" /></a>
 <p>A collection of tools for biomedical research assay analysis in Python.</p>
 <div class="section" id="key-features">
 <h2>Key Features<a class="headerlink" href="#key-features" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Analysis for assays such as
-<a class="reference external" href="https://dx.doi.org/10.1038%2Fnbt.1641">digital ELISA</a>.</p></li>
-<li><p>Calculation of calibration curves, concentrations, limits of
-detection, and more.</p></li>
+<a class="reference external" href="http://www.ncbi.nlm.nih.gov/pmc/articles/pmc2919230/">digital ELISA</a></p></li>
+<li><p>Read alculation of calibration curves, concentrations, limits of
+detection, and more</p></li>
 <li><p>Free and open-source software under the
-<a class="reference external" href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License v3</a>.</p></li>
+<a class="reference external" href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License v3</a></p></li>
 </ul>
 </div>
 <div class="section" id="getting-started">
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>The full documentation is at
-<a class="reference external" href="https://waltlabtools.readthedocs.io">Read the Docs</a>.</p></li>
-<li><p>Installation: <code class="docutils literal notranslate"><span class="pre">waltlabtools</span></code> can be installed using
-<a class="reference external" href="https://anaconda.org/tylerdougan/waltlabtools">conda</a> or
-<a class="reference external" href="https://pypi.org/project/waltlabtools/">pip</a>. In the command
-line,</p>
+<a class="reference external" href="https://waltlabtools.readthedocs.io">Read the Docs</a></p></li>
+<li><p>Installation:</p>
 <ul>
-<li><p>conda: <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">tylerdougan</span> <span class="pre">waltlabtools</span></code></p></li>
-<li><p>pip: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">waltlabtools</span></code></p></li>
+<li><p><a class="reference external" href="https://anaconda.org/tylerdougan/waltlabtools">conda</a> (recommended):
+<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">tylerdougan</span> <span class="pre">waltlabtools</span></code></p></li>
+<li><p><a class="reference external" href="https://pypi.org/project/waltlabtools/">PyPI</a>:
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">waltlabtools</span></code></p></li>
 </ul>
 </li>
-<li><p>Dependencies: <code class="docutils literal notranslate"><span class="pre">waltlabtools</span></code> requires
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/getting_started.html">scipy</a> ≥
-1.3.1, and either <a class="reference external" href="https://jax.readthedocs.io/en/latest/">jax</a> ≥
-0.1.64 or <a class="reference external" href="https://numpy.org/doc/stable/index.html">numpy</a> ≥
-1.10.0. To make the best use of <code class="docutils literal notranslate"><span class="pre">waltlabtools</span></code>, you may want to
+<li><p>Dependencies:</p>
+<ul>
+<li><p>waltlabtools requires</p>
+<ul>
+<li><p><a class="reference external" href="https://numpy.org/doc/stable/index.html">numpy</a> ≥ 1.10.0</p></li>
+<li><p><a class="reference external" href="https://docs.scipy.org/doc/scipy/getting_started.html">scipy</a> ≥ 1.3</p></li>
+</ul>
+</li>
+<li><p>Specific modules have additional requirements:</p>
+<ul>
+<li><p>waltlabtools.mosaic requires</p>
+<ul>
+<li><p><a class="reference external" href="https://jax.readthedocs.io/en/latest/">jax</a> ≥ 0.2</p></li>
+<li><p><a class="reference external" href="https://pandas.pydata.org">pandas</a> ≥ 0.25</p></li>
+<li><p><a class="reference external" href="https://scikit-learn.org/stable/">scikit-learn</a> ≥ 0.21</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/dialog.html">tk</a> ≥ 8.5</p></li>
+</ul>
+</li>
+<li><p>waltlabtools.read_hdx requires</p>
+<ul>
+<li><p><a class="reference external" href="https://pandas.pydata.org">pandas</a> ≥ 0.25</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/dialog.html">tk</a> ≥ 8.5</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>To make the best use of waltlabtools, you may want to
 install <a class="reference external" href="https://pandas.pydata.org">pandas</a> (for data
 import/export and organization),
 <a class="reference external" href="https://scikit-learn.org/stable/">scikit-learn</a> (for data
@@ -225,86 +245,12 @@ analysis), <a class="reference external" href="https://matplotlib.org">matplotli
 and <a class="reference external" href="https://jupyterlab.readthedocs.io/en/stable/">JupyterLab</a>
 (for writing code). These can all be installed using
 <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html">conda</a>
-or <a class="reference external" href="https://pypi.org">pip</a>, and may become dependencies in future
-releases.</p></li>
+or <a class="reference external" href="https://pypi.org">pip</a>.</p></li>
 </ul>
-</div>
-<div class="section" id="functions-and-classes">
-<h2>Functions and Classes<a class="headerlink" href="#functions-and-classes" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">waltlabtools</span></code> package includes classes for mathematical models
-and calibration curves, and a set of functions to make use of these
-objects and others. These are all covered in the
-<a class="reference external" href="https://waltlabtools.readthedocs.io/README.html">documentation</a>.</p>
-<span class="target" id="module-waltlabtools.core"></span><dl class="field-list simple">
-<dt class="field-odd">noindex</dt>
-<dd class="field-odd"><p></p></dd>
-</dl>
-<p class="rubric">Functions</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/waltlabtools.core.aeb.html#waltlabtools.core.aeb" title="waltlabtools.core.aeb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aeb</span></code></a>(fon)</p></td>
-<td><p>The average number of enzymes per bead.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/waltlabtools.core.c4.html#waltlabtools.core.c4" title="waltlabtools.core.c4"><code class="xref py py-obj docutils literal notranslate"><span class="pre">c4</span></code></a>(n)</p></td>
-<td><p>Factor <cite>c4</cite> for unbiased estimation of the standard deviation.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/waltlabtools.core.flatten.html#waltlabtools.core.flatten" title="waltlabtools.core.flatten"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten</span></code></a>(data[, on_bad_data])</p></td>
-<td><p>Flattens most data structures.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/waltlabtools.core.fon.html#waltlabtools.core.fon" title="waltlabtools.core.fon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fon</span></code></a>(aeb)</p></td>
-<td><p>The fraction of beads which are on.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/waltlabtools.core.gmnd.html#waltlabtools.core.gmnd" title="waltlabtools.core.gmnd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gmnd</span></code></a>(data)</p></td>
-<td><p>Geometric meandian.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/waltlabtools.core.jit.html#waltlabtools.core.jit" title="waltlabtools.core.jit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">jit</span></code></a>(fun)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/waltlabtools.core.lod.html#waltlabtools.core.lod" title="waltlabtools.core.lod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lod</span></code></a>(blank_signal[, inverse_fun, sds, corr])</p></td>
-<td><p>Compute the limit of detection (LOD).</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/waltlabtools.core.regress.html#waltlabtools.core.regress" title="waltlabtools.core.regress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regress</span></code></a>(model, x, y[, use_inverse, weights, ...])</p></td>
-<td><p>Performs a (nonlinear) regression and return coefficients.</p></td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Classes</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/waltlabtools.core.CalCurve.html#waltlabtools.core.CalCurve" title="waltlabtools.core.CalCurve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CalCurve</span></code></a>([model, coefs, lod, lod_sds, force_lod])</p></td>
-<td><p>Calibration curve.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/waltlabtools.core.Model.html#waltlabtools.core.Model" title="waltlabtools.core.Model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Model</span></code></a></p></td>
-<td><p>Mathematical model for calibration curve fitting.</p></td>
-</tr>
-</tbody>
-</table>
-<span class="target" id="module-waltlabtools.nonnumeric"></span><dl class="field-list simple">
-<dt class="field-odd">noindex</dt>
-<dd class="field-odd"><p></p></dd>
-</dl>
-<p class="rubric">Functions</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/waltlabtools.nonnumeric.Id.html#waltlabtools.nonnumeric.Id" title="waltlabtools.nonnumeric.Id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Id</span></code></a>(x)</p></td>
-<td><p>The identity function.</p></td>
-</tr>
-</tbody>
-</table>
+</li>
+</ul>
 <hr class="docutils" />
-<p>Development of <code class="docutils literal notranslate"><span class="pre">waltlabtools</span></code> is led by the
+<p>Development of waltlabtools is led by the
 <a class="reference external" href="https://waltlab.bwh.harvard.edu">Walt Lab</a> for Advanced Diagnostics
 at <a class="reference external" href="https://www.brighamandwomens.org">Brigham and Women's Hospital</a>,
 <a class="reference external" href="https://hms.harvard.edu">Harvard Medical School</a>, and the
