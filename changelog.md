@@ -21,3 +21,6 @@
  
 0.3.4
  - Added docs_requires.txt
+
+0.3.5
+ - Removed unnecessary tkinter requirement
