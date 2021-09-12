@@ -19,3 +19,5 @@
 0.3.0
  - Added modules read_hdx and mosaic
  
+0.3.4
+ - Added docs_requires.txt
