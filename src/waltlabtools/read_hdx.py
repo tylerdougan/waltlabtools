@@ -1,3 +1,8 @@
+"""
+:noindex:
+
+"""
+
 # Functions for reading in instrument data.
 
 import pandas as pd

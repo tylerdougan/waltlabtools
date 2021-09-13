@@ -62,13 +62,9 @@ Getting Started
 
        - `scikit-learn <https://scikit-learn.org/stable/>`__ ≥ 0.21
 
-       - `tk <https://docs.python.org/3/library/dialog.html>`__ ≥ 8.5      
-
      - waltlabtools.read_hdx requires
 
        - `pandas <https://pandas.pydata.org>`__ ≥ 0.25
-
-       - `tk <https://docs.python.org/3/library/dialog.html>`__ ≥ 8.5      
 
    - To make the best use of waltlabtools, you may want to
      install `pandas <https://pandas.pydata.org>`__ (for data
