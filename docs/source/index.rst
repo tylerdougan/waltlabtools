@@ -17,7 +17,7 @@ A collection of tools for biomedical research assay analysis in Python.
    README
    waltlabtools.core
    waltlabtools.mosaic
-   waltlabtools.read_hdx
+   waltlabtools.read_quanterix
 
 * :ref:`genindex`
 * :ref:`search`

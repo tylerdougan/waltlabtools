@@ -1,9 +1,13 @@
-"""
-:noindex:
+"""Functions for reading in data from Quanterix instruments.
+
+This module provides tools for interacting with a
+`Quanterix Simoa HD-X Analyzer
+<https://www.quanterix.com/instruments/simoa-hd-x-analyzer/>`__.
+
+In addition to the dependencies for waltlabtools,
+waltlabtools.read_quanterix also requires pandas >= 0.25.
 
 """
-
-# Functions for reading in instrument data.
 
 import pandas as pd
 from tkinter import filedialog
@@ -171,52 +175,33 @@ def run_history(filepath=None, drop_cols="blank") -> pd.DataFrame:
     return table
 
 
-# def sample_results(filepath=None,
-#         drop_cols: {"blank", "uninformative", "keep"} = "blank"
-#         ) -> pd.DataFrame:
-#     """
-#     Reads in a Quanterix HD-X Sample Results Report file.
-#    
-#     Parameters
-#     ----------
-#     filepath : str, path object or file-like object, optional
-#         The path to the Run History CSV file. Any valid string path is
-#         acceptable. The string could be a URL. Valid URL schemes include
-#         http, ftp, s3, gs, and file. Can also be any os.PathLike or any
-#         object with a `read()` method. If not provided, a
-#         `tkinter.filedialog` opens, prompting the user to select a file.
-#     drop_cols : {"blank", "uniform", "keep"}, default "blank"
-#         Should any columns be dropped? Options:
-#             - `"blank"` : Drop all columns that are blank.
-#             - `"uninformative"` : Drop all columns that have the same
-#               value for all rows, which includes all blank columns.
-#             - `"keep"` : Do not drop any columns.
-# 
-#     Returns
-#     -------
-#     table : pandas.DataFrame
-#         Sample Results Report.
-#    
-#     """
-#     io = _get_file(filepath, title="Choose a Sample Results Report File",
-#         filetypes=[("Excel 97–2004 Workbook", "xls")])
-#     raw_table = pd.read_excel(io, header=0, skiprows=5)
-#     table = _cols_dropped(raw_table, drop_cols)
-#     return table
-# 
-# 
-# def batch_calibration():
-#     return None
-# 
-# 
-# def plate_layout(filepath=None, filetype=None,
-#         layout_cols: tuple = ("Plate", "Row", "Column"),
-#         ) -> pd.DataFrame:
-#     io = _get_file(filepath, title="Choose a Plate Layout File",
-#         filetypes=[
-#             ("Comma-Separated Values", "csv"),
-#             ("Excel Workbook", "xlsx"),
-#             ("Excel 97–2004 Workbook", "xls")])
-#     raw_table, reader = _table_filetype(io, filetype)
-#     if "Plate" in raw_table.iloc[0]:
-        
+def sample_results(filepath=None, drop_cols="blank") -> pd.DataFrame:
+    """
+    Reads in a Quanterix HD-X Sample Results Report file.
+   
+    Parameters
+    ----------
+    filepath : str, path object or file-like object, optional
+        The path to the Run History CSV file. Any valid string path is
+        acceptable. The string could be a URL. Valid URL schemes include
+        http, ftp, s3, gs, and file. Can also be any os.PathLike or any
+        object with a `read()` method. If not provided, a
+        `tkinter.filedialog` opens, prompting the user to select a file.
+    drop_cols : {"blank", "uniform", "keep"}, default "blank"
+        Should any columns be dropped? Options:
+            - `"blank"` : Drop all columns that are blank.
+            - `"uninformative"` : Drop all columns that have the same
+              value for all rows, which includes all blank columns.
+            - `"keep"` : Do not drop any columns.
+
+    Returns
+    -------
+    table : pandas.DataFrame
+        Sample Results Report.
+   
+    """
+    io = _get_file(filepath, title="Choose a Sample Results Report File",
+        filetypes=[("Excel 97–2004 Workbook", "xls")])
+    raw_table = pd.read_excel(io, header=0, skiprows=5)
+    table = _cols_dropped(raw_table, drop_cols)
+    return table

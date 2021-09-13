@@ -1,9 +1,8 @@
-"""
-:noindex:
+"""Core functionality for the waltlabtools module.
+
+Includes the classes Model and CalCurve.
 
 """
-
-# IMPORT MODULES
 
 import warnings
 import sys

@@ -1,9 +1,11 @@
-"""
-:noindex:
+"""Functions for analyzing MOSAIC data.
+
+In addition to the dependencies for waltlabtools,
+waltlabtools.mosaic also requires pandas >= 0.25 and
+scikit-learn >= 0.21.
 
 """
 
-# IMPORTS
 import os
 import re
 import sys

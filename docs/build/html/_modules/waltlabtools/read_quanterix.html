@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>waltlabtools.read_hdx &mdash; waltlabtools 0.3.6 documentation</title>
+  <title>waltlabtools.read_quanterix &mdash; waltlabtools 0.3.8 documentation</title>
   
 
   
@@ -80,6 +80,21 @@
         
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
+    
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../README.html">waltlabtools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.core.html">waltlabtools.core module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.mosaic.html">waltlabtools.mosaic module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.read_quanterix.html">waltlabtools.read_quanterix module</a></li>
+</ul>
+
+            
+          
     <a href="genindex.html">Index</a>
   
         </div>
@@ -128,7 +143,7 @@
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
-      <li>waltlabtools.read_hdx</li>
+      <li>waltlabtools.read_quanterix</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -143,13 +158,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for waltlabtools.read_hdx</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">:noindex:</span>
+  <h1>Source code for waltlabtools.read_quanterix</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Functions for reading in data from Quanterix instruments.</span>
+
+<span class="sd">This module provides tools for interacting with a</span>
+<span class="sd">`Quanterix Simoa HD-X Analyzer</span>
+<span class="sd">&lt;https://www.quanterix.com/instruments/simoa-hd-x-analyzer/&gt;`__.</span>
+
+<span class="sd">In addition to the dependencies for waltlabtools,</span>
+<span class="sd">waltlabtools.read_quanterix also requires pandas &gt;= 0.25.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="c1"># Functions for reading in instrument data.</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">filedialog</span>
@@ -285,7 +304,7 @@
         <span class="k">return</span> <span class="n">raw_table</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="run_history"><a class="viewcode-back" href="../../waltlabtools.read_hdx.html#waltlabtools.read_hdx.run_history">[docs]</a><span class="k">def</span> <span class="nf">run_history</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">drop_cols</span><span class="o">=</span><span class="s2">&quot;blank&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<div class="viewcode-block" id="run_history"><a class="viewcode-back" href="../../waltlabtools.read_quanterix.html#waltlabtools.read_quanterix.run_history">[docs]</a><span class="k">def</span> <span class="nf">run_history</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">drop_cols</span><span class="o">=</span><span class="s2">&quot;blank&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reads in a Quanterix HD-X Run History file.</span>
 <span class="sd">   </span>
@@ -317,55 +336,36 @@
     <span class="k">return</span> <span class="n">table</span></div>
 
 
-<span class="c1"># def sample_results(filepath=None,</span>
-<span class="c1">#         drop_cols: {&quot;blank&quot;, &quot;uninformative&quot;, &quot;keep&quot;} = &quot;blank&quot;</span>
-<span class="c1">#         ) -&gt; pd.DataFrame:</span>
-<span class="c1">#     &quot;&quot;&quot;</span>
-<span class="c1">#     Reads in a Quanterix HD-X Sample Results Report file.</span>
-<span class="c1">#    </span>
-<span class="c1">#     Parameters</span>
-<span class="c1">#     ----------</span>
-<span class="c1">#     filepath : str, path object or file-like object, optional</span>
-<span class="c1">#         The path to the Run History CSV file. Any valid string path is</span>
-<span class="c1">#         acceptable. The string could be a URL. Valid URL schemes include</span>
-<span class="c1">#         http, ftp, s3, gs, and file. Can also be any os.PathLike or any</span>
-<span class="c1">#         object with a `read()` method. If not provided, a</span>
-<span class="c1">#         `tkinter.filedialog` opens, prompting the user to select a file.</span>
-<span class="c1">#     drop_cols : {&quot;blank&quot;, &quot;uniform&quot;, &quot;keep&quot;}, default &quot;blank&quot;</span>
-<span class="c1">#         Should any columns be dropped? Options:</span>
-<span class="c1">#             - `&quot;blank&quot;` : Drop all columns that are blank.</span>
-<span class="c1">#             - `&quot;uninformative&quot;` : Drop all columns that have the same</span>
-<span class="c1">#               value for all rows, which includes all blank columns.</span>
-<span class="c1">#             - `&quot;keep&quot;` : Do not drop any columns.</span>
-<span class="c1"># </span>
-<span class="c1">#     Returns</span>
-<span class="c1">#     -------</span>
-<span class="c1">#     table : pandas.DataFrame</span>
-<span class="c1">#         Sample Results Report.</span>
-<span class="c1">#    </span>
-<span class="c1">#     &quot;&quot;&quot;</span>
-<span class="c1">#     io = _get_file(filepath, title=&quot;Choose a Sample Results Report File&quot;,</span>
-<span class="c1">#         filetypes=[(&quot;Excel 97–2004 Workbook&quot;, &quot;xls&quot;)])</span>
-<span class="c1">#     raw_table = pd.read_excel(io, header=0, skiprows=5)</span>
-<span class="c1">#     table = _cols_dropped(raw_table, drop_cols)</span>
-<span class="c1">#     return table</span>
-<span class="c1"># </span>
-<span class="c1"># </span>
-<span class="c1"># def batch_calibration():</span>
-<span class="c1">#     return None</span>
-<span class="c1"># </span>
-<span class="c1"># </span>
-<span class="c1"># def plate_layout(filepath=None, filetype=None,</span>
-<span class="c1">#         layout_cols: tuple = (&quot;Plate&quot;, &quot;Row&quot;, &quot;Column&quot;),</span>
-<span class="c1">#         ) -&gt; pd.DataFrame:</span>
-<span class="c1">#     io = _get_file(filepath, title=&quot;Choose a Plate Layout File&quot;,</span>
-<span class="c1">#         filetypes=[</span>
-<span class="c1">#             (&quot;Comma-Separated Values&quot;, &quot;csv&quot;),</span>
-<span class="c1">#             (&quot;Excel Workbook&quot;, &quot;xlsx&quot;),</span>
-<span class="c1">#             (&quot;Excel 97–2004 Workbook&quot;, &quot;xls&quot;)])</span>
-<span class="c1">#     raw_table, reader = _table_filetype(io, filetype)</span>
-<span class="c1">#     if &quot;Plate&quot; in raw_table.iloc[0]:</span>
-        
+<span class="k">def</span> <span class="nf">sample_results</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">drop_cols</span><span class="o">=</span><span class="s2">&quot;blank&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads in a Quanterix HD-X Sample Results Report file.</span>
+<span class="sd">   </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath : str, path object or file-like object, optional</span>
+<span class="sd">        The path to the Run History CSV file. Any valid string path is</span>
+<span class="sd">        acceptable. The string could be a URL. Valid URL schemes include</span>
+<span class="sd">        http, ftp, s3, gs, and file. Can also be any os.PathLike or any</span>
+<span class="sd">        object with a `read()` method. If not provided, a</span>
+<span class="sd">        `tkinter.filedialog` opens, prompting the user to select a file.</span>
+<span class="sd">    drop_cols : {&quot;blank&quot;, &quot;uniform&quot;, &quot;keep&quot;}, default &quot;blank&quot;</span>
+<span class="sd">        Should any columns be dropped? Options:</span>
+<span class="sd">            - `&quot;blank&quot;` : Drop all columns that are blank.</span>
+<span class="sd">            - `&quot;uninformative&quot;` : Drop all columns that have the same</span>
+<span class="sd">              value for all rows, which includes all blank columns.</span>
+<span class="sd">            - `&quot;keep&quot;` : Do not drop any columns.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    table : pandas.DataFrame</span>
+<span class="sd">        Sample Results Report.</span>
+<span class="sd">   </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">io</span> <span class="o">=</span> <span class="n">_get_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Choose a Sample Results Report File&quot;</span><span class="p">,</span>
+        <span class="n">filetypes</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;Excel 97–2004 Workbook&quot;</span><span class="p">,</span> <span class="s2">&quot;xls&quot;</span><span class="p">)])</span>
+    <span class="n">raw_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">io</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">_cols_dropped</span><span class="p">(</span><span class="n">raw_table</span><span class="p">,</span> <span class="n">drop_cols</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">table</span>
 </pre></div>
 
            </div>

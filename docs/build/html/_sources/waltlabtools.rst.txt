@@ -10,7 +10,7 @@ Submodules
    waltlabtools.core
    waltlabtools.mosaic
    waltlabtools.nonnumeric
-   waltlabtools.read_hdx
+   waltlabtools.read_quanterix
 
 Module contents
 ---------------

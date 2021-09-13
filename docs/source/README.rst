@@ -62,7 +62,7 @@ Getting Started
 
        - `scikit-learn <https://scikit-learn.org/stable/>`__ ≥ 0.21
 
-     - waltlabtools.read_hdx requires
+     - waltlabtools.read_quanterix requires
 
        - `pandas <https://pandas.pydata.org>`__ ≥ 0.25
 

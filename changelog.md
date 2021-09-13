@@ -27,3 +27,12 @@
 
 0.3.6
  - Removed some type hints and improved documentation
+
+0.3.7
+ - Renamed read_hdx module to read_quanterix to provide for future expansion to SP-X and other instrumentation
+ - Added module docstrings
+ - Attempted to build conda packages for different versions of conda
+ - Added read_quanterix.sample_results function
+
+0.3.8
+ - Fixed a bug in read_quanterix

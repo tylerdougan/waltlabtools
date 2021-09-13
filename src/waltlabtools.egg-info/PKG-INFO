@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: waltlabtools
-Version: 0.3.6
+Version: 0.3.8
 Summary: A collection of tools for biomedical research assay analysis in Python.
 Home-page: https://github.com/tylerdougan/waltlabtools
 Author: Tyler Dougan
@@ -16,7 +16,8 @@ Classifier: Operating System :: OS Independent
 Requires-Python: >=3.6
 Description-Content-Type: text/x-rst
 Provides-Extra: mosaic
-Provides-Extra: read_hdx
+Provides-Extra: read_quanterix
+Provides-Extra: optional
 License-File: LICENSE
 
 waltlabtools
@@ -83,13 +84,9 @@ Getting Started
 
        - `scikit-learn <https://scikit-learn.org/stable/>`__ ≥ 0.21
 
-       - `tk <https://docs.python.org/3/library/dialog.html>`__ ≥ 8.5      
-
-     - waltlabtools.read_hdx requires
+     - waltlabtools.read_quanterix requires
 
        - `pandas <https://pandas.pydata.org>`__ ≥ 0.25
-
-       - `tk <https://docs.python.org/3/library/dialog.html>`__ ≥ 8.5      
 
    - To make the best use of waltlabtools, you may want to
      install `pandas <https://pandas.pydata.org>`__ (for data

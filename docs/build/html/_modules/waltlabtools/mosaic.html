@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>waltlabtools.mosaic &mdash; waltlabtools 0.3.6 documentation</title>
+  <title>waltlabtools.mosaic &mdash; waltlabtools 0.3.8 documentation</title>
   
 
   
@@ -80,6 +80,21 @@
         
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
+    
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../README.html">waltlabtools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.core.html">waltlabtools.core module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.mosaic.html">waltlabtools.mosaic module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.read_quanterix.html">waltlabtools.read_quanterix module</a></li>
+</ul>
+
+            
+          
     <a href="genindex.html">Index</a>
   
         </div>
@@ -144,12 +159,14 @@
            <div itemprop="articleBody">
             
   <h1>Source code for waltlabtools.mosaic</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">:noindex:</span>
+<span></span><span class="sd">&quot;&quot;&quot;Functions for analyzing MOSAIC data.</span>
+
+<span class="sd">In addition to the dependencies for waltlabtools,</span>
+<span class="sd">waltlabtools.mosaic also requires pandas &gt;= 0.25 and</span>
+<span class="sd">scikit-learn &gt;= 0.21.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="c1"># IMPORTS</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">sys</span>
