@@ -12,9 +12,13 @@ A collection of tools for biomedical research assay analysis in Python.
 
 
 .. toctree::
-   :caption: Introduction
+   :maxdepth: 4
 
    README
+   waltlabtools.core
+   waltlabtools.mosaic
+   waltlabtools.nonnumeric
+   waltlabtools.read_hdx
 
 
 .. autosummary::
@@ -23,15 +27,6 @@ A collection of tools for biomedical research assay analysis in Python.
    :recursive:
 
    waltlabtools
-
-
-.. toctree::
-   :maxdepth: 4
-
-   waltlabtools.core
-   waltlabtools.mosaic
-   waltlabtools.nonnumeric
-   waltlabtools.read_hdx
 
 
 Info
