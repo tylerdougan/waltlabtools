@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>waltlabtools.mosaic module &mdash; waltlabtools 0.3.5 documentation</title>
+  <title>waltlabtools.mosaic module &mdash; waltlabtools 0.3.6 documentation</title>
   
 
   
@@ -155,8 +155,55 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="waltlabtools-mosaic-module">
-<h1>waltlabtools.mosaic module<a class="headerlink" href="#waltlabtools-mosaic-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-waltlabtools.mosaic">
+<span id="waltlabtools-mosaic-module"></span><h1>waltlabtools.mosaic module<a class="headerlink" href="#module-waltlabtools.mosaic" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="waltlabtools.mosaic.PlateFileCollection">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">PlateFileCollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/mosaic.html#PlateFileCollection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.mosaic.PlateFileCollection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="waltlabtools.mosaic.aeb">
+<span class="sig-name descname"><span class="pre">aeb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onfrac_gmm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onfrac_sds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/mosaic.html#aeb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.mosaic.aeb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="waltlabtools.mosaic.extended_coefs">
+<span class="sig-name descname"><span class="pre">extended_coefs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">concs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aebs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c4'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal_curve</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/mosaic.html#extended_coefs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.mosaic.extended_coefs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="waltlabtools.mosaic.gaussians">
+<span class="sig-name descname"><span class="pre">gaussians</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flat_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flat_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">means_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_covar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/mosaic.html#gaussians"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.mosaic.gaussians" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="waltlabtools.mosaic.log_transform">
+<span class="sig-name descname"><span class="pre">log_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flat_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/mosaic.html#log_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.mosaic.log_transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="waltlabtools.mosaic.mixture_aeb">
+<span class="sig-name descname"><span class="pre">mixture_aeb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flat_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/mosaic.html#mixture_aeb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.mosaic.mixture_aeb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="waltlabtools.mosaic.mixture_orientation">
+<span class="sig-name descname"><span class="pre">mixture_orientation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">means_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariances_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/mosaic.html#mixture_orientation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.mosaic.mixture_orientation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine which peak is 'off.'</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="waltlabtools.mosaic.plate_subsets">
+<span class="sig-name descname"><span class="pre">plate_subsets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_aebs_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_coefs_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'4PL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod_sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subsets</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sizes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c4'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/mosaic.html#plate_subsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.mosaic.plate_subsets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="waltlabtools.mosaic.well_to_aeb">
+<span class="sig-name descname"><span class="pre">well_to_aeb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">well_entry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/mosaic.html#well_to_aeb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.mosaic.well_to_aeb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 
 

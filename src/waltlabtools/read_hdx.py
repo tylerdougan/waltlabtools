@@ -121,9 +121,7 @@ def _table_filetype(io, filetype=None) -> pd.DataFrame:
         + " with filetype " + str(filetype) + ".")
 
 
-def _cols_dropped(raw_table: pd.DataFrame,
-        drop_cols: {"blank", "uninformative", "keep"} = "blank"
-        ) -> pd.DataFrame:
+def _cols_dropped(raw_table: pd.DataFrame, drop_cols="blank") -> pd.DataFrame:
     if drop_cols == "keep":
         return raw_table
     elif drop_cols == "uninformative":
@@ -136,9 +134,7 @@ def _cols_dropped(raw_table: pd.DataFrame,
         return raw_table.dropna(axis="columns", how="all")
 
 
-def run_history(filepath=None,
-        drop_cols: {"blank", "uninformative", "keep"} = "blank"
-        ) -> pd.DataFrame:
+def run_history(filepath=None, drop_cols="blank") -> pd.DataFrame:
     """
     Reads in a Quanterix HD-X Run History file.
    

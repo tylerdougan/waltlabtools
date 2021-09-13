@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>waltlabtools.core &mdash; waltlabtools 0.3.5 documentation</title>
+  <title>waltlabtools.core &mdash; waltlabtools 0.3.6 documentation</title>
   
 
   
@@ -155,7 +155,6 @@
             
   <h1>Source code for waltlabtools.core</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">:noindex:</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -182,7 +181,7 @@
     <span class="s2">&quot;lod&quot;</span><span class="p">,</span> <span class="s2">&quot;CalCurve&quot;</span><span class="p">,</span> <span class="s2">&quot;gmnd&quot;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="flatten"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.flatten">[docs]</a><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">on_bad_data</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="s2">&quot;warn&quot;</span><span class="p">}</span> <span class="o">=</span> <span class="s2">&quot;warn&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="flatten"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.flatten">[docs]</a><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">on_bad_data</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Flattens most data structures.</span>
 <span class="sd">   </span>
 <span class="sd">    Parameters</span>
@@ -349,8 +348,7 @@
 <span class="sd">   </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fun</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(),</span>
-            <span class="n">xscale</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;symlog&quot;</span><span class="p">,</span> <span class="s2">&quot;logit&quot;</span><span class="p">}</span><span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
-            <span class="n">yscale</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;symlog&quot;</span><span class="p">,</span> <span class="s2">&quot;logit&quot;</span><span class="p">}</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">):</span>
+            <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fun</span> <span class="o">=</span> <span class="n">fun</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inverse</span> <span class="o">=</span> <span class="n">inverse</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
@@ -825,9 +823,7 @@
 
 <div class="viewcode-block" id="CalCurve.from_function"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.CalCurve.from_function">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_function</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fun</span><span class="p">,</span> <span class="n">inverse</span><span class="p">,</span> <span class="n">lod</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">lod_sds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-            <span class="n">force_lod</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
-            <span class="n">xscale</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;symlog&quot;</span><span class="p">,</span> <span class="s2">&quot;logit&quot;</span><span class="p">}</span><span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
-            <span class="n">yscale</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;symlog&quot;</span><span class="p">,</span> <span class="s2">&quot;logit&quot;</span><span class="p">}</span><span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">):</span>
+            <span class="n">force_lod</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Constructs a calibration curve from a function.</span>
 
 <span class="sd">        Parameters</span>

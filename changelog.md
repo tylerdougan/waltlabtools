@@ -24,3 +24,6 @@
 
 0.3.5
  - Removed unnecessary tkinter requirement
+
+0.3.6
+ - Removed some type hints and improved documentation

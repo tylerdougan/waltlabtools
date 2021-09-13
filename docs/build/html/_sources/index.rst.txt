@@ -17,13 +17,6 @@ A collection of tools for biomedical research assay analysis in Python.
    README
 
 
-.. toctree::
-   :caption: API
-   :glob:
-
-   generated/*
-
-
 .. autosummary::
    :toctree: _autosummary
    :template: custom-module-template.rst

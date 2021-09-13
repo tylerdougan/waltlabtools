@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>waltlabtools.read_hdx &mdash; waltlabtools 0.3.5 documentation</title>
+  <title>waltlabtools.read_hdx &mdash; waltlabtools 0.3.6 documentation</title>
   
 
   
@@ -277,9 +277,7 @@
         <span class="o">+</span> <span class="s2">&quot; with filetype &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">filetype</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_cols_dropped</span><span class="p">(</span><span class="n">raw_table</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-        <span class="n">drop_cols</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;blank&quot;</span><span class="p">,</span> <span class="s2">&quot;uninformative&quot;</span><span class="p">,</span> <span class="s2">&quot;keep&quot;</span><span class="p">}</span> <span class="o">=</span> <span class="s2">&quot;blank&quot;</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_cols_dropped</span><span class="p">(</span><span class="n">raw_table</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">drop_cols</span><span class="o">=</span><span class="s2">&quot;blank&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">drop_cols</span> <span class="o">==</span> <span class="s2">&quot;keep&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">raw_table</span>
     <span class="k">elif</span> <span class="n">drop_cols</span> <span class="o">==</span> <span class="s2">&quot;uninformative&quot;</span><span class="p">:</span>
@@ -292,9 +290,7 @@
         <span class="k">return</span> <span class="n">raw_table</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="run_history"><a class="viewcode-back" href="../../waltlabtools.read_hdx.html#waltlabtools.read_hdx.run_history">[docs]</a><span class="k">def</span> <span class="nf">run_history</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">drop_cols</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;blank&quot;</span><span class="p">,</span> <span class="s2">&quot;uninformative&quot;</span><span class="p">,</span> <span class="s2">&quot;keep&quot;</span><span class="p">}</span> <span class="o">=</span> <span class="s2">&quot;blank&quot;</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<div class="viewcode-block" id="run_history"><a class="viewcode-back" href="../../waltlabtools.read_hdx.html#waltlabtools.read_hdx.run_history">[docs]</a><span class="k">def</span> <span class="nf">run_history</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">drop_cols</span><span class="o">=</span><span class="s2">&quot;blank&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reads in a Quanterix HD-X Run History file.</span>
 <span class="sd">   </span>

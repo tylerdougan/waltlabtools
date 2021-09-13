@@ -1,5 +1,4 @@
 """
-:noindex:
 
 """
 
@@ -26,7 +25,7 @@ __all__ = ["flatten", "aeb", "fon", "c4", "Model", "model_dict", "regress",
     "lod", "CalCurve", "gmnd"]
 
 
-def flatten(data, on_bad_data: {"error", "ignore", "warn"} = "warn"):
+def flatten(data, on_bad_data="warn"):
     """Flattens most data structures.
    
     Parameters
@@ -193,8 +192,7 @@ class Model:
    
     """
     def __init__(self, fun=None, inverse=None, name: str = "", params=(),
-            xscale: {"linear", "log", "symlog", "logit"}= "linear",
-            yscale: {"linear", "log", "symlog", "logit"} = "linear"):
+            xscale="linear", yscale="linear"):
         self.fun = fun
         self.inverse = inverse
         self.name = name
@@ -669,9 +667,7 @@ class CalCurve:
 
     @classmethod
     def from_function(cls, fun, inverse, lod: float = -np.inf, lod_sds=3,
-            force_lod=False, 
-            xscale: {"linear", "log", "symlog", "logit"}= "linear",
-            yscale: {"linear", "log", "symlog", "logit"}= "linear"):
+            force_lod=False, xscale="linear", yscale="linear"):
         """Constructs a calibration curve from a function.
 
         Parameters

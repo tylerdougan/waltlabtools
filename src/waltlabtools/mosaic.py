@@ -1,10 +1,17 @@
 # IMPORTS
 import os
-import warnings
 import re
+import sys
+import warnings
 
-import jax.numpy as np
-from jax import jit
+if "jax" in sys.modules.keys():
+    import jax.numpy as np
+    from jax import jit
+else:
+    import numpy as np
+    def jit(fun):
+        return fun
+
 from numpy.random import default_rng
 import pandas as pd
 import sklearn as sk
@@ -201,7 +208,7 @@ def extended_coefs(concs, aebs, corr="c4", cal_curve=None):
 
 def plate_subsets(dir_path=None, save_aebs_to=None, save_coefs_to=None,
         log: bool = True, model="4PL", lod_sds=3, subsets: int = 10, sizes=(),
-        corr: str = "c4", threshold_sds=5):
+        corr="c4", threshold_sds=5):
     plate_files = PlateFileCollection(dir_path)
     concs = []
     datasets = []
