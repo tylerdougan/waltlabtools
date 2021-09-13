@@ -25,6 +25,15 @@ A collection of tools for biomedical research assay analysis in Python.
    waltlabtools
 
 
+.. toctree::
+   :maxdepth: 4
+
+   waltlabtools.core
+   waltlabtools.mosaic
+   waltlabtools.nonnumeric
+   waltlabtools.read_hdx
+
+
 Info
 ----
 
