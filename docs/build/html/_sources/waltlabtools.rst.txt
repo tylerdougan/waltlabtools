@@ -1,34 +1,21 @@
-Full waltlabtools API
-=====================
+waltlabtools package
+====================
 
-waltlabtools.core
------------------
+Submodules
+----------
 
-.. automodule:: waltlabtools.core
+.. toctree::
+   :maxdepth: 4
+
+   waltlabtools.core
+   waltlabtools.mosaic
+   waltlabtools.nonnumeric
+   waltlabtools.read_hdx
+
+Module contents
+---------------
+
+.. automodule:: waltlabtools
    :members:
-   :noindex:
-   :show-inheritance:
-
-waltlabtools.mosaic
------------------------
-
-.. automodule:: waltlabtools.mosaic
-   :members:
-   :noindex:
-   :show-inheritance:
-
-waltlabtools.nonnumeric
------------------------
-
-.. automodule:: waltlabtools.nonnumeric
-   :members:
-   :noindex:
-   :show-inheritance:
-
-waltlabtools.read_hdx
------------------------
-
-.. automodule:: waltlabtools.read_hdx
-   :members:
-   :noindex:
+   :undoc-members:
    :show-inheritance:

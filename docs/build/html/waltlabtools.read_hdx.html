@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>waltlabtools &mdash; waltlabtools 0.3.5 documentation</title>
+  <title>waltlabtools.read_hdx module &mdash; waltlabtools 0.3.5 documentation</title>
   
 
   
@@ -136,13 +136,13 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>waltlabtools</li>
+      <li>waltlabtools.read_hdx module</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/waltlabtools.read_hdx.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -155,23 +155,39 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="waltlabtools">
-<h1>waltlabtools<a class="headerlink" href="#waltlabtools" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="waltlabtools.html">waltlabtools package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="waltlabtools.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="waltlabtools.core.html">waltlabtools.core module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="waltlabtools.mosaic.html">waltlabtools.mosaic module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="waltlabtools.nonnumeric.html">waltlabtools.nonnumeric module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="waltlabtools.read_hdx.html">waltlabtools.read_hdx module</a></li>
+  <div class="section" id="module-waltlabtools.read_hdx">
+<span id="waltlabtools-read-hdx-module"></span><h1>waltlabtools.read_hdx module<a class="headerlink" href="#module-waltlabtools.read_hdx" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="waltlabtools.read_hdx.run_history">
+<span class="sig-name descname"><span class="pre">run_history</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/read_hdx.html#run_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.read_hdx.run_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads in a Quanterix HD-X Run History file.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>filepath</strong> (<em>str, path object or file-like object, optional</em>) -- The path to the Run History CSV file. Any valid string path is
+acceptable. The string could be a URL. Valid URL schemes include
+http, ftp, s3, gs, and file. Can also be any os.PathLike or any
+object with a <cite>read()</cite> method. If not provided, a
+<cite>tkinter.filedialog</cite> opens, prompting the user to select a file.</p></li>
+<li><p><strong>drop_cols</strong> (<em>{&quot;blank&quot;, &quot;uniform&quot;, &quot;keep&quot;}, default &quot;blank&quot;</em>) --</p>
+<dl class="simple">
+<dt>Should any columns be dropped? Options:</dt><dd><ul class="simple">
+<li><p><cite>&quot;blank&quot;</cite> : Drop all columns that are blank.</p></li>
+<li><p><cite>&quot;uninformative&quot;</cite> : Drop all columns that have the same
+value for all rows, which includes all blank columns.</p></li>
+<li><p><cite>&quot;keep&quot;</cite> : Do not drop any columns.</p></li>
 </ul>
+</dd>
+</dl>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="waltlabtools.html#module-waltlabtools">Module contents</a></li>
 </ul>
-</li>
-</ul>
-</div>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>table</strong> (<em>pandas.DataFrame</em>) -- Run History.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
