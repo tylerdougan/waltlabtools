@@ -24,6 +24,14 @@ A collection of tools for biomedical research assay analysis in Python.
    generated/*
 
 
+.. autosummary::
+   :toctree: _autosummary
+   :template: custom-module-template.rst
+   :recursive:
+
+   waltlabtools
+
+
 Info
 ----
 
