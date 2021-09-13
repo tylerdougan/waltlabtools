@@ -26,7 +26,7 @@ __all__ = ["flatten", "aeb", "fon", "c4", "Model", "model_dict", "regress",
     "lod", "CalCurve", "gmnd"]
 
 
-def flatten(data, on_bad_data="warn"):
+def flatten(data, on_bad_data: {"error", "ignore", "warn"} = "warn"):
     """Flattens most data structures.
    
     Parameters
@@ -76,21 +76,21 @@ def flatten(data, on_bad_data="warn"):
             return flattened_data
 
 
-def aeb(fon):
+def aeb(fon_):
     """The average number of enzymes per bead.
 
     Converts the fraction of on-beads (fon) to the average number of
     enzymes per bead (AEB) using Poisson statistics. The formula used
-    is `aeb` = -log(1 - `fon`).
+    is `aeb_` = -log(1 - `fon_`).
    
     Parameters
     ----------
-    fon : numeric or array-like
+    fon_ : numeric or array-like
         A scalar or array of fractions of beads which are "on."
    
     Returns
     -------
-    aeb : same as input, or array
+    aeb_ : same as input, or array
         The average number of enzymes per bead.
 
     See Also
@@ -99,26 +99,26 @@ def aeb(fon):
    
     """
     try:
-        return -np.log(1 - fon)
+        return -np.log(1 - fon_)
     except TypeError:
-        return -np.log(1 - flatten(fon))
+        return -np.log(1 - flatten(fon_))
 
 
-def fon(aeb):
+def fon(aeb_):
     """The fraction of beads which are on.
 
     Converts the average enzymes per bead (AEB) to the fraction of
     on-beads (fon) using Poisson statistics. The formula used is
-    `fon` = 1 - exp(-`aeb`).
+    `fon_` = 1 - exp(-`aeb_`).
    
     Parameters
     ----------
-    aeb : numeric or array-like
+    aeb_ : numeric or array-like
         A scalar or array of the average number of enzymes per bead.
    
     Returns
     -------
-    fon : same as input, or array
+    fon_ : same as input, or array
         The fractions of beads which are "on."
 
     See Also

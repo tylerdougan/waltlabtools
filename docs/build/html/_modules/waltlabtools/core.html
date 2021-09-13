@@ -89,24 +89,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../README.html">waltlabtools</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">API</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/waltlabtools.html">waltlabtools package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/waltlabtools.core.html">waltlabtools.core</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/waltlabtools.core.CalCurve.html">waltlabtools.core.CalCurve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/waltlabtools.core.Model.html">waltlabtools.core.Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/waltlabtools.core.aeb.html">waltlabtools.core.aeb</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/waltlabtools.core.c4.html">waltlabtools.core.c4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/waltlabtools.core.flatten.html">waltlabtools.core.flatten</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/waltlabtools.core.fon.html">waltlabtools.core.fon</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/waltlabtools.core.gmnd.html">waltlabtools.core.gmnd</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/waltlabtools.core.jit.html">waltlabtools.core.jit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/waltlabtools.core.lod.html">waltlabtools.core.lod</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/waltlabtools.core.regress.html">waltlabtools.core.regress</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/waltlabtools.nonnumeric.html">waltlabtools.nonnumeric</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/waltlabtools.nonnumeric.Id.html">waltlabtools.nonnumeric.Id</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generated/waltlabtools.nonnumeric.isiterable.html">waltlabtools.nonnumeric.isiterable</a></li>
-</ul>
 
             
           
@@ -187,8 +169,8 @@
     <span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">jit</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<div class="viewcode-block" id="jit"><a class="viewcode-back" href="../../generated/waltlabtools.core.jit.html#waltlabtools.core.jit">[docs]</a>    <span class="k">def</span> <span class="nf">jit</span><span class="p">(</span><span class="n">fun</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">fun</span></div>
+    <span class="k">def</span> <span class="nf">jit</span><span class="p">(</span><span class="n">fun</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">fun</span>
 
 <span class="kn">import</span> <span class="nn">scipy.optimize</span> <span class="k">as</span> <span class="nn">opt</span>
 <span class="kn">import</span> <span class="nn">scipy.special</span> <span class="k">as</span> <span class="nn">spec</span>
@@ -250,21 +232,21 @@
             <span class="k">return</span> <span class="n">flattened_data</span></div>
 
 
-<div class="viewcode-block" id="aeb"><a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.core.aeb">[docs]</a><span class="k">def</span> <span class="nf">aeb</span><span class="p">(</span><span class="n">fon</span><span class="p">):</span>
+<div class="viewcode-block" id="aeb"><a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.core.aeb">[docs]</a><span class="k">def</span> <span class="nf">aeb</span><span class="p">(</span><span class="n">fon_</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The average number of enzymes per bead.</span>
 
 <span class="sd">    Converts the fraction of on-beads (fon) to the average number of</span>
 <span class="sd">    enzymes per bead (AEB) using Poisson statistics. The formula used</span>
-<span class="sd">    is `aeb` = -log(1 - `fon`).</span>
+<span class="sd">    is `aeb_` = -log(1 - `fon_`).</span>
 <span class="sd">   </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    fon : numeric or array-like</span>
+<span class="sd">    fon_ : numeric or array-like</span>
 <span class="sd">        A scalar or array of fractions of beads which are &quot;on.&quot;</span>
 <span class="sd">   </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    aeb : same as input, or array</span>
+<span class="sd">    aeb_ : same as input, or array</span>
 <span class="sd">        The average number of enzymes per bead.</span>
 
 <span class="sd">    See Also</span>
@@ -273,26 +255,26 @@
 <span class="sd">   </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fon</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fon_</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">flatten</span><span class="p">(</span><span class="n">fon</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">flatten</span><span class="p">(</span><span class="n">fon_</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="fon"><a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.core.fon">[docs]</a><span class="k">def</span> <span class="nf">fon</span><span class="p">(</span><span class="n">aeb</span><span class="p">):</span>
+<div class="viewcode-block" id="fon"><a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.core.fon">[docs]</a><span class="k">def</span> <span class="nf">fon</span><span class="p">(</span><span class="n">aeb_</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The fraction of beads which are on.</span>
 
 <span class="sd">    Converts the average enzymes per bead (AEB) to the fraction of</span>
 <span class="sd">    on-beads (fon) using Poisson statistics. The formula used is</span>
-<span class="sd">    `fon` = 1 - exp(-`aeb`).</span>
+<span class="sd">    `fon_` = 1 - exp(-`aeb_`).</span>
 <span class="sd">   </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    aeb : numeric or array-like</span>
+<span class="sd">    aeb_ : numeric or array-like</span>
 <span class="sd">        A scalar or array of the average number of enzymes per bead.</span>
 <span class="sd">   </span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    fon : same as input, or array</span>
+<span class="sd">    fon_ : same as input, or array</span>
 <span class="sd">        The fractions of beads which are &quot;on.&quot;</span>
 
 <span class="sd">    See Also</span>
