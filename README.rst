@@ -59,14 +59,6 @@ Dependencies
 
 - Specific modules have additional requirements:
 
-  - `waltlabtools.mosaic <https://waltlabtools.readthedocs.io/en/latest/waltlabtools.mosaic.html>`__
-    (for analyzing MOSAIC assays) requires
-
-    - `pandas <https://pandas.pydata.org>`__ ≥ 0.25
-
-    - `scikit-learn <https://scikit-learn.org/stable/>`__ ≥ 0.21
-
-
   - `waltlabtools.read_quanterix <https://waltlabtools.readthedocs.io/en/latest/waltlabtools.read_quanterix.html>`__
     (for importing data from Quanterix instruments) requires
 
@@ -99,7 +91,6 @@ Usage
 .. code-block:: python
    
    import waltlabtools as wlt  # waltlabtools main functionality
-   import waltlabtools.mosaic  # if analyzing MOSAIC assays
    import waltlabtools.read_quanterix  # if using a Quanterix instrument
 
 -----
