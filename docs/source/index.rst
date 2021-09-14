@@ -8,10 +8,9 @@ A collection of tools for biomedical research assay analysis in Python.
 
 
 .. toctree::
-   :maxdepth: 1
 
+   
    README
-   waltlabtools
    waltlabtools.core
    waltlabtools.mosaic
    waltlabtools.read_quanterix

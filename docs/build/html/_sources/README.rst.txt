@@ -50,7 +50,7 @@ Dependencies
 
 - waltlabtools requires
 
-  - `numpy <https://numpy.org/doc/stable/index.html>`__ ≥ 1.10.0
+  - `numpy <https://numpy.org/doc/stable/index.html>`__ ≥ 1.10
 
   - `scipy <https://docs.scipy.org/doc/scipy/getting_started.html>`__ ≥ 1.3
  
