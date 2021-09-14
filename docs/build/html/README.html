@@ -94,6 +94,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
 </ul>
 </li>
 </ul>
@@ -205,9 +206,9 @@ to add the channel <code class="docutils literal notranslate"><span class="pre">
 </div>
 <div class="section" id="dependencies">
 <h3>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h3>
-<ul>
-<li><p>waltlabtools requires</p>
 <ul class="simple">
+<li><p>waltlabtools requires</p>
+<ul>
 <li><p><a class="reference external" href="https://numpy.org/doc/stable/index.html">numpy</a> ≥ 1.10.0</p></li>
 <li><p><a class="reference external" href="https://docs.scipy.org/doc/scipy/getting_started.html">scipy</a> ≥ 1.3</p></li>
 </ul>
@@ -215,7 +216,7 @@ to add the channel <code class="docutils literal notranslate"><span class="pre">
 <li><p>If installing with pip or conda, numpy and scipy will be installed
 automatically</p></li>
 <li><p>Specific modules have additional requirements:</p>
-<ul class="simple">
+<ul>
 <li><p><a class="reference external" href="https://waltlabtools.readthedocs.io/en/latest/waltlabtools.mosaic.html">waltlabtools.mosaic</a>
 (for analyzing MOSAIC assays) requires</p>
 <ul>
@@ -232,8 +233,7 @@ automatically</p></li>
 </ul>
 </li>
 <li><p>waltlabtools also plays well with</p>
-<blockquote>
-<div><ul class="simple">
+<ul>
 <li><p><a class="reference external" href="https://jax.readthedocs.io/en/latest/index.html">jax</a> (for
 accelerated numerical computing)</p></li>
 <li><p><a class="reference external" href="https://jupyterlab.readthedocs.io/en/stable/">JupyterLab</a>
@@ -244,12 +244,19 @@ organization)</p></li>
 <li><p><a class="reference external" href="https://scikit-learn.org/stable/">scikit-learn</a> (for data
 analysis)</p></li>
 </ul>
-</div></blockquote>
 </li>
 </ul>
 <p>All packages can all be installed using
 <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html">conda</a>
 or <a class="reference external" href="https://pypi.org">pip</a>.</p>
+</div>
+<div class="section" id="usage">
+<h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">waltlabtools</span> <span class="k">as</span> <span class="nn">wlt</span>  <span class="c1"># waltlabtools main functionality</span>
+<span class="kn">import</span> <span class="nn">waltlabtools.mosaic</span>  <span class="c1"># if analyzing MOSAIC assays</span>
+<span class="kn">import</span> <span class="nn">waltlabtools.read_quanterix</span>  <span class="c1"># if using a Quanterix instrument</span>
+</pre></div>
+</div>
 <hr class="docutils" />
 <p>Development of waltlabtools is led by the
 <a class="reference external" href="https://waltlab.bwh.harvard.edu">Walt Lab</a> for Advanced Diagnostics

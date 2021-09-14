@@ -74,24 +74,33 @@ Dependencies
 
 - waltlabtools also plays well with
 
-    - `jax <https://jax.readthedocs.io/en/latest/index.html>`__ (for
-      accelerated numerical computing)
+  - `jax <https://jax.readthedocs.io/en/latest/index.html>`__ (for
+    accelerated numerical computing)
 
-    - `JupyterLab <https://jupyterlab.readthedocs.io/en/stable/>`__
-      (for writing code)
+  - `JupyterLab <https://jupyterlab.readthedocs.io/en/stable/>`__
+    (for writing code)
 
-    - `pandas <https://pandas.pydata.org>`__ (for data import/export and
-      organization)
+  - `pandas <https://pandas.pydata.org>`__ (for data import/export and
+    organization)
 
-    - `matplotlib <https://matplotlib.org>`__ (for plotting)
+  - `matplotlib <https://matplotlib.org>`__ (for plotting)
 
-    - `scikit-learn <https://scikit-learn.org/stable/>`__ (for data
-      analysis)
+  - `scikit-learn <https://scikit-learn.org/stable/>`__ (for data
+    analysis)
 
 All packages can all be installed using
 `conda <https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html>`__
 or `pip <https://pypi.org>`__.
 
+
+Usage
+^^^^^
+
+.. code-block:: python
+   
+   import waltlabtools as wlt  # waltlabtools main functionality
+   import waltlabtools.mosaic  # if analyzing MOSAIC assays
+   import waltlabtools.read_quanterix  # if using a Quanterix instrument
 
 -----
 
