@@ -86,8 +86,12 @@
               
             
             
-              <ul>
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../README.html">waltlabtools</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.core.html">waltlabtools.core module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.mosaic.html">waltlabtools.mosaic module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.read_quanterix.html">waltlabtools.read_quanterix module</a></li>
@@ -166,7 +170,31 @@
 <span class="sd">&lt;https://www.quanterix.com/instruments/simoa-hd-x-analyzer/&gt;`__.</span>
 
 <span class="sd">In addition to the dependencies for waltlabtools,</span>
-<span class="sd">waltlabtools.read_quanterix also requires pandas &gt;= 0.25.</span>
+<span class="sd">waltlabtools.read_quanterix also requires pandas 0.25 or greater.</span>
+
+<span class="sd">The public functions in waltlabtools.read_quanterix can be accessed via,</span>
+<span class="sd">e.g., </span>
+
+<span class="sd">.. code-block:: python</span>
+<span class="sd">   </span>
+<span class="sd">   import waltlabtools as wlt  # waltlabtools main functionality</span>
+<span class="sd">   import waltlabtools.read_quanterix  # for Quanterix data</span>
+
+<span class="sd">   subset_data = wlt.read_quanterix.run_history()  # read run history</span>
+
+<span class="sd">if also using other functionality from the waltlabtools package, or</span>
+
+<span class="sd">.. code-block:: python</span>
+<span class="sd">   </span>
+<span class="sd">   from waltlabtools import read_quanterix  # for Quanterix data</span>
+
+<span class="sd">   subset_data = read_quanterix.run_history()  # read run history</span>
+
+<span class="sd">if using only the waltlabtools.read_quanterix module.</span>
+
+
+<span class="sd">-----</span>
+
 
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -174,7 +202,7 @@
 <span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">filedialog</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;run_history&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;run_history&quot;</span><span class="p">,</span> <span class="s2">&quot;sample_results&quot;</span><span class="p">]</span>
 
 
 <span class="c1"># class FileType:</span>
@@ -340,7 +368,7 @@
     <span class="k">return</span> <span class="n">table</span></div>
 
 
-<span class="k">def</span> <span class="nf">sample_results</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">drop_cols</span><span class="o">=</span><span class="s2">&quot;blank&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<div class="viewcode-block" id="sample_results"><a class="viewcode-back" href="../../waltlabtools.read_quanterix.html#waltlabtools.read_quanterix.sample_results">[docs]</a><span class="k">def</span> <span class="nf">sample_results</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">drop_cols</span><span class="o">=</span><span class="s2">&quot;blank&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reads in a Quanterix HD-X Sample Results Report file.</span>
 <span class="sd">   </span>
@@ -373,7 +401,7 @@
         <span class="n">filetypes</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;Excel 97–2004 Workbook&quot;</span><span class="p">,</span> <span class="s2">&quot;xls&quot;</span><span class="p">)])</span>
     <span class="n">raw_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">io</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
     <span class="n">table</span> <span class="o">=</span> <span class="n">_cols_dropped</span><span class="p">(</span><span class="n">raw_table</span><span class="p">,</span> <span class="n">drop_cols</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">table</span>
+    <span class="k">return</span> <span class="n">table</span></div>
 </pre></div>
 
            </div>

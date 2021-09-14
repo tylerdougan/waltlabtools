@@ -1,8 +1,30 @@
 """Functions for analyzing MOSAIC data.
 
-In addition to the dependencies for waltlabtools,
-waltlabtools.mosaic also requires pandas >= 0.25 and
-scikit-learn >= 0.21.
+In addition to the dependencies for waltlabtools, waltlabtools.mosaic
+also requires pandas 0.25 or greater and scikit-learn 0.21 or greater.
+
+The public functions in waltlabtools.mosaic can be accessed via, e.g., 
+
+.. code-block:: python
+   
+   import waltlabtools as wlt  # waltlabtools main functionality
+   import waltlabtools.mosaic  # for analyzing MOSAIC assays
+
+   subset_data = wlt.mosaic.plate_subsets()  # analyze data from a plate
+
+if also using other functionality from the waltlabtools package, or
+
+.. code-block:: python
+   
+   from waltlabtools import mosaic  # for analyzing MOSAIC assays
+
+   subset_data = mosaic.plate_subsets()  # analyze data from a plate
+
+if using only the waltlabtools.mosaic module.
+
+
+-----
+
 
 """
 

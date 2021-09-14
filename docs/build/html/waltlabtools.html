@@ -86,8 +86,12 @@
               
             
             
-              <ul>
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="README.html">waltlabtools</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.core.html">waltlabtools.core module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.mosaic.html">waltlabtools.mosaic module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.read_quanterix.html">waltlabtools.read_quanterix module</a></li>
@@ -358,23 +362,23 @@ not, <strong>x</strong> will be a 1D array of the same size as <strong>y</strong
 <em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/core.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Mathematical model for calibration curve fitting.</p>
-<p>A <strong>Model</strong> is an object with a function and its inverse, with one
+<p>A Model is an object with a function and its inverse, with one
 or more free parameters that can be fit to calibration curve data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fun</strong> (<code class="docutils literal notranslate"><span class="pre">function</span></code>) -- Forward functional form. Should be a function which takes in <cite>x</cite>
+<li><p><strong>fun</strong> (<em>function</em>) -- Forward functional form. Should be a function which takes in <cite>x</cite>
 and other parameters and returns <cite>y</cite>. The first parameter of
-<strong>fun</strong> should be <cite>x</cite>, and the remaining parameters should be
+fun should be <cite>x</cite>, and the remaining parameters should be
 the coefficients which are fit to the data (typically floats).</p></li>
-<li><p><strong>inverse</strong> (<code class="docutils literal notranslate"><span class="pre">function</span></code>) -- Inverse functional form. Should be a function which takes in <cite>y</cite>
+<li><p><strong>inverse</strong> (<em>function</em>) -- Inverse functional form. Should be a function which takes in <cite>y</cite>
 and other parameters and returns <cite>x</cite>. The first parameter of
 <strong>inverse</strong> should be <cite>y</cite>, and the remaining parameters should
-be the same coefficients as in <strong>fun</strong>.</p></li>
-<li><p><strong>name</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>) -- The name of the function. For example, &quot;4PL&quot; or &quot;linear&quot;.</p></li>
-<li><p><strong>params</strong> (list-like of <code class="docutils literal notranslate"><span class="pre">str</span></code>) -- The names of the parameters for the function. This should be
-the same length as the number of arguments which <strong>fun</strong> and
-<strong>inverse</strong> take after their inputs <cite>x</cite> and <cite>y</cite>, respectively.</p></li>
+be the same coefficients as in fun.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) -- The name of the function. For example, &quot;4PL&quot; or &quot;linear&quot;.</p></li>
+<li><p><strong>params</strong> (<em>list-like of str</em>) -- The names of the parameters for the function. This should be
+the same length as the number of arguments which fun and
+inverse take after their inputs <cite>x</cite> and <cite>y</cite>, respectively.</p></li>
 <li><p><strong>xscale, yscale</strong> (<em>{&quot;linear&quot;, &quot;log&quot;, &quot;symlog&quot;, &quot;logit&quot;}, default     &quot;linear&quot;</em>) -- The natural scaling transformations for <cite>x</cite> and <cite>y</cite>. For
 example, &quot;log&quot; means that the data may be distributed
 log-normally and are best visualized on a log scale.</p></li>
@@ -450,14 +454,14 @@ ndarray. Options are as follows:</p>
 <li><p>&quot;error&quot; : Raises TypeError.</p></li>
 <li><p>&quot;ignore&quot; : Returns a list or, failing that, the original
 object.</p></li>
-<li><p>&quot;warn&quot; : Returns as in <code class="docutils literal notranslate"><span class="pre">&quot;ignore&quot;</span></code>, but raises a warning.</p></li>
+<li><p>&quot;warn&quot; : Returns as in &quot;ignore&quot;, but raises a warning.</p></li>
 </ul>
 </div></blockquote>
 </li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>flattened_data</strong> (<em>array, list, or primitive</em>) -- Flattened version of <strong>data</strong>. If <code class="docutils literal notranslate"><span class="pre">on_bad_data=&quot;error&quot;</span></code>,
+<dd class="field-even"><p><strong>flattened_data</strong> (<em>array, list, or primitive</em>) -- Flattened version of <strong>data</strong>. If on_bad_data=&quot;error&quot;,
 always an array.</p>
 </dd>
 </dl>
@@ -481,7 +485,7 @@ on-beads (fon) using Poisson statistics. The formula used is
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="#waltlabtools.aeb" title="waltlabtools.aeb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aeb</span></code></a></dt><dd><p>inverse of <code class="docutils literal notranslate"><span class="pre">fon</span></code></p>
+<dt><a class="reference internal" href="#waltlabtools.aeb" title="waltlabtools.aeb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aeb</span></code></a></dt><dd><p>inverse of fon</p>
 </dd>
 </dl>
 </div>
@@ -573,8 +577,9 @@ exact unbiased sample standard deviation.</p></li>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul>
-<li><p><strong>model</strong> (<code class="docutils literal notranslate"><span class="pre">Model</span></code> or <code class="docutils literal notranslate"><span class="pre">str</span></code>) -- The functional model to use. Should be a valid <code class="docutils literal notranslate"><span class="pre">Model</span></code> object
-or a string referring to a built-in <code class="docutils literal notranslate"><span class="pre">Model</span></code>.</p></li>
+<li><p><strong>model</strong> (<em>waltlabtools.Model or str</em>) -- The functional model to use. Should be a valid
+waltlabtools.Model object or a string referring to a built-in
+Model.</p></li>
 <li><p><strong>x</strong> (<em>array-like</em>) -- The independent variable, e.g., concentration.</p></li>
 <li><p><strong>y</strong> (<em>array-like</em>) -- The dependent variable, e.g., fluorescence.</p></li>
 <li><p><strong>use_inverse</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, default False) -- Should <code class="docutils literal notranslate"><span class="pre">x</span></code> be regressed as a function of <code class="docutils literal notranslate"><span class="pre">y</span></code> instead?</p></li>

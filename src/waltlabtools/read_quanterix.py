@@ -5,7 +5,31 @@ This module provides tools for interacting with a
 <https://www.quanterix.com/instruments/simoa-hd-x-analyzer/>`__.
 
 In addition to the dependencies for waltlabtools,
-waltlabtools.read_quanterix also requires pandas >= 0.25.
+waltlabtools.read_quanterix also requires pandas 0.25 or greater.
+
+The public functions in waltlabtools.read_quanterix can be accessed via,
+e.g., 
+
+.. code-block:: python
+   
+   import waltlabtools as wlt  # waltlabtools main functionality
+   import waltlabtools.read_quanterix  # for Quanterix data
+
+   subset_data = wlt.read_quanterix.run_history()  # read run history
+
+if also using other functionality from the waltlabtools package, or
+
+.. code-block:: python
+   
+   from waltlabtools import read_quanterix  # for Quanterix data
+
+   subset_data = read_quanterix.run_history()  # read run history
+
+if using only the waltlabtools.read_quanterix module.
+
+
+-----
+
 
 """
 
@@ -13,7 +37,7 @@ import pandas as pd
 from tkinter import filedialog
 
 
-__all__ = ["run_history"]
+__all__ = ["run_history", "sample_results"]
 
 
 # class FileType:

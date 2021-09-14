@@ -87,8 +87,12 @@
               
             
             
-              <ul class="current">
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="README.html">waltlabtools</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.core.html">waltlabtools.core module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.mosaic.html">waltlabtools.mosaic module</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">waltlabtools.read_quanterix module</a></li>
@@ -167,7 +171,23 @@
 <p>This module provides tools for interacting with a
 <a class="reference external" href="https://www.quanterix.com/instruments/simoa-hd-x-analyzer/">Quanterix Simoa HD-X Analyzer</a>.</p>
 <p>In addition to the dependencies for waltlabtools,
-waltlabtools.read_quanterix also requires pandas &gt;= 0.25.</p>
+waltlabtools.read_quanterix also requires pandas 0.25 or greater.</p>
+<p>The public functions in waltlabtools.read_quanterix can be accessed via,
+e.g.,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">waltlabtools</span> <span class="k">as</span> <span class="nn">wlt</span>  <span class="c1"># waltlabtools main functionality</span>
+<span class="kn">import</span> <span class="nn">waltlabtools.read_quanterix</span>  <span class="c1"># for Quanterix data</span>
+
+<span class="n">subset_data</span> <span class="o">=</span> <span class="n">wlt</span><span class="o">.</span><span class="n">read_quanterix</span><span class="o">.</span><span class="n">run_history</span><span class="p">()</span>  <span class="c1"># read run history</span>
+</pre></div>
+</div>
+<p>if also using other functionality from the waltlabtools package, or</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">waltlabtools</span> <span class="kn">import</span> <span class="n">read_quanterix</span>  <span class="c1"># for Quanterix data</span>
+
+<span class="n">subset_data</span> <span class="o">=</span> <span class="n">read_quanterix</span><span class="o">.</span><span class="n">run_history</span><span class="p">()</span>  <span class="c1"># read run history</span>
+</pre></div>
+</div>
+<p>if using only the waltlabtools.read_quanterix module.</p>
+<hr class="docutils" />
 <dl class="py function">
 <dt class="sig sig-object py" id="waltlabtools.read_quanterix.run_history">
 <span class="sig-name descname"><span class="pre">run_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blank'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="reference internal" href="_modules/waltlabtools/read_quanterix.html#run_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.read_quanterix.run_history" title="Permalink to this definition">¶</a></dt>
@@ -195,6 +215,37 @@ value for all rows, which includes blank columns.</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>table</strong> (<em>pandas.DataFrame</em>) -- Run History.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="waltlabtools.read_quanterix.sample_results">
+<span class="sig-name descname"><span class="pre">sample_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blank'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="reference internal" href="_modules/waltlabtools/read_quanterix.html#sample_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.read_quanterix.sample_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads in a Quanterix HD-X Sample Results Report file.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>filepath</strong> (<em>str, path object or file-like object, optional</em>) -- The path to the Run History CSV file. Any valid string path is
+acceptable. The string could be a URL. Valid URL schemes include
+http, ftp, s3, gs, and file. Can also be any os.PathLike or any
+object with a <cite>read()</cite> method. If not provided, a
+<cite>tkinter.filedialog</cite> opens, prompting the user to select a file.</p></li>
+<li><p><strong>drop_cols</strong> (<em>{&quot;blank&quot;, &quot;uniform&quot;, &quot;keep&quot;}, default &quot;blank&quot;</em>) -- Should any columns be automatically dropped from the input file?
+Options:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>&quot;blank&quot;</cite> : Drop all columns that are blank.</p></li>
+<li><p><cite>&quot;uniform&quot;</cite> : Drop all columns that have the same
+value for all rows, which includes blank columns.</p></li>
+<li><p><cite>&quot;keep&quot;</cite> : Do not drop any columns.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>table</strong> (<em>pandas.DataFrame</em>) -- Sample Results Report.</p>
 </dd>
 </dl>
 </dd></dl>

@@ -88,8 +88,12 @@
               
             
             
-              <ul class="current">
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="README.html">waltlabtools</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.core.html">waltlabtools.core module</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">waltlabtools.mosaic module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.read_quanterix.html">waltlabtools.read_quanterix module</a></li>
@@ -165,9 +169,23 @@
   <div class="section" id="module-waltlabtools.mosaic">
 <span id="waltlabtools-mosaic-module"></span><h1>waltlabtools.mosaic module<a class="headerlink" href="#module-waltlabtools.mosaic" title="Permalink to this headline">¶</a></h1>
 <p>Functions for analyzing MOSAIC data.</p>
-<p>In addition to the dependencies for waltlabtools,
-waltlabtools.mosaic also requires pandas &gt;= 0.25 and
-scikit-learn &gt;= 0.21.</p>
+<p>In addition to the dependencies for waltlabtools, waltlabtools.mosaic
+also requires pandas 0.25 or greater and scikit-learn 0.21 or greater.</p>
+<p>The public functions in waltlabtools.mosaic can be accessed via, e.g.,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">waltlabtools</span> <span class="k">as</span> <span class="nn">wlt</span>  <span class="c1"># waltlabtools main functionality</span>
+<span class="kn">import</span> <span class="nn">waltlabtools.mosaic</span>  <span class="c1"># for analyzing MOSAIC assays</span>
+
+<span class="n">subset_data</span> <span class="o">=</span> <span class="n">wlt</span><span class="o">.</span><span class="n">mosaic</span><span class="o">.</span><span class="n">plate_subsets</span><span class="p">()</span>  <span class="c1"># analyze data from a plate</span>
+</pre></div>
+</div>
+<p>if also using other functionality from the waltlabtools package, or</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">waltlabtools</span> <span class="kn">import</span> <span class="n">mosaic</span>  <span class="c1"># for analyzing MOSAIC assays</span>
+
+<span class="n">subset_data</span> <span class="o">=</span> <span class="n">mosaic</span><span class="o">.</span><span class="n">plate_subsets</span><span class="p">()</span>  <span class="c1"># analyze data from a plate</span>
+</pre></div>
+</div>
+<p>if using only the waltlabtools.mosaic module.</p>
+<hr class="docutils" />
 <dl class="py class">
 <dt class="sig sig-object py" id="waltlabtools.mosaic.PlateFileCollection">
 <em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">PlateFileCollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/mosaic.html#PlateFileCollection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.mosaic.PlateFileCollection" title="Permalink to this definition">¶</a></dt>

@@ -1,6 +1,20 @@
 """Core functionality for the waltlabtools module.
 
-Includes the classes Model and CalCurve.
+Includes the classes Model and CalCurve, and core functions for assay
+analysis.
+
+Everything in waltlabtools.core is automatically imported with
+waltlabtools, so it can be accessed via, e.g., 
+
+.. code-block:: python
+   
+   import waltlabtools as wlt  # waltlabtools main functionality
+
+   cal_curve = wlt.CalCurve()  # creates a new empty calibration curve
+
+
+-----
+
 
 """
 
@@ -41,12 +55,12 @@ def flatten(data, on_bad_data="warn"):
             - "ignore" : Returns a list or, failing that, the original
               object.
 
-            - "warn" : Returns as in ``"ignore"``, but raises a warning.
+            - "warn" : Returns as in "ignore", but raises a warning.
     
     Returns
     -------
     flattened_data : array, list, or primitive
-        Flattened version of **data**. If ``on_bad_data="error"``,
+        Flattened version of **data**. If on_bad_data="error",
         always an array.
     
     """
@@ -122,7 +136,7 @@ def fon(aeb_):
 
     See Also
     --------
-    aeb : inverse of ``fon``
+    aeb : inverse of fon
    
     """
     try:
@@ -163,27 +177,27 @@ def c4(n):
 class Model:
     """Mathematical model for calibration curve fitting.
 
-    A **Model** is an object with a function and its inverse, with one
+    A Model is an object with a function and its inverse, with one
     or more free parameters that can be fit to calibration curve data.
    
     Parameters
     ----------
-    fun : ``function``
+    fun : function
         Forward functional form. Should be a function which takes in `x`
         and other parameters and returns `y`. The first parameter of
-        **fun** should be `x`, and the remaining parameters should be
+        fun should be `x`, and the remaining parameters should be
         the coefficients which are fit to the data (typically floats).
-    inverse : ``function``
+    inverse : function
         Inverse functional form. Should be a function which takes in `y`
         and other parameters and returns `x`. The first parameter of
         **inverse** should be `y`, and the remaining parameters should
-        be the same coefficients as in **fun**.
-    name : ``str``
+        be the same coefficients as in fun.
+    name : str
         The name of the function. For example, "4PL" or "linear".
-    params : list-like of ``str``
+    params : list-like of str
         The names of the parameters for the function. This should be
-        the same length as the number of arguments which **fun** and
-        **inverse** take after their inputs `x` and `y`, respectively.
+        the same length as the number of arguments which fun and
+        inverse take after their inputs `x` and `y`, respectively.
     xscale, yscale : {"linear", "log", "symlog", "logit"}, default \
     "linear"
         The natural scaling transformations for `x` and `y`. For
@@ -260,19 +274,20 @@ model_dict = {model.name: model for model in model_list}
 # CURVE FITTING
 
 def _match_model(model_name) -> Model:
-    """Returns a ``Model`` object from a string matching its name.
+    """Returns a Model object from a string matching its name.
    
     Parameters
     ----------
-    model : ``str`` or ``Model``
-        Model name or ``Model`` object. Ideally a member of 
-        ``model_dict.keys()``, but can also be one with some characters 
+    model : str or waltlabtools.Model
+        Model name or waltlabtools.Model object. Ideally a member of 
+        model_dict.keys(), but can also be one with some characters 
         off or different capitalization.
    
     Returns
     -------
-    named_model : ``Model``
-        Fixed version of **model** which is a built-in ``Model``.
+    named_model : waltlabtools.Model
+        Fixed version of model which is a built-in
+        waltlabtools.Model.
         
     """
     if isinstance(model_name, Model):
@@ -304,9 +319,10 @@ def regress(model, x, y, use_inverse: bool = False, weights="1/y^2",
 
     Parameters
     ----------
-    model : ``Model`` or ``str``
-        The functional model to use. Should be a valid ``Model`` object
-        or a string referring to a built-in ``Model``.
+    model : waltlabtools.Model or str
+        The functional model to use. Should be a valid
+        waltlabtools.Model object or a string referring to a built-in
+        Model.
     x : array-like
         The independent variable, e.g., concentration.
     y : array-like

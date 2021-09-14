@@ -86,8 +86,12 @@
               
             
             
-              <ul>
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../README.html">waltlabtools</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.core.html">waltlabtools.core module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.mosaic.html">waltlabtools.mosaic module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.read_quanterix.html">waltlabtools.read_quanterix module</a></li>
@@ -161,9 +165,31 @@
   <h1>Source code for waltlabtools.mosaic</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Functions for analyzing MOSAIC data.</span>
 
-<span class="sd">In addition to the dependencies for waltlabtools,</span>
-<span class="sd">waltlabtools.mosaic also requires pandas &gt;= 0.25 and</span>
-<span class="sd">scikit-learn &gt;= 0.21.</span>
+<span class="sd">In addition to the dependencies for waltlabtools, waltlabtools.mosaic</span>
+<span class="sd">also requires pandas 0.25 or greater and scikit-learn 0.21 or greater.</span>
+
+<span class="sd">The public functions in waltlabtools.mosaic can be accessed via, e.g., </span>
+
+<span class="sd">.. code-block:: python</span>
+<span class="sd">   </span>
+<span class="sd">   import waltlabtools as wlt  # waltlabtools main functionality</span>
+<span class="sd">   import waltlabtools.mosaic  # for analyzing MOSAIC assays</span>
+
+<span class="sd">   subset_data = wlt.mosaic.plate_subsets()  # analyze data from a plate</span>
+
+<span class="sd">if also using other functionality from the waltlabtools package, or</span>
+
+<span class="sd">.. code-block:: python</span>
+<span class="sd">   </span>
+<span class="sd">   from waltlabtools import mosaic  # for analyzing MOSAIC assays</span>
+
+<span class="sd">   subset_data = mosaic.plate_subsets()  # analyze data from a plate</span>
+
+<span class="sd">if using only the waltlabtools.mosaic module.</span>
+
+
+<span class="sd">-----</span>
+
 
 <span class="sd">&quot;&quot;&quot;</span>
 
