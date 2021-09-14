@@ -1,0 +1,15 @@
+LICENSE
+README.rst
+pyproject.toml
+setup.cfg
+setup.py
+src/waltlabtools/__init__.py
+src/waltlabtools/core.py
+src/waltlabtools/mosaic.py
+src/waltlabtools/nonnumeric.py
+src/waltlabtools/read_quanterix.py
+src/waltlabtools.egg-info/PKG-INFO
+src/waltlabtools.egg-info/SOURCES.txt
+src/waltlabtools.egg-info/dependency_links.txt
+src/waltlabtools.egg-info/requires.txt
+src/waltlabtools.egg-info/top_level.txt
