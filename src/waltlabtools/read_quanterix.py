@@ -156,10 +156,14 @@ def run_history(filepath=None, drop_cols="blank") -> pd.DataFrame:
         object with a `read()` method. If not provided, a
         `tkinter.filedialog` opens, prompting the user to select a file.
     drop_cols : {"blank", "uniform", "keep"}, default "blank"
-        Should any columns be dropped? Options:
+        Should any columns be automatically dropped from the input file?
+        Options:
+
             - `"blank"` : Drop all columns that are blank.
-            - `"uninformative"` : Drop all columns that have the same
-              value for all rows, which includes all blank columns.
+
+            - `"uniform"` : Drop all columns that have the same
+              value for all rows, which includes blank columns.
+
             - `"keep"` : Do not drop any columns.
 
     Returns
@@ -188,10 +192,14 @@ def sample_results(filepath=None, drop_cols="blank") -> pd.DataFrame:
         object with a `read()` method. If not provided, a
         `tkinter.filedialog` opens, prompting the user to select a file.
     drop_cols : {"blank", "uniform", "keep"}, default "blank"
-        Should any columns be dropped? Options:
+        Should any columns be automatically dropped from the input file?
+        Options:
+
             - `"blank"` : Drop all columns that are blank.
-            - `"uninformative"` : Drop all columns that have the same
-              value for all rows, which includes all blank columns.
+
+            - `"uniform"` : Drop all columns that have the same
+              value for all rows, which includes blank columns.
+
             - `"keep"` : Do not drop any columns.
 
     Returns

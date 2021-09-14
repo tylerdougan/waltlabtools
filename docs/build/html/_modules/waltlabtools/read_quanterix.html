@@ -317,10 +317,14 @@
 <span class="sd">        object with a `read()` method. If not provided, a</span>
 <span class="sd">        `tkinter.filedialog` opens, prompting the user to select a file.</span>
 <span class="sd">    drop_cols : {&quot;blank&quot;, &quot;uniform&quot;, &quot;keep&quot;}, default &quot;blank&quot;</span>
-<span class="sd">        Should any columns be dropped? Options:</span>
+<span class="sd">        Should any columns be automatically dropped from the input file?</span>
+<span class="sd">        Options:</span>
+
 <span class="sd">            - `&quot;blank&quot;` : Drop all columns that are blank.</span>
-<span class="sd">            - `&quot;uninformative&quot;` : Drop all columns that have the same</span>
-<span class="sd">              value for all rows, which includes all blank columns.</span>
+
+<span class="sd">            - `&quot;uniform&quot;` : Drop all columns that have the same</span>
+<span class="sd">              value for all rows, which includes blank columns.</span>
+
 <span class="sd">            - `&quot;keep&quot;` : Do not drop any columns.</span>
 
 <span class="sd">    Returns</span>
@@ -349,10 +353,14 @@
 <span class="sd">        object with a `read()` method. If not provided, a</span>
 <span class="sd">        `tkinter.filedialog` opens, prompting the user to select a file.</span>
 <span class="sd">    drop_cols : {&quot;blank&quot;, &quot;uniform&quot;, &quot;keep&quot;}, default &quot;blank&quot;</span>
-<span class="sd">        Should any columns be dropped? Options:</span>
+<span class="sd">        Should any columns be automatically dropped from the input file?</span>
+<span class="sd">        Options:</span>
+
 <span class="sd">            - `&quot;blank&quot;` : Drop all columns that are blank.</span>
-<span class="sd">            - `&quot;uninformative&quot;` : Drop all columns that have the same</span>
-<span class="sd">              value for all rows, which includes all blank columns.</span>
+
+<span class="sd">            - `&quot;uniform&quot;` : Drop all columns that have the same</span>
+<span class="sd">              value for all rows, which includes blank columns.</span>
+
 <span class="sd">            - `&quot;keep&quot;` : Do not drop any columns.</span>
 
 <span class="sd">    Returns</span>
