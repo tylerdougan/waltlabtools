@@ -1,7 +1,3 @@
-.. waltlabtools documentation master file, created by
-   sphinx-quickstart on Wed Aug 18 12:29:17 2021.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
 waltlabtools
 ============
@@ -12,9 +8,10 @@ A collection of tools for biomedical research assay analysis in Python.
 
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
 
    README
+   waltlabtools
    waltlabtools.core
    waltlabtools.mosaic
    waltlabtools.read_quanterix
