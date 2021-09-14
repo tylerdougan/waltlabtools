@@ -36,3 +36,6 @@
 
 0.3.8
  - Fixed a bug in read_quanterix
+
+0.3.9
+ - Rearranged modules
