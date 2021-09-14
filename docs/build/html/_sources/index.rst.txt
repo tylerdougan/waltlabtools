@@ -12,7 +12,7 @@ A collection of tools for biomedical research assay analysis in Python.
 
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 4
 
    README
    waltlabtools.core
