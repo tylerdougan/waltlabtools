@@ -21,7 +21,8 @@ Key Features
 ------------
 
 -  Analysis for assays such as
-   `digital ELISA <http://www.ncbi.nlm.nih.gov/pmc/articles/pmc2919230/>`__
+   `digital ELISA <http://www.ncbi.nlm.nih.gov/pmc/articles/pmc2919230/>`__,
+   including single-molecule array (Simoa) assays
 -  Read instrument-generated files and calculate calibration curves,
    concentrations, limits of detection, and more
 -  Free and open-source software under the
@@ -42,7 +43,12 @@ with the command line, begin by installing
 to add the channel ``tylerdougan``, and install waltlabtools from this channel.
 
 Alternatively, install waltlabtools from the command line with
-``conda install -c tylerdougan waltlabtools`` or ``pip install waltlabtools``.
+``conda install -c tylerdougan waltlabtools`` (recommended; requires you to
+first install Anaconda or
+`Miniconda <https://docs.conda.io/en/latest/miniconda.html>`__) or
+``pip install waltlabtools`` (requires
+`pip <https://pip.pypa.io/en/stable/getting-started/>`__, which should come
+with Python).
 
 
 Dependencies
@@ -66,21 +72,21 @@ Dependencies
 
 - waltlabtools also plays well with
 
-  - `jax <https://jax.readthedocs.io/en/latest/index.html>`__ (for
-    accelerated numerical computing)
+  - `JAX <https://jax.readthedocs.io/en/latest/index.html>`__
+    (for accelerated numerical computing) – waltlabtools will use jax.numpy
+    instead of numpy if jax is loaded
 
   - `JupyterLab <https://jupyterlab.readthedocs.io/en/stable/>`__
-    (for writing code)
+    (for interactively writing code)
 
-  - `pandas <https://pandas.pydata.org>`__ (for data import/export and
-    organization)
+  - `pandas <https://pandas.pydata.org>`__
+    (for data import/export and organization)
 
   - `matplotlib <https://matplotlib.org>`__ (for plotting)
 
-  - `scikit-learn <https://scikit-learn.org/stable/>`__ (for data
-    analysis)
+  - `scikit-learn <https://scikit-learn.org/stable/>`__ (for data analysis)
 
-All packages can all be installed using
+All of these packages can all be installed using
 `conda <https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html>`__
 or `pip <https://pypi.org>`__.
 

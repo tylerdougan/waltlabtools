@@ -185,7 +185,8 @@
 <h2>Key Features<a class="headerlink" href="#key-features" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Analysis for assays such as
-<a class="reference external" href="http://www.ncbi.nlm.nih.gov/pmc/articles/pmc2919230/">digital ELISA</a></p></li>
+<a class="reference external" href="http://www.ncbi.nlm.nih.gov/pmc/articles/pmc2919230/">digital ELISA</a>,
+including single-molecule array (Simoa) assays</p></li>
 <li><p>Read instrument-generated files and calculate calibration curves,
 concentrations, limits of detection, and more</p></li>
 <li><p>Free and open-source software under the
@@ -204,7 +205,12 @@ with the command line, begin by installing
 <a class="reference external" href="https://docs.anaconda.com/anaconda/navigator/tutorials/manage-channels/">these instructions</a>
 to add the channel <code class="docutils literal notranslate"><span class="pre">tylerdougan</span></code>, and install waltlabtools from this channel.</p>
 <p>Alternatively, install waltlabtools from the command line with
-<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">tylerdougan</span> <span class="pre">waltlabtools</span></code> or <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">waltlabtools</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">tylerdougan</span> <span class="pre">waltlabtools</span></code> (recommended; requires you to
+first install Anaconda or
+<a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">Miniconda</a>) or
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">waltlabtools</span></code> (requires
+<a class="reference external" href="https://pip.pypa.io/en/stable/getting-started/">pip</a>, which should come
+with Python).</p>
 </div>
 <div class="section" id="dependencies">
 <h3>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h3>
@@ -229,19 +235,19 @@ automatically</p></li>
 </li>
 <li><p>waltlabtools also plays well with</p>
 <ul>
-<li><p><a class="reference external" href="https://jax.readthedocs.io/en/latest/index.html">jax</a> (for
-accelerated numerical computing)</p></li>
+<li><p><a class="reference external" href="https://jax.readthedocs.io/en/latest/index.html">JAX</a>
+(for accelerated numerical computing) – waltlabtools will use jax.numpy
+instead of numpy if jax is loaded</p></li>
 <li><p><a class="reference external" href="https://jupyterlab.readthedocs.io/en/stable/">JupyterLab</a>
-(for writing code)</p></li>
-<li><p><a class="reference external" href="https://pandas.pydata.org">pandas</a> (for data import/export and
-organization)</p></li>
+(for interactively writing code)</p></li>
+<li><p><a class="reference external" href="https://pandas.pydata.org">pandas</a>
+(for data import/export and organization)</p></li>
 <li><p><a class="reference external" href="https://matplotlib.org">matplotlib</a> (for plotting)</p></li>
-<li><p><a class="reference external" href="https://scikit-learn.org/stable/">scikit-learn</a> (for data
-analysis)</p></li>
+<li><p><a class="reference external" href="https://scikit-learn.org/stable/">scikit-learn</a> (for data analysis)</p></li>
 </ul>
 </li>
 </ul>
-<p>All packages can all be installed using
+<p>All of these packages can all be installed using
 <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html">conda</a>
 or <a class="reference external" href="https://pypi.org">pip</a>.</p>
 </div>
