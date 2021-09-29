@@ -47,3 +47,6 @@
 
 0.4.2
  - Corrected source directory structure
+
+0.4.5
+ - Fixed circular dependencies
