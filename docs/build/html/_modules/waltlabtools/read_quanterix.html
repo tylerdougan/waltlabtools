@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>waltlabtools.read_quanterix &mdash; waltlabtools 0.4.1 documentation</title>
+  <title>waltlabtools.read_quanterix &mdash; waltlabtools 0.4.4 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -84,10 +84,10 @@
 <span class="sd">waltlabtools.read_quanterix also requires pandas 0.25 or greater.</span>
 
 <span class="sd">The public functions in waltlabtools.read_quanterix can be accessed via,</span>
-<span class="sd">e.g., </span>
+<span class="sd">e.g.,</span>
 
 <span class="sd">.. code-block:: python</span>
-<span class="sd">   </span>
+
 <span class="sd">   import waltlabtools as wlt  # waltlabtools main functionality</span>
 <span class="sd">   import waltlabtools.read_quanterix  # for Quanterix data</span>
 
@@ -96,7 +96,7 @@
 <span class="sd">if also using other functionality from the waltlabtools package, or</span>
 
 <span class="sd">.. code-block:: python</span>
-<span class="sd">   </span>
+
 <span class="sd">   from waltlabtools import read_quanterix  # for Quanterix data</span>
 
 <span class="sd">   subset_data = read_quanterix.run_history()  # read run history</span>
@@ -110,7 +110,15 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">filedialog</span>
+
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">_optional_dependencies</span>
+
+<span class="k">if</span> <span class="n">_optional_dependencies</span><span class="p">[</span><span class="s2">&quot;tkinter&quot;</span><span class="p">]:</span>
+    <span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">filedialog</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">filedialog</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
+            <span class="s2">&quot;If tkinter is not installed, a filepath must be provided.&quot;</span><span class="p">)</span>
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;run_history&quot;</span><span class="p">,</span> <span class="s2">&quot;sample_results&quot;</span><span class="p">]</span>
@@ -195,9 +203,6 @@
 
 
 <span class="k">def</span> <span class="nf">_get_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filetypes</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    </span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">io</span> <span class="o">=</span> <span class="n">filedialog</span><span class="o">.</span><span class="n">askopenfilenames</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">filetypes</span><span class="o">=</span><span class="n">filetypes</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -205,23 +210,22 @@
     <span class="k">return</span> <span class="n">io</span>
 
 
-<span class="n">filetype_readers</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">_filetype_readers</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;csv&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">,</span>
     <span class="s2">&quot;excel&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">,</span>
     <span class="s2">&quot;xls&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">,</span>
     <span class="s2">&quot;xlsx&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">,</span>
     <span class="s2">&quot;opendocument&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">,</span>
     <span class="s2">&quot;odf&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">}</span>
-<span class="n">readers_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">filetype_readers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
 
 <span class="k">def</span> <span class="nf">_table_filetype</span><span class="p">(</span><span class="n">io</span><span class="p">,</span> <span class="n">filetype</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">filetype</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">filetype_casefold</span> <span class="o">=</span> <span class="n">filetype</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">filetype_casefold</span> <span class="ow">in</span> <span class="n">filetype_readers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">filetype_readers</span><span class="p">[</span><span class="n">filetype_casefold</span><span class="p">](</span><span class="n">io</span><span class="p">),</span>
-                <span class="n">filetype_readers</span><span class="p">[</span><span class="n">filetype_casefold</span><span class="p">])</span>
-    <span class="k">for</span> <span class="n">reader</span> <span class="ow">in</span> <span class="n">readers_set</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">filetype_casefold</span> <span class="ow">in</span> <span class="n">_filetype_readers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">_filetype_readers</span><span class="p">[</span><span class="n">filetype_casefold</span><span class="p">](</span><span class="n">io</span><span class="p">),</span>
+                <span class="n">_filetype_readers</span><span class="p">[</span><span class="n">filetype_casefold</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">reader</span> <span class="ow">in</span> <span class="n">_filetype_readers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">reader</span><span class="p">(</span><span class="n">io</span><span class="p">),</span> <span class="n">reader</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -245,8 +249,8 @@
 
 <div class="viewcode-block" id="run_history"><a class="viewcode-back" href="../../waltlabtools.read_quanterix.html#waltlabtools.read_quanterix.run_history">[docs]</a><span class="k">def</span> <span class="nf">run_history</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">drop_cols</span><span class="o">=</span><span class="s2">&quot;blank&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Reads in a Quanterix HD-X Run History file.</span>
-<span class="sd">   </span>
+<span class="sd">    Reads in a Quanterix HD-X Run History (.csv) file.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    filepath : str, path object or file-like object, optional</span>
@@ -270,7 +274,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    table : pandas.DataFrame</span>
 <span class="sd">        Run History.</span>
-<span class="sd">   </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">io</span> <span class="o">=</span> <span class="n">_get_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Choose a Run History File&quot;</span><span class="p">,</span>
         <span class="n">filetypes</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;Comma-Separated Values&quot;</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">)])</span>
@@ -281,8 +285,8 @@
 
 <div class="viewcode-block" id="sample_results"><a class="viewcode-back" href="../../waltlabtools.read_quanterix.html#waltlabtools.read_quanterix.sample_results">[docs]</a><span class="k">def</span> <span class="nf">sample_results</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">drop_cols</span><span class="o">=</span><span class="s2">&quot;blank&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Reads in a Quanterix HD-X Sample Results Report file.</span>
-<span class="sd">   </span>
+<span class="sd">    Reads in a Quanterix HD-X Sample Results Report (.xls) file.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    filepath : str, path object or file-like object, optional</span>
@@ -306,7 +310,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    table : pandas.DataFrame</span>
 <span class="sd">        Sample Results Report.</span>
-<span class="sd">   </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">io</span> <span class="o">=</span> <span class="n">_get_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Choose a Sample Results Report File&quot;</span><span class="p">,</span>
         <span class="n">filetypes</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;Excel 97–2004 Workbook&quot;</span><span class="p">,</span> <span class="s2">&quot;xls&quot;</span><span class="p">)])</span>

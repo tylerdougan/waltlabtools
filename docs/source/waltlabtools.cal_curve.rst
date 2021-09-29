@@ -1,5 +1,5 @@
-waltlabtools.cal_curve module
-=============================
+waltlabtools.cal\_curve module
+==============================
 
 .. automodule:: waltlabtools.cal_curve
    :members:

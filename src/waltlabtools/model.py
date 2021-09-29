@@ -136,23 +136,23 @@ m_5PL = Model(_f_5PL, _i_5PL, "5PL",
 
 model_list = [m_linear, m_power, m_hill, m_logistic, m_4PL, m_5PL]
 model_dict = {model.name: model for model in model_list}
-    """Built-in regression models.
+"""Built-in regression models.
 
-    Keys of model_dict are strings giving model names; values are
-    waltlabtools.Model objects.
+Keys of model_dict are strings giving model names; values are
+waltlabtools.Model objects.
 
-    Models
-    ------
-    "linear" : Linear function.
+Models
+------
+"linear" : Linear function.
 
-    "power" : Power function.
+"power" : Power function.
 
-    "Hill" : Hill function.
+"Hill" : Hill function.
 
-    "logistic" : Logistic function.
+"logistic" : Logistic function.
 
-    "4PL" : Four-parameter logistic (4PL) function.
+"4PL" : Four-parameter logistic (4PL) function.
 
-    "5PL" : Five-parameter logistic (5PL) function.
+"5PL" : Five-parameter logistic (5PL) function.
 
-    """
+"""

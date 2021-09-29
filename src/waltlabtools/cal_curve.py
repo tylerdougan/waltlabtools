@@ -359,7 +359,7 @@ class CalCurve:
     def plot(self, point_color=None, curve_color=None, x=None, start=None,
             stop=None, num: int = 1000, plot_points_with=None,
             show: bool = True, **kwargs):
-        return plot_cal_curve(self, point_color curve_color, x, start, stop,
+        return plot_cal_curve(self, point_color, curve_color, x, start, stop,
             num, plot_points_with, show, **kwargs)
 
     def __iter__(self):
@@ -368,7 +368,7 @@ class CalCurve:
     @classmethod
     def from_data(cls, model, x, y, lod_sds=3, corr="c4",
             force_lod: bool = False, use_inverse: bool = False,
-            weights="1/y^2", corr="c4"):
+            weights="1/y^2"):
         """Constructs a calibration curve from data.
 
         Parameters

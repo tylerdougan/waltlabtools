@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>waltlabtools.cal_curve &mdash; waltlabtools 0.4.4 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> waltlabtools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+    
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../README.html">waltlabtools</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.core.html">waltlabtools.core module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.model.html">waltlabtools.model module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.cal_curve.html">waltlabtools.cal_curve module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.read_quanterix.html">waltlabtools.read_quanterix module</a></li>
+</ul>
+
+    <a href="genindex.html">Index</a>
+  
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">waltlabtools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>waltlabtools.cal_curve</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for waltlabtools.cal_curve</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Class CalCurve, its methods, and related functions.</span>
+
+<span class="sd">Everything in waltlabtools.cal_curve is automatically imported with</span>
+<span class="sd">waltlabtools, so it can be accessed via, e.g.,</span>
+
+<span class="sd">.. code-block:: python</span>
+
+<span class="sd">   import waltlabtools as wlt  # waltlabtools main functionality</span>
+
+<span class="sd">   my_cal_curve = wlt.CalCurve()  # creates a new empty calibration curve</span>
+
+
+<span class="sd">-----</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">scipy.optimize</span> <span class="k">as</span> <span class="nn">opt</span>
+
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">dropna</span><span class="p">,</span> <span class="n">_optional_dependencies</span><span class="p">,</span> <span class="n">std</span>
+<span class="kn">from</span> <span class="nn">.model</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">model_dict</span>
+
+<span class="k">if</span> <span class="n">_optional_dependencies</span><span class="p">[</span><span class="s2">&quot;jax&quot;</span><span class="p">]:</span>
+    <span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">if</span> <span class="n">_optional_dependencies</span><span class="p">[</span><span class="s2">&quot;matplotlib&quot;</span><span class="p">]:</span>
+    <span class="kn">from</span> <span class="nn">.plot</span> <span class="kn">import</span> <span class="n">plot_cal_curve</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">plot_cal_curve</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
+            <span class="s2">&quot;Plotting requires matplotlib to be installed.&quot;</span><span class="p">)</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;regress&quot;</span><span class="p">,</span> <span class="s2">&quot;lod&quot;</span><span class="p">,</span> <span class="s2">&quot;CalCurve&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_len_for_message</span><span class="p">(</span><span class="n">collection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">collection</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;an unknown number of&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_match_coefs</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">coefs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coefs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">coefs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">coefs</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">coefs</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coefs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">coefs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coefs</span><span class="p">))}</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">coefs</span><span class="p">}</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="n">params</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">coefs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;Wrong number of coefficients.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;The function requires&quot;</span><span class="p">,</span> <span class="n">_len_for_message</span><span class="p">(</span><span class="n">params</span><span class="p">),</span> <span class="s2">&quot;coefficients:&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">params</span><span class="p">),</span> <span class="s2">&quot;. You provided a&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">coefs</span><span class="p">)),</span> <span class="s2">&quot;with&quot;</span><span class="p">,</span>
+            <span class="n">_len_for_message</span><span class="p">(</span><span class="n">coefs</span><span class="p">),</span> <span class="s2">&quot;coefficients:&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">coefs</span><span class="p">)]))</span>
+
+
+<span class="k">def</span> <span class="nf">_match_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Model</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns a Model object from a string matching its name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : str or waltlabtools.Model</span>
+<span class="sd">        Model name or waltlabtools.Model object. Ideally a member of</span>
+<span class="sd">        model_dict.keys(), but can also be one with some characters</span>
+<span class="sd">        off or different capitalization.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    named_model : waltlabtools.Model</span>
+<span class="sd">        Fixed version of model which is a built-in</span>
+<span class="sd">        waltlabtools.Model.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">Model</span><span class="p">):</span>
+        <span class="n">named_model</span> <span class="o">=</span> <span class="n">model_name</span>
+    <span class="k">elif</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">model_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">named_model</span> <span class="o">=</span> <span class="n">model_dict</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">model_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">named_model</span> <span class="o">=</span> <span class="n">model_dict</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">m_lower</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+            <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">model_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">m_lower</span> <span class="ow">in</span> <span class="n">key</span><span class="o">.</span><span class="n">casefold</span><span class="p">())</span> <span class="ow">or</span> <span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="ow">in</span> <span class="n">m_lower</span><span class="p">):</span>
+                    <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">named_model</span> <span class="o">=</span> <span class="n">model_dict</span><span class="p">[</span><span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">error_text</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;Model&quot;</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="s2">&quot;not found.&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">error_text</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">error_text</span><span class="p">,</span> <span class="s2">&quot;Did you mean one of&quot;</span><span class="p">,</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">matches</span><span class="p">),</span> <span class="s2">&quot;?&quot;</span><span class="p">])</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">error_text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">named_model</span>
+
+
+<div class="viewcode-block" id="regress"><a class="viewcode-back" href="../../waltlabtools.cal_curve.html#waltlabtools.regress">[docs]</a><span class="k">def</span> <span class="nf">regress</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">use_inverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="s2">&quot;1/y^2&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Performs a (nonlinear) regression and returns coefficients.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : waltlabtools.Model or str</span>
+<span class="sd">        The functional model to use. Should be a valid</span>
+<span class="sd">        waltlabtools.Model object or a string referring to a built-in</span>
+<span class="sd">        Model.</span>
+<span class="sd">    x : array-like</span>
+<span class="sd">        The independent variable, e.g., concentration.</span>
+<span class="sd">    y : array-like</span>
+<span class="sd">        The dependent variable, e.g., fluorescence.</span>
+<span class="sd">    use_inverse : ``bool``, default False</span>
+<span class="sd">        Should ``x`` be regressed as a function of ``y`` instead?</span>
+<span class="sd">    weights : ``str`` or array-like, default &quot;1/y^2&quot;</span>
+<span class="sd">        Weights to be used. If array-like, should be the same size as</span>
+<span class="sd">        **x** and **y**. Otherwise, can be one of the following:</span>
+
+<span class="sd">            - &quot;1/y^2&quot; : Inverse-squared (1/y^2) weighting.</span>
+
+<span class="sd">            - &quot;1&quot; : Equal weighting for all data points.</span>
+
+<span class="sd">        Other strings raise a ``NotImplementedError``.</span>
+<span class="sd">    kwargs</span>
+<span class="sd">        Keyword arguments passed to scipy.optimize.curve_fit.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    popt : array</span>
+<span class="sd">        Optimal values for the parameters so that the sum of the</span>
+<span class="sd">        squared residuals is minimized.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    scipy.optimize.curve_fit : backend function used by ``regress``</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">named_model</span> <span class="o">=</span> <span class="n">_match_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">weights</span> <span class="o">==</span> <span class="s2">&quot;1/y^2&quot;</span><span class="p">:</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">y</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">weights</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">):</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span><span class="o">**-</span><span class="mi">2</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+                <span class="o">+</span> <span class="s2">&quot; is not a valid weighting scheme. Please try another one.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">use_inverse</span><span class="p">:</span>
+        <span class="n">calibration_function</span> <span class="o">=</span> <span class="n">named_model</span><span class="o">.</span><span class="n">inverse</span>
+        <span class="n">xdata</span><span class="p">,</span> <span class="n">ydata</span> <span class="o">=</span> <span class="n">dropna</span><span class="p">([</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">sigma</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">calibration_function</span> <span class="o">=</span> <span class="n">named_model</span><span class="o">.</span><span class="n">fun</span>
+        <span class="n">xdata</span><span class="p">,</span> <span class="n">ydata</span> <span class="o">=</span> <span class="n">dropna</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">])</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">kwarg_name</span><span class="p">,</span> <span class="n">kwarg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;p0&quot;</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;bounds&quot;</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">p0</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">method</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">kwarg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="n">kwarg_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwarg</span>
+    <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">curve_fit</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">calibration_function</span><span class="p">,</span> <span class="n">xdata</span><span class="o">=</span><span class="n">xdata</span><span class="p">,</span>
+        <span class="n">ydata</span><span class="o">=</span><span class="n">ydata</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">popt</span></div>
+
+
+<div class="viewcode-block" id="lod"><a class="viewcode-back" href="../../waltlabtools.cal_curve.html#waltlabtools.lod">[docs]</a><span class="k">def</span> <span class="nf">lod</span><span class="p">(</span><span class="n">blank_signal</span><span class="p">,</span> <span class="n">inverse_fun</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">corr</span><span class="o">=</span><span class="s2">&quot;c4&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the limit of detection (LOD).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    blank_signal : array-like</span>
+<span class="sd">        Signal (e.g., average number of enzymes per bead, AEB) of the</span>
+<span class="sd">        zero calibrator. Must have at least two elements.</span>
+<span class="sd">    inverse_fun : ``function`` or ``CalCurve``</span>
+<span class="sd">        The functional form used for the calibration curve. If a</span>
+<span class="sd">        function, it should accept the measurement reading (`y`, e.g.,</span>
+<span class="sd">        fluorescence) as its only argument and return the value (`x`,</span>
+<span class="sd">        e.g., concentration). If **inverse_fun** is a ``CalCurve``</span>
+<span class="sd">        object, the LOD will be calculated from its ``inverse`` method.</span>
+<span class="sd">    sds : numeric, optional</span>
+<span class="sd">        How many standard deviations above the mean should the</span>
+<span class="sd">        background should the limit of detection be calculated at?</span>
+<span class="sd">        Common values include 2.5 (Quanterix), 3 (Walt Lab), and 10</span>
+<span class="sd">        (lower limit of quantification, LLOQ).</span>
+<span class="sd">    corr : {&quot;n&quot;, &quot;n-1&quot;, &quot;n-1.5&quot;, &quot;c4&quot;} or numeric, default &quot;c4&quot;</span>
+<span class="sd">        The sample standard deviation under-estimates the population</span>
+<span class="sd">        standard deviation for a normally distributed variable.</span>
+<span class="sd">        Specifies how this should be addressed. Options:</span>
+
+<span class="sd">            - &quot;n&quot; : Divide by the number of samples to yield the</span>
+<span class="sd">              uncorrected sample standard deviation.</span>
+
+<span class="sd">            - &quot;n-1&quot; : Divide by the number of samples minus one to</span>
+<span class="sd">              yield the square root of the unbiased sample variance.</span>
+
+<span class="sd">            - &quot;n-1.5&quot; : Divide by the number of samples minus 1.5 to</span>
+<span class="sd">              yield the approximate unbiased sample standard deviation.</span>
+
+<span class="sd">            - &quot;c4&quot; : Divide by the correction factor to yield the</span>
+<span class="sd">              exact unbiased sample standard deviation.</span>
+
+<span class="sd">            - If numeric, gives the delta degrees of freedom.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    lod_x : numeric</span>
+<span class="sd">        The limit of detection, in units of x (e.g., concentration).</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    c4 : unbiased estimation of the population standard deviation</span>
+
+<span class="sd">    numpy.std : standard deviation</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">blank_array</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">blank_signal</span><span class="p">)</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">blank_array</span><span class="p">)</span>
+    <span class="n">stdev</span> <span class="o">=</span> <span class="n">std</span><span class="p">(</span><span class="n">blank_array</span><span class="p">)</span>
+    <span class="n">lod_y</span> <span class="o">=</span> <span class="n">mean</span> <span class="o">+</span> <span class="n">sds</span><span class="o">*</span><span class="n">stdev</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inverse_fun</span><span class="p">,</span> <span class="n">CalCurve</span><span class="p">):</span>
+        <span class="n">lod_x</span> <span class="o">=</span> <span class="n">inverse_fun</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">lod_y</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lod_x</span> <span class="o">=</span> <span class="n">inverse_fun</span><span class="p">(</span><span class="n">lod_y</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lod_x</span></div>
+
+
+<span class="c1"># CLASSES</span>
+
+<div class="viewcode-block" id="CalCurve"><a class="viewcode-back" href="../../waltlabtools.cal_curve.html#waltlabtools.CalCurve">[docs]</a><span class="k">class</span> <span class="nc">CalCurve</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Calibration curve.</span>
+
+<span class="sd">    A calibration curve is the result of regressing the calibrator data</span>
+<span class="sd">    with a specific functional form.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : ``Model`` or ``str``</span>
+<span class="sd">        The functional model to use. Should be a valid ``Model`` object</span>
+<span class="sd">        or a string referring to a built-in ``Model``.</span>
+<span class="sd">    coefs : list-like</span>
+<span class="sd">        Numerical values of the parameters specified by **model**.</span>
+<span class="sd">    lod : numeric, optional</span>
+<span class="sd">        Lower limit of detection (LOD).</span>
+<span class="sd">    lod_sds : numeric, default 3</span>
+<span class="sd">        Number of standard deviations above blank at which the lower</span>
+<span class="sd">        limit of detection is calculated. Common values include 2.5</span>
+<span class="sd">        (Quanterix), 3 (Walt Lab), and 10 (lower limit of</span>
+<span class="sd">        quantification, LLOQ).</span>
+<span class="sd">    force_lod : ``bool``, default False</span>
+<span class="sd">        Should readings below the LOD be set to the LOD?</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coefs</span><span class="o">=</span><span class="p">(),</span> <span class="n">lod</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+            <span class="n">lod_sds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">force_lod</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes a new, empty CalCurve object.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">_match_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coefs</span> <span class="o">=</span> <span class="n">_match_coefs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">coefs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lod</span> <span class="o">=</span> <span class="n">lod</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lod_sds</span> <span class="o">=</span> <span class="n">lod_sds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_lod</span> <span class="o">=</span> <span class="n">force_lod</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print/represent method for CalCurve objects.&quot;&quot;&quot;</span>
+        <span class="n">coefs_named</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s2">&quot; = &quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coefs</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="s2">&quot;, &quot;</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coefs</span><span class="p">))])</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot; calibration curve with parameters &quot;</span><span class="p">,</span>
+            <span class="n">coefs_named</span><span class="p">,</span> <span class="s2">&quot;and LOD = &quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lod</span><span class="p">)])</span>
+
+<div class="viewcode-block" id="CalCurve.bound_lod"><a class="viewcode-back" href="../../waltlabtools.cal_curve.html#waltlabtools.CalCurve.bound_lod">[docs]</a>    <span class="k">def</span> <span class="nf">bound_lod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_flat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets values below the limit of detection (LOD) to the LOD.</span>
+
+<span class="sd">        If ``force_lod`` is True, returns a version of the given data</span>
+<span class="sd">        with all values below the LOD set to be the LOD. Otherwise,</span>
+<span class="sd">        returns the original data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x_flat : array</span>
+<span class="sd">            Data to be bounded. Must be an array, such as the output of</span>
+<span class="sd">            ``flatten``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array</span>
+<span class="sd">            A copy of **x_flat**, with all its values above the LOD if</span>
+<span class="sd">            **force_lod** is True, or the original array otherwise.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_lod</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">x_flat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lod</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">x_flat</span></div>
+
+<div class="viewcode-block" id="CalCurve.fun"><a class="viewcode-back" href="../../waltlabtools.cal_curve.html#waltlabtools.CalCurve.fun">[docs]</a>    <span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Forward function, mapping values to measurement readings.</span>
+
+<span class="sd">        Use ``fun`` to convert values (e.g., concentration) to the</span>
+<span class="sd">        measurement readings (e.g., fluorescence) that they should</span>
+<span class="sd">        yield.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : numeric or array-like</span>
+<span class="sd">            Values, such as concentration.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        y : same as input or array</span>
+<span class="sd">            Measurement readings, such as fluorescence, calculated from</span>
+<span class="sd">            the values **x** using the calibration curve. If possible,</span>
+<span class="sd">            **y** will be the same type, size, and shape as **x**; if</span>
+<span class="sd">            not, **y** will be a 1D array of the same size as **x**.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fun</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bound_lod</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">coefs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">x_flat</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fun</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bound_lod</span><span class="p">(</span><span class="n">x_flat</span><span class="p">),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">coefs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">y</span></div>
+
+<div class="viewcode-block" id="CalCurve.inverse"><a class="viewcode-back" href="../../waltlabtools.cal_curve.html#waltlabtools.CalCurve.inverse">[docs]</a>    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Inverse function, mapping measurement readings to values.</span>
+
+<span class="sd">        Use ``inverse`` to convert measurement readings (e.g.,</span>
+<span class="sd">        fluorescence) to values (e.g., concentration) of the sample.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y : numeric or array-like</span>
+<span class="sd">            Measurement readings, such as fluorescence.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        x : same as input or array</span>
+<span class="sd">            Values, such as concentration, calculated from</span>
+<span class="sd">            the values **y** using the calibration curve. If possible,</span>
+<span class="sd">            **x** will be the same type, size, and shape as **y**; if</span>
+<span class="sd">            not, **x** will be a 1D array of the same size as **y**.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bound_lod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">coefs</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">y_flat</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bound_lod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">y_flat</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">coefs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="CalCurve.plot"><a class="viewcode-back" href="../../waltlabtools.cal_curve.html#waltlabtools.CalCurve.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">curve_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">stop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">plot_points_with</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">plot_cal_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point_color</span><span class="p">,</span> <span class="n">curve_color</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span>
+            <span class="n">num</span><span class="p">,</span> <span class="n">plot_points_with</span><span class="p">,</span> <span class="n">show</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CalCurve.from_data"><a class="viewcode-back" href="../../waltlabtools.cal_curve.html#waltlabtools.CalCurve.from_data">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lod_sds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">corr</span><span class="o">=</span><span class="s2">&quot;c4&quot;</span><span class="p">,</span>
+            <span class="n">force_lod</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">use_inverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">weights</span><span class="o">=</span><span class="s2">&quot;1/y^2&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructs a calibration curve from data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : array-like</span>
+<span class="sd">            The independent variable, e.g., concentration.</span>
+<span class="sd">        y : array-like</span>
+<span class="sd">            The dependent variable, e.g., fluorescence.</span>
+<span class="sd">        model : ``Model``</span>
+<span class="sd">            Mathematical model used.</span>
+<span class="sd">        lod : numeric, optinal</span>
+<span class="sd">            Lower limit of detection (LOD).</span>
+<span class="sd">        lod_sds : numeric, default 3</span>
+<span class="sd">            Number of standard deviations above blank at which the lower</span>
+<span class="sd">            limit of detection is calculated. CCommon values include 2.5</span>
+<span class="sd">            (Quanterix), 3 (Walt Lab), and 10 (lower limit of</span>
+<span class="sd">            quantification, LLOQ).</span>
+<span class="sd">        corr : {&quot;n&quot;, &quot;n-1&quot;, &quot;n-1.5&quot;, &quot;c4&quot;} or numeric, default &quot;c4&quot;</span>
+<span class="sd">            The sample standard deviation under-estimates the population</span>
+<span class="sd">            standard deviation for a normally distributed variable.</span>
+<span class="sd">            Specifies how this should be addressed. Options:</span>
+
+<span class="sd">                - &quot;n&quot; : Divide by the number of samples to yield the</span>
+<span class="sd">                  uncorrected sample standard deviation.</span>
+
+<span class="sd">                - &quot;n-1&quot; : Divide by the number of samples minus one to</span>
+<span class="sd">                  yield the square root of the unbiased sample variance.</span>
+
+<span class="sd">                - &quot;n-1.5&quot; : Divide by the number of samples minus 1.5</span>
+<span class="sd">                  to yield the approximate unbiased sample standard</span>
+<span class="sd">                  deviation.</span>
+
+<span class="sd">                - &quot;c4&quot; : Divide by the correction factor to yield the</span>
+<span class="sd">                  exact unbiased sample standard deviation.</span>
+
+<span class="sd">                - If numeric, gives the delta degrees of freedom.</span>
+<span class="sd">        force_lod : ``bool``, default False</span>
+<span class="sd">            Should readings below the LOD be set to the LOD?</span>
+<span class="sd">        use_inverse : ``bool``, default False</span>
+<span class="sd">            Should **x** be regressed as a function of **y** instead?</span>
+<span class="sd">        weights : ``str`` or array-like, default &quot;1/y^2&quot;</span>
+<span class="sd">            Weights to be used. If array-like, should be the same size</span>
+<span class="sd">            as **x** and **y**. Otherwise, can be one of the following:</span>
+
+<span class="sd">                - &quot;1/y^2&quot; : Inverse-squared (1/y^2) weighting.</span>
+
+<span class="sd">                - &quot;1&quot; : Equal weighting for all data points.</span>
+
+<span class="sd">            Other strings raise a ``NotImplementedError``.</span>
+<span class="sd">        kwargs</span>
+<span class="sd">            Keyword arguments passed to scipy.optimize.curve_fit.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ``CalCurve``</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x_flat</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">y_flat</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">coefs</span> <span class="o">=</span> <span class="n">regress</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x_flat</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y_flat</span><span class="p">,</span>
+            <span class="n">use_inverse</span><span class="o">=</span><span class="n">use_inverse</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">cal_curve</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x_flat</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y_flat</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">coefs</span><span class="o">=</span><span class="n">coefs</span><span class="p">,</span>
+            <span class="n">lod_sds</span><span class="o">=</span><span class="n">lod_sds</span><span class="p">,</span> <span class="n">force_lod</span><span class="o">=</span><span class="n">force_lod</span><span class="p">)</span>
+        <span class="n">cal_curve</span><span class="o">.</span><span class="n">lod</span> <span class="o">=</span> <span class="n">lod</span><span class="p">(</span><span class="n">y_flat</span><span class="p">[</span><span class="n">x_flat</span> <span class="o">==</span> <span class="mi">0</span><span class="p">],</span> <span class="n">cal_curve</span><span class="o">.</span><span class="n">inverse</span><span class="p">,</span>
+            <span class="n">sds</span><span class="o">=</span><span class="n">lod_sds</span><span class="p">,</span> <span class="n">corr</span><span class="o">=</span><span class="n">corr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cal_curve</span></div>
+
+<div class="viewcode-block" id="CalCurve.from_function"><a class="viewcode-back" href="../../waltlabtools.cal_curve.html#waltlabtools.CalCurve.from_function">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_function</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fun</span><span class="p">,</span> <span class="n">inverse</span><span class="p">,</span> <span class="n">lod</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">lod_sds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">force_lod</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructs a calibration curve from a function.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fun : ``function``</span>
+<span class="sd">            Forward function, mapping values to measurement readings.</span>
+<span class="sd">        inverse : ``function``</span>
+<span class="sd">            Inverse function, mapping measurement readings to values.</span>
+<span class="sd">        lod : numeric, optinal</span>
+<span class="sd">            Lower limit of detection (LOD).</span>
+<span class="sd">        lod_sds : numeric, default 3</span>
+<span class="sd">            Number of standard deviations above blank at which the lower</span>
+<span class="sd">            limit of detection is calculated. Common values include 2.5</span>
+<span class="sd">            (Quanterix), 3 (Walt Lab), and 10 (lower limit of</span>
+<span class="sd">            quantification, LLOQ).</span>
+<span class="sd">        force_lod : ``bool``, default False</span>
+<span class="sd">            Should readings below the LOD be set to the LOD?</span>
+<span class="sd">        xscale, yscale : {&quot;linear&quot;, &quot;log&quot;, &quot;symlog&quot;, &quot;logit&quot;}, default &quot;linear&quot;</span>
+<span class="sd">            The natural scaling transformations for `x` and `y`. For</span>
+<span class="sd">            example, &quot;log&quot; means that the data may be distributed</span>
+<span class="sd">            log-normally and are best visualized on a log scale.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ``CalCurve``</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">fun</span><span class="o">=</span><span class="n">fun</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="n">inverse</span><span class="p">,</span> <span class="n">xscale</span><span class="o">=</span><span class="n">xscale</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="n">yscale</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">lod</span><span class="o">=</span><span class="n">lod</span><span class="p">,</span> <span class="n">lod_sds</span><span class="o">=</span><span class="n">lod_sds</span><span class="p">,</span> <span class="n">force_lod</span><span class="o">=</span><span class="n">force_lod</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Tyler Dougan.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

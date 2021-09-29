@@ -73,18 +73,18 @@ Dependencies
 - waltlabtools also plays well with
 
   - `JAX <https://jax.readthedocs.io/en/latest/index.html>`__
-    (for accelerated numerical computing) – waltlabtools will use jax.numpy
+    for accelerated numerical computing – waltlabtools will use jax.numpy
     instead of numpy if jax is loaded
 
   - `JupyterLab <https://jupyterlab.readthedocs.io/en/stable/>`__
-    (for interactively writing code)
+    for interactively writing code
 
   - `pandas <https://pandas.pydata.org>`__
-    (for data import/export and organization)
+    for data import/export and organization
 
-  - `matplotlib <https://matplotlib.org>`__ (for plotting)
+  - `matplotlib <https://matplotlib.org>`__ for plotting
 
-  - `scikit-learn <https://scikit-learn.org/stable/>`__ (for data analysis)
+  - `scikit-learn <https://scikit-learn.org/stable/>`__ for data analysis
 
 All of these packages can all be installed using
 `conda <https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html>`__

@@ -7,9 +7,11 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   waltlabtools.cal_curve
    waltlabtools.core
    waltlabtools.model
-   waltlabtools.cal_curve
+   waltlabtools.mosaic
+   waltlabtools.plot
    waltlabtools.read_quanterix
 
 Module contents

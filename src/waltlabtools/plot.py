@@ -18,7 +18,6 @@ waltlabtools, so it can be accessed via, e.g.,
 import matplotlib.pyplot as plt
 
 from .core import flatten, _optional_dependencies
-from .cal_curve import CalCurve
 
 if _optional_dependencies["jax"]:
     import jax.numpy as np
@@ -100,7 +99,7 @@ def _make_curve(kwargs, self, x=None, start=None, stop=None, num=1000):
     return x_flat, y_flat
 
 
-def _point_kwargs(kwargs, point_color=None)
+def _point_kwargs(kwargs, point_color=None):
     point_kwargnames = _pyplot_kwargs["scatter_plot"].intersection(kwargs.keys())
     point_kwargs = {kwargname: kwargs[kwargname]
         for kwargname in point_kwargnames}

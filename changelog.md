@@ -44,3 +44,6 @@
  - Added function `dropna` to clean data for uses where only finite numbers are allowed (e.g., scipy.optimize.curve_fit in waltlabtools.regress)
  - Moved everything from the nonnumeric module into the core module
  - Created new modules cal_curve and model for the classes CalCurve and Model, respectively
+
+0.4.2
+ - Corrected source directory structure
