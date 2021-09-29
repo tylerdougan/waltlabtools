@@ -1,0 +1,7 @@
+waltlabtools.cal_curve module
+=============================
+
+.. automodule:: waltlabtools.cal_curve
+   :members:
+   :undoc-members:
+   :show-inheritance:

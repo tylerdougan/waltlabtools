@@ -8,8 +8,8 @@ Submodules
    :maxdepth: 4
 
    waltlabtools.core
-   waltlabtools.mosaic
-   waltlabtools.nonnumeric
+   waltlabtools.model
+   waltlabtools.cal_curve
    waltlabtools.read_quanterix
 
 Module contents

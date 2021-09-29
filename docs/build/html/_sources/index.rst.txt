@@ -17,6 +17,8 @@ A collection of tools for biomedical research assay analysis in Python.
    :glob:
 
    waltlabtools.core
+   waltlabtools.model
+   waltlabtools.cal_curve
    waltlabtools.read_quanterix
 
 

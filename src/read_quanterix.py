@@ -8,10 +8,10 @@ In addition to the dependencies for waltlabtools,
 waltlabtools.read_quanterix also requires pandas 0.25 or greater.
 
 The public functions in waltlabtools.read_quanterix can be accessed via,
-e.g., 
+e.g.,
 
 .. code-block:: python
-   
+
    import waltlabtools as wlt  # waltlabtools main functionality
    import waltlabtools.read_quanterix  # for Quanterix data
 
@@ -20,7 +20,7 @@ e.g.,
 if also using other functionality from the waltlabtools package, or
 
 .. code-block:: python
-   
+
    from waltlabtools import read_quanterix  # for Quanterix data
 
    subset_data = read_quanterix.run_history()  # read run history
@@ -34,7 +34,15 @@ if using only the waltlabtools.read_quanterix module.
 """
 
 import pandas as pd
-from tkinter import filedialog
+
+from .core import _optional_dependencies
+
+if _optional_dependencies["tkinter"]:
+    from tkinter import filedialog
+else:
+    def filedialog(*args, **kwargs):
+        raise ModuleNotFoundError(
+            "If tkinter is not installed, a filepath must be provided.")
 
 
 __all__ = ["run_history", "sample_results"]
@@ -119,9 +127,6 @@ __all__ = ["run_history", "sample_results"]
 
 
 def _get_file(filepath, title: str, filetypes: list):
-    """
-    
-    """
     if filepath is None:
         io = filedialog.askopenfilenames(title=title, filetypes=filetypes)
     else:
@@ -129,23 +134,22 @@ def _get_file(filepath, title: str, filetypes: list):
     return io
 
 
-filetype_readers = {
+_filetype_readers = {
     "csv": pd.read_csv,
     "excel": pd.read_excel,
     "xls": pd.read_excel,
     "xlsx": pd.read_excel,
     "opendocument": pd.read_excel,
     "odf": pd.read_excel}
-readers_set = set(filetype_readers.keys())
 
 
 def _table_filetype(io, filetype=None) -> pd.DataFrame:
     if filetype is str:
         filetype_casefold = filetype.casefold()
-        if filetype_casefold in filetype_readers.keys():
-            return (filetype_readers[filetype_casefold](io),
-                filetype_readers[filetype_casefold])
-    for reader in readers_set:
+        if filetype_casefold in _filetype_readers.keys():
+            return (_filetype_readers[filetype_casefold](io),
+                _filetype_readers[filetype_casefold])
+    for reader in _filetype_readers.keys():
         try:
             return reader(io), reader
         except Exception:
@@ -169,8 +173,8 @@ def _cols_dropped(raw_table: pd.DataFrame, drop_cols="blank") -> pd.DataFrame:
 
 def run_history(filepath=None, drop_cols="blank") -> pd.DataFrame:
     """
-    Reads in a Quanterix HD-X Run History file.
-   
+    Reads in a Quanterix HD-X Run History (.csv) file.
+
     Parameters
     ----------
     filepath : str, path object or file-like object, optional
@@ -194,7 +198,7 @@ def run_history(filepath=None, drop_cols="blank") -> pd.DataFrame:
     -------
     table : pandas.DataFrame
         Run History.
-   
+
     """
     io = _get_file(filepath, title="Choose a Run History File",
         filetypes=[("Comma-Separated Values", "csv")])
@@ -205,8 +209,8 @@ def run_history(filepath=None, drop_cols="blank") -> pd.DataFrame:
 
 def sample_results(filepath=None, drop_cols="blank") -> pd.DataFrame:
     """
-    Reads in a Quanterix HD-X Sample Results Report file.
-   
+    Reads in a Quanterix HD-X Sample Results Report (.xls) file.
+
     Parameters
     ----------
     filepath : str, path object or file-like object, optional
@@ -230,7 +234,7 @@ def sample_results(filepath=None, drop_cols="blank") -> pd.DataFrame:
     -------
     table : pandas.DataFrame
         Sample Results Report.
-   
+
     """
     io = _get_file(filepath, title="Choose a Sample Results Report File",
         filetypes=[("Excel 97–2004 Workbook", "xls")])
