@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: waltlabtools
-Version: 0.4.5
+Version: 0.4.8
 Summary: A collection of tools for biomedical research assay analysis in Python.
 Home-page: https://github.com/tylerdougan/waltlabtools
 Author: Tyler Dougan
@@ -15,7 +15,7 @@ Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
 Classifier: Operating System :: OS Independent
 Requires-Python: >=3.6
 Description-Content-Type: text/x-rst
-Provides-Extra: read_quanterix
+Provides-Extra: read
 Provides-Extra: optional
 License-File: LICENSE
 
@@ -86,7 +86,7 @@ Dependencies
 
 - Specific modules have additional requirements:
 
-  - `waltlabtools.read_quanterix <https://waltlabtools.readthedocs.io/en/latest/waltlabtools.read_quanterix.html>`__
+  - `waltlabtools.read <https://waltlabtools.readthedocs.io/en/latest/waltlabtools.read.html>`__
     (for importing data from Quanterix instruments) requires
 
     - `pandas <https://pandas.pydata.org>`__ ≥ 0.25

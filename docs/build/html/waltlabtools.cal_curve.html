@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>waltlabtools.cal_curve module &mdash; waltlabtools 0.4.5 documentation</title>
+  <title>waltlabtools.cal_curve module &mdash; waltlabtools 0.4.8 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -18,7 +18,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="waltlabtools.read_quanterix module" href="waltlabtools.read_quanterix.html" />
+    <link rel="next" title="waltlabtools.read module" href="waltlabtools.read.html" />
     <link rel="prev" title="waltlabtools.model module" href="waltlabtools.model.html" /> 
 </head>
 
@@ -47,7 +47,7 @@
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.core.html">waltlabtools.core module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.model.html">waltlabtools.model module</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">waltlabtools.cal_curve module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="waltlabtools.read_quanterix.html">waltlabtools.read_quanterix module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="waltlabtools.read.html">waltlabtools.read module</a></li>
 </ul>
 
     <a href="genindex.html">Index</a>
@@ -83,19 +83,19 @@
 waltlabtools, so it can be accessed via, e.g.,</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">waltlabtools</span> <span class="k">as</span> <span class="nn">wlt</span>  <span class="c1"># waltlabtools main functionality</span>
 
-<span class="n">my_cal_curve</span> <span class="o">=</span> <span class="n">wlt</span><span class="o">.</span><span class="n">CalCurve</span><span class="p">()</span>  <span class="c1"># creates a new empty calibration curve</span>
+<span class="n">my_curve</span> <span class="o">=</span> <span class="n">wlt</span><span class="o">.</span><span class="n">CalCurve</span><span class="p">()</span>  <span class="c1"># creates a new empty calibration curve</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <dl class="py class">
 <dt class="sig sig-object py" id="waltlabtools.cal_curve.CalCurve">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">CalCurve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod_sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_lod</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/cal_curve.html#CalCurve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.cal_curve.CalCurve" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CalCurve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod_sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_lod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/cal_curve.html#CalCurve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.cal_curve.CalCurve" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Calibration curve.</p>
 <p>A calibration curve is the result of regressing the calibrator data
 with a specific functional form.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<code class="docutils literal notranslate"><span class="pre">Model</span></code> or <code class="docutils literal notranslate"><span class="pre">str</span></code>) -- The functional model to use. Should be a valid <code class="docutils literal notranslate"><span class="pre">Model</span></code> object
 or a string referring to a built-in <code class="docutils literal notranslate"><span class="pre">Model</span></code>.</p></li>
@@ -117,11 +117,11 @@ quantification, LLOQ).</p></li>
 with all values below the LOD set to be the LOD. Otherwise,
 returns the original data.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>x_flat</strong> (<em>array</em>) -- Data to be bounded. Must be an array, such as the output of
 <code class="docutils literal notranslate"><span class="pre">flatten</span></code>.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><em>array</em> -- A copy of <strong>x_flat</strong>, with all its values above the LOD if
 <strong>force_lod</strong> is True, or the original array otherwise.</p>
 </dd>
@@ -130,10 +130,10 @@ returns the original data.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="waltlabtools.cal_curve.CalCurve.from_data">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod_sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c4'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_lod</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_inverse</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1/y^2'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/cal_curve.html#CalCurve.from_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.cal_curve.CalCurve.from_data" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod_sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c4'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_lod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1/y^2'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/cal_curve.html#CalCurve.from_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.cal_curve.CalCurve.from_data" title="Permalink to this definition"></a></dt>
 <dd><p>Constructs a calibration curve from data.</p>
 <dl class="field-list">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul>
 <li><p><strong>x</strong> (<em>array-like</em>) -- The independent variable, e.g., concentration.</p></li>
 <li><p><strong>y</strong> (<em>array-like</em>) -- The dependent variable, e.g., fluorescence.</p></li>
@@ -162,7 +162,6 @@ exact unbiased sample standard deviation.</p></li>
 </div></blockquote>
 </li>
 <li><p><strong>force_lod</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, default False) -- Should readings below the LOD be set to the LOD?</p></li>
-<li><p><strong>use_inverse</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, default False) -- Should <strong>x</strong> be regressed as a function of <strong>y</strong> instead?</p></li>
 <li><p><strong>weights</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code> or array-like, default &quot;1/y^2&quot;) -- Weights to be used. If array-like, should be the same size
 as <strong>x</strong> and <strong>y</strong>. Otherwise, can be one of the following:</p>
 <blockquote>
@@ -173,10 +172,10 @@ as <strong>x</strong> and <strong>y</strong>. Otherwise, can be one of the follo
 </div></blockquote>
 <p>Other strings raise a <code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code>.</p>
 </li>
-<li><p><strong>kwargs</strong> -- Keyword arguments passed to scipy.optimize.curve_fit.</p></li>
+<li><p><strong>**kwargs</strong> -- Keyword arguments passed to scipy.optimize.curve_fit.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">CalCurve</span></code></p>
 </dd>
 </dl>
@@ -184,10 +183,10 @@ as <strong>x</strong> and <strong>y</strong>. Otherwise, can be one of the follo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="waltlabtools.cal_curve.CalCurve.from_function">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod_sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_lod</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/cal_curve.html#CalCurve.from_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.cal_curve.CalCurve.from_function" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod_sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_lod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/cal_curve.html#CalCurve.from_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.cal_curve.CalCurve.from_function" title="Permalink to this definition"></a></dt>
 <dd><p>Constructs a calibration curve from a function.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>fun</strong> (<code class="docutils literal notranslate"><span class="pre">function</span></code>) -- Forward function, mapping values to measurement readings.</p></li>
 <li><p><strong>inverse</strong> (<code class="docutils literal notranslate"><span class="pre">function</span></code>) -- Inverse function, mapping measurement readings to values.</p></li>
@@ -197,12 +196,13 @@ limit of detection is calculated. Common values include 2.5
 (Quanterix), 3 (Walt Lab), and 10 (lower limit of
 quantification, LLOQ).</p></li>
 <li><p><strong>force_lod</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, default False) -- Should readings below the LOD be set to the LOD?</p></li>
-<li><p><strong>xscale, yscale</strong> (<em>{&quot;linear&quot;, &quot;log&quot;, &quot;symlog&quot;, &quot;logit&quot;}, default &quot;linear&quot;</em>) -- The natural scaling transformations for <cite>x</cite> and <cite>y</cite>. For
+<li><p><strong>xscale, yscale</strong> (<em>{&quot;linear&quot;, &quot;log&quot;, &quot;symlog&quot;, &quot;logit&quot;} or</em>)</p></li>
+<li><p><strong>matplotlib.ScaleBase, default &quot;linear&quot;</strong> -- The natural scaling transformations for <cite>x</cite> and <cite>y</cite>. For
 example, &quot;log&quot; means that the data may be distributed
 log-normally and are best visualized on a log scale.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">CalCurve</span></code></p>
 </dd>
 </dl>
@@ -216,10 +216,10 @@ log-normally and are best visualized on a log scale.</p></li>
 measurement readings (e.g., fluorescence) that they should
 yield.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>x</strong> (<em>numeric or array-like</em>) -- Values, such as concentration.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>y</strong> (<em>same as input or array</em>) -- Measurement readings, such as fluorescence, calculated from
 the values <strong>x</strong> using the calibration curve. If possible,
 <strong>y</strong> will be the same type, size, and shape as <strong>x</strong>; if
@@ -235,10 +235,10 @@ not, <strong>y</strong> will be a 1D array of the same size as <strong>x</strong
 <p>Use <code class="docutils literal notranslate"><span class="pre">inverse</span></code> to convert measurement readings (e.g.,
 fluorescence) to values (e.g., concentration) of the sample.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>y</strong> (<em>numeric or array-like</em>) -- Measurement readings, such as fluorescence.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>x</strong> (<em>same as input or array</em>) -- Values, such as concentration, calculated from
 the values <strong>y</strong> using the calibration curve. If possible,
 <strong>x</strong> will be the same type, size, and shape as <strong>y</strong>; if
@@ -249,17 +249,19 @@ not, <strong>x</strong> will be a 1D array of the same size as <strong>y</strong
 
 <dl class="py method">
 <dt class="sig sig-object py" id="waltlabtools.cal_curve.CalCurve.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curve_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_points_with</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/cal_curve.html#CalCurve.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.cal_curve.CalCurve.plot" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curve_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/cal_curve.html#CalCurve.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.cal_curve.CalCurve.plot" title="Permalink to this definition"></a></dt>
+<dd><p>Plots a CalCurve object.</p>
+<p>See documentation at waltlabtools.plot.plot_cal_curve().</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="waltlabtools.cal_curve.lod">
-<span class="sig-name descname"><span class="pre">lod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blank_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c4'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/cal_curve.html#lod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.cal_curve.lod" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="waltlabtools.cal_curve.limit_of_detection">
+<span class="sig-name descname"><span class="pre">limit_of_detection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blank_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c4'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/cal_curve.html#limit_of_detection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.cal_curve.limit_of_detection" title="Permalink to this definition"></a></dt>
 <dd><p>Compute the limit of detection (LOD).</p>
 <dl class="field-list">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul>
 <li><p><strong>blank_signal</strong> (<em>array-like</em>) -- Signal (e.g., average number of enzymes per bead, AEB) of the
 zero calibrator. Must have at least two elements.</p></li>
@@ -291,39 +293,41 @@ exact unbiased sample standard deviation.</p></li>
 </li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>lod_x</strong> (<em>numeric</em>) -- The limit of detection, in units of x (e.g., concentration).</p>
 </dd>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">c4</span></code></dt><dd><p>unbiased estimation of the population standard deviation</p>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">c4</span></code></dt><dd><p>factor <cite>c4</cite> for unbiased estimation of the standard deviation</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">std</span></code></dt><dd><p>unbiased estimate of the population standard deviation</p>
 </dd>
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.std</span></code></dt><dd><p>standard deviation</p>
 </dd>
 </dl>
-</div>
+</aside>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="waltlabtools.cal_curve.regress">
-<span class="sig-name descname"><span class="pre">regress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_inverse</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1/y^2'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/cal_curve.html#regress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.cal_curve.regress" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">regress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="waltlabtools.model.html#waltlabtools.model.Model" title="waltlabtools.model.Model"><span class="pre">waltlabtools.model.Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1/y^2'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/cal_curve.html#regress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.cal_curve.regress" title="Permalink to this definition"></a></dt>
 <dd><p>Performs a (nonlinear) regression and returns coefficients.</p>
 <dl class="field-list">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul>
 <li><p><strong>model</strong> (<em>waltlabtools.Model or str</em>) -- The functional model to use. Should be a valid
 waltlabtools.Model object or a string referring to a built-in
 Model.</p></li>
 <li><p><strong>x</strong> (<em>array-like</em>) -- The independent variable, e.g., concentration.</p></li>
 <li><p><strong>y</strong> (<em>array-like</em>) -- The dependent variable, e.g., fluorescence.</p></li>
-<li><p><strong>use_inverse</strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>, default False) -- Should <code class="docutils literal notranslate"><span class="pre">x</span></code> be regressed as a function of <code class="docutils literal notranslate"><span class="pre">y</span></code> instead?</p></li>
 <li><p><strong>weights</strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code> or array-like, default &quot;1/y^2&quot;) -- Weights to be used. If array-like, should be the same size as
 <strong>x</strong> and <strong>y</strong>. Otherwise, can be one of the following:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>&quot;1/y^2&quot; : Inverse-squared (1/y^2) weighting.</p></li>
+<li><p>&quot;1/y&quot; : Inverse (1/y) weighting.</p></li>
 <li><p>&quot;1&quot; : Equal weighting for all data points.</p></li>
 </ul>
 </div></blockquote>
@@ -332,7 +336,7 @@ Model.</p></li>
 <li><p><strong>kwargs</strong> -- Keyword arguments passed to scipy.optimize.curve_fit.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>popt</strong> (<em>array</em>) -- Optimal values for the parameters so that the sum of the
 squared residuals is minimized.</p>
 </dd>
@@ -343,7 +347,7 @@ squared residuals is minimized.</p>
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.optimize.curve_fit</span></code></dt><dd><p>backend function used by <code class="docutils literal notranslate"><span class="pre">regress</span></code></p>
 </dd>
 </dl>
-</div>
+</aside>
 </dd></dl>
 
 </section>
@@ -353,7 +357,7 @@ squared residuals is minimized.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="waltlabtools.model.html" class="btn btn-neutral float-left" title="waltlabtools.model module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="waltlabtools.read_quanterix.html" class="btn btn-neutral float-right" title="waltlabtools.read_quanterix module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="waltlabtools.read.html" class="btn btn-neutral float-right" title="waltlabtools.read module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

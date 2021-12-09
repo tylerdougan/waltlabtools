@@ -65,7 +65,7 @@ Dependencies
 
 - Specific modules have additional requirements:
 
-  - `waltlabtools.read_quanterix <https://waltlabtools.readthedocs.io/en/latest/waltlabtools.read_quanterix.html>`__
+  - `waltlabtools.read <https://waltlabtools.readthedocs.io/en/latest/waltlabtools.read.html>`__
     (for importing data from Quanterix instruments) requires
 
     - `pandas <https://pandas.pydata.org>`__ ≥ 0.25

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>waltlabtools.model &mdash; waltlabtools 0.4.5 documentation</title>
+  <title>waltlabtools.model &mdash; waltlabtools 0.4.8 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -44,7 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.core.html">waltlabtools.core module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.model.html">waltlabtools.model module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.cal_curve.html">waltlabtools.cal_curve module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.read_quanterix.html">waltlabtools.read_quanterix module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.read.html">waltlabtools.read module</a></li>
 </ul>
 
     <a href="genindex.html">Index</a>
@@ -98,10 +98,10 @@
 <span class="k">else</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Model&quot;</span><span class="p">,</span> <span class="s2">&quot;model_dict&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Model&quot;</span><span class="p">,</span> <span class="s2">&quot;models&quot;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../waltlabtools.model.html#waltlabtools.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">:</span>
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../waltlabtools.model.html#waltlabtools.model.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Mathematical model for calibration curve fitting.</span>
 
 <span class="sd">    A Model is an object with a function and its inverse, with one</span>
@@ -125,93 +125,111 @@
 <span class="sd">        The names of the parameters for the function. This should be</span>
 <span class="sd">        the same length as the number of arguments which fun and</span>
 <span class="sd">        inverse take after their inputs `x` and `y`, respectively.</span>
-<span class="sd">    xscale, yscale : {&quot;linear&quot;, &quot;log&quot;, &quot;symlog&quot;, &quot;logit&quot;}, default &quot;linear&quot;</span>
+<span class="sd">    xscale, yscale : {&quot;linear&quot;, &quot;log&quot;, &quot;symlog&quot;, &quot;logit&quot;} or</span>
+<span class="sd">    matplotlib.ScaleBase, default &quot;linear&quot;</span>
 <span class="sd">        The natural scaling transformations for `x` and `y`. For</span>
 <span class="sd">        example, &quot;log&quot; means that the data may be distributed</span>
 <span class="sd">        log-normally and are best visualized on a log scale.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fun</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">(),</span>
-            <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">fun</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">inverse</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">params</span><span class="o">=</span><span class="p">(),</span>
+        <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+        <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+        <span class="n">plaintext_formula</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fun</span> <span class="o">=</span> <span class="n">fun</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inverse</span> <span class="o">=</span> <span class="n">inverse</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xscale</span> <span class="o">=</span> <span class="n">xscale</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">yscale</span> <span class="o">=</span> <span class="n">yscale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plaintext_formula</span> <span class="o">=</span> <span class="n">plaintext_formula</span>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Model with parameters&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)])</span></div>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">name_prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot; Model&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="k">else</span> <span class="s2">&quot;Model&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">plaintext_formula</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">name_prefix</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">plaintext_formula</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">name_prefix</span> <span class="o">+</span> <span class="s2">&quot; with parameters &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span></div>
 
 
-<span class="c1"># CONSTANTS</span>
+<span class="c1"># Models</span>
 
-<span class="k">def</span> <span class="nf">_f_linear</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Linear function.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">a</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">b</span>
-<span class="k">def</span> <span class="nf">_i_linear</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Linear inverse.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span> <span class="o">/</span> <span class="n">a</span>
-<span class="n">m_linear</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">_f_linear</span><span class="p">,</span> <span class="n">_i_linear</span><span class="p">,</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
-    <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">),</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;linear&quot;</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_f_power</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Power function.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="n">b</span>
-<span class="k">def</span> <span class="nf">_i_power</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Power inverse.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">y</span> <span class="o">/</span> <span class="n">a</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">b</span><span class="p">)</span>
-<span class="n">m_power</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">_f_power</span><span class="p">,</span> <span class="n">_i_power</span><span class="p">,</span> <span class="s2">&quot;power&quot;</span><span class="p">,</span>
-    <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">),</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">m_linear</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">a</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">b</span><span class="p">,</span>
+    <span class="k">lambda</span> <span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span> <span class="o">/</span> <span class="n">a</span><span class="p">,</span>
+    <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;y = a x + b&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_f_hill</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Hill function.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="n">b</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">c</span><span class="o">**</span><span class="n">b</span> <span class="o">+</span> <span class="n">x</span><span class="o">**</span><span class="n">b</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">_i_hill</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Hill inverse.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">c</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span><span class="o">/</span><span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="n">b</span><span class="p">)</span>
-<span class="n">m_hill</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">_f_hill</span><span class="p">,</span> <span class="n">_i_hill</span><span class="p">,</span> <span class="s2">&quot;Hill&quot;</span><span class="p">,</span>
-    <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">),</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">m_power</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">a</span> <span class="o">*</span> <span class="n">x</span> <span class="o">**</span> <span class="n">b</span><span class="p">,</span>
+    <span class="k">lambda</span> <span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="p">(</span><span class="n">y</span> <span class="o">/</span> <span class="n">a</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">b</span><span class="p">),</span>
+    <span class="s2">&quot;power&quot;</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;y = a x^b&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_f_logistic</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Logistic function.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">d</span> <span class="o">+</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">b</span><span class="o">*</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">c</span><span class="p">)))</span>
-<span class="k">def</span> <span class="nf">_i_logistic</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Logistic inverse.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">c</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">a</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">b</span>
-<span class="n">m_logistic</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">_f_linear</span><span class="p">,</span> <span class="n">_i_logistic</span><span class="p">,</span> <span class="s2">&quot;logistic&quot;</span><span class="p">,</span>
-    <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">),</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;linear&quot;</span><span class="p">)</span>
+<span class="n">m_hill</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">x</span> <span class="o">**</span> <span class="n">b</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">c</span> <span class="o">**</span> <span class="n">b</span> <span class="o">+</span> <span class="n">x</span> <span class="o">**</span> <span class="n">b</span><span class="p">),</span>
+    <span class="k">lambda</span> <span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span> <span class="o">*</span> <span class="p">(</span><span class="n">a</span> <span class="o">/</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="n">b</span><span class="p">),</span>
+    <span class="s2">&quot;Hill&quot;</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;y = a x^b / (c^b + x^b)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">m_logistic</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span> <span class="o">+</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">c</span><span class="p">))),</span>
+    <span class="k">lambda</span> <span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">c</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">a</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">b</span><span class="p">,</span>
+    <span class="s2">&quot;logistic&quot;</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;y = d + (a - d) / {1 + exp[-b (x - c)]}&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_f_4PL</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Four-parameter logistic (4PL) function.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">d</span> <span class="o">+</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span><span class="o">/</span><span class="n">c</span><span class="p">)</span><span class="o">**</span><span class="n">b</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">_i_4PL</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Four-parameter logistic (4PL) inverse.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">c</span><span class="o">*</span><span class="p">((</span><span class="n">a</span><span class="o">-</span><span class="n">d</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">y</span><span class="o">-</span><span class="n">d</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">b</span><span class="p">)</span>
-<span class="n">m_4PL</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">_f_4PL</span><span class="p">,</span> <span class="n">_i_4PL</span><span class="p">,</span> <span class="s2">&quot;4PL&quot;</span><span class="p">,</span>
-    <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">),</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">m_4pl</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span> <span class="o">+</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">c</span><span class="p">)</span> <span class="o">**</span> <span class="n">b</span><span class="p">),</span>
+    <span class="k">lambda</span> <span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">c</span> <span class="o">*</span> <span class="p">((</span><span class="n">a</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">b</span><span class="p">),</span>
+    <span class="s2">&quot;4PL&quot;</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;d + (a - d) / [1 + (x/c)^b]&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">m_5pl</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="n">d</span> <span class="o">+</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">c</span><span class="p">)</span> <span class="o">**</span> <span class="n">b</span><span class="p">)</span> <span class="o">**</span> <span class="n">g</span><span class="p">,</span>
+    <span class="k">lambda</span> <span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="n">c</span> <span class="o">*</span> <span class="p">(((</span><span class="n">a</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">d</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">g</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">b</span><span class="p">),</span>
+    <span class="s2">&quot;5PL&quot;</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;g&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;d + (a - d) / [1 + (x/c)^b]^g&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_f_5PL</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">g</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Five-parameter logistic (5PL) function.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">d</span> <span class="o">+</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span><span class="o">/</span><span class="n">c</span><span class="p">)</span><span class="o">**</span><span class="n">b</span><span class="p">)</span><span class="o">**</span><span class="n">g</span>
-<span class="k">def</span> <span class="nf">_i_5PL</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">g</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Five-parameter logistic (5PL) inverse.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">c</span><span class="o">*</span><span class="p">(((</span><span class="n">a</span><span class="o">-</span><span class="n">d</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">y</span><span class="o">-</span><span class="n">d</span><span class="p">))</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">g</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">b</span><span class="p">)</span>
-<span class="n">m_5PL</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">_f_5PL</span><span class="p">,</span> <span class="n">_i_5PL</span><span class="p">,</span> <span class="s2">&quot;5PL&quot;</span><span class="p">,</span>
-    <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;g&quot;</span><span class="p">),</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">)</span>
-
-
-<span class="n">model_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">m_linear</span><span class="p">,</span> <span class="n">m_power</span><span class="p">,</span> <span class="n">m_hill</span><span class="p">,</span> <span class="n">m_logistic</span><span class="p">,</span> <span class="n">m_4PL</span><span class="p">,</span> <span class="n">m_5PL</span><span class="p">]</span>
-<span class="n">model_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">model</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">model_list</span><span class="p">}</span>
+<span class="n">_model_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">m_linear</span><span class="p">,</span> <span class="n">m_power</span><span class="p">,</span> <span class="n">m_hill</span><span class="p">,</span> <span class="n">m_logistic</span><span class="p">,</span> <span class="n">m_4pl</span><span class="p">,</span> <span class="n">m_5pl</span><span class="p">]</span>
+<span class="n">models</span> <span class="o">=</span> <span class="p">{</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">model</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">_model_list</span><span class="p">}</span>
 <span class="sd">&quot;&quot;&quot;Built-in regression models.</span>
 
 <span class="sd">Keys of model_dict are strings giving model names; values are</span>
@@ -223,15 +241,49 @@
 
 <span class="sd">&quot;power&quot; : Power function.</span>
 
-<span class="sd">&quot;Hill&quot; : Hill function.</span>
+<span class="sd">&quot;hill&quot; : Hill function.</span>
 
 <span class="sd">&quot;logistic&quot; : Logistic function.</span>
 
-<span class="sd">&quot;4PL&quot; : Four-parameter logistic (4PL) function.</span>
+<span class="sd">&quot;4pl&quot; : Four-parameter logistic (4PL) function.</span>
 
-<span class="sd">&quot;5PL&quot; : Five-parameter logistic (5PL) function.</span>
+<span class="sd">&quot;5pl&quot; : Five-parameter logistic (5PL) function.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="c1">#def match_model(model_name) -&gt; Model:</span>
+<span class="c1">#    &quot;&quot;&quot;Returns a Model object from a string matching its name.</span>
+<span class="c1">#</span>
+<span class="c1">#    Parameters</span>
+<span class="c1">#    ----------</span>
+<span class="c1">#    model : str or waltlabtools.Model</span>
+<span class="c1">#        Model name or waltlabtools.Model object. Ideally a member of</span>
+<span class="c1">#        model_dict.keys(), but can also be one with some characters</span>
+<span class="c1">#        off or different capitalization.</span>
+<span class="c1">#</span>
+<span class="c1">#    Returns</span>
+<span class="c1">#    -------</span>
+<span class="c1">#    named_model : waltlabtools.Model</span>
+<span class="c1">#        Fixed version of model which is a built-in</span>
+<span class="c1">#        waltlabtools.Model.</span>
+<span class="c1">#</span>
+<span class="c1">#    &quot;&quot;&quot;</span>
+<span class="c1">#    if isinstance(model_name, Model):</span>
+<span class="c1">#        return model_name</span>
+<span class="c1">#</span>
+<span class="c1">#    m = str(model_name).casefold()</span>
+<span class="c1">#    if m in _model_dict:</span>
+<span class="c1">#        return _model_dict[m]</span>
+<span class="c1">#</span>
+<span class="c1">#    matches = [key for key in _model_dict.keys() if (m in key) or (key in m)]</span>
+<span class="c1">#    if len(matches) == 1:</span>
+<span class="c1">#        return _model_dict[matches[0]]</span>
+<span class="c1">#</span>
+<span class="c1">#    error_text = &quot;Model &quot; + str(model_name) + &quot; not found.&quot;</span>
+<span class="c1">#    if len(matches) &gt; 1:</span>
+<span class="c1">#        error_text = error_text + &quot; Did you mean &quot; + &quot; or &quot;.join(matches) + &quot;?&quot;</span>
+<span class="c1">#    raise KeyError(error_text)</span>
 </pre></div>
 
            </div>

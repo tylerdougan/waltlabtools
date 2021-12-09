@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>waltlabtools.read &mdash; waltlabtools 0.4.8 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> waltlabtools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+    
+              <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../README.html">waltlabtools</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.core.html">waltlabtools.core module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.model.html">waltlabtools.model module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.cal_curve.html">waltlabtools.cal_curve module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.read.html">waltlabtools.read module</a></li>
+</ul>
+
+    <a href="genindex.html">Index</a>
+  
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">waltlabtools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>waltlabtools.read</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for waltlabtools.read</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Functions for reading in data from Quanterix instruments.</span>
+
+<span class="sd">This module provides tools for interacting with a</span>
+<span class="sd">`Quanterix Simoa HD-X Analyzer</span>
+<span class="sd">&lt;https://www.quanterix.com/instruments/simoa-hd-x-analyzer/&gt;`__.</span>
+
+<span class="sd">In addition to the dependencies for waltlabtools,</span>
+<span class="sd">waltlabtools.read also requires pandas 0.25 or greater.</span>
+
+<span class="sd">The public functions in waltlabtools.read can be accessed via,</span>
+<span class="sd">e.g.,</span>
+
+<span class="sd">.. code-block:: python</span>
+
+<span class="sd">   import waltlabtools as wlt  # waltlabtools main functionality</span>
+<span class="sd">   import waltlabtools.read  # for Quanterix data</span>
+
+<span class="sd">   subset_data = wlt.read.quanterix()  # read run history</span>
+
+<span class="sd">if also using other functionality from the waltlabtools package, or</span>
+
+<span class="sd">.. code-block:: python</span>
+
+<span class="sd">   from waltlabtools import read_quanterix  # for Quanterix data</span>
+
+<span class="sd">   subset_data = read.quanterix()  # read run history</span>
+
+<span class="sd">if using only the waltlabtools.readmodule.</span>
+
+
+<span class="sd">-----</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">filedialog</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;hdx&quot;</span><span class="p">]</span>
+
+
+<span class="n">_hdx</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="n">_hdx</span><span class="p">[</span><span class="s2">&quot;files&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="s2">&quot;results&quot;</span><span class="p">):</span> <span class="p">{</span>
+        <span class="s2">&quot;filedialog&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Choose a Sample Results Report File&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;filetypes&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s2">&quot;Excel 97–2004 Workbook&quot;</span><span class="p">,</span> <span class="s2">&quot;xls&quot;</span><span class="p">)]},</span>
+        <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}},</span>
+    <span class="p">(</span><span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="s2">&quot;history&quot;</span><span class="p">):</span> <span class="p">{</span>
+        <span class="s2">&quot;filedialog&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Choose a Run History File&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;filetypes&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s2">&quot;Comma-Separated Values&quot;</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">)]},</span>
+        <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}},</span>
+    <span class="p">(</span><span class="s2">&quot;any&quot;</span><span class="p">,):</span> <span class="p">{</span>
+        <span class="s2">&quot;filedialog&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Choose a Sample Results Report or Run History File&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;filetypes&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;Excel 97–2004 Workbook&quot;</span><span class="p">,</span> <span class="s2">&quot;xls&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;Comma-Separated Values&quot;</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;All Files&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">)]},</span>
+        <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">{}},</span>
+<span class="p">}</span>
+
+
+<span class="n">_hdx</span><span class="p">[</span><span class="s2">&quot;export_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;xls&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="s2">&quot;results&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;csv&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="s2">&quot;history&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="n">_hdx</span><span class="p">[</span><span class="s2">&quot;export_types&quot;</span><span class="p">][(</span><span class="s2">&quot;any&quot;</span><span class="p">,)]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">_hdx</span><span class="p">[</span><span class="s2">&quot;export_types&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+
+<span class="k">def</span> <span class="nf">_get_file</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns filepath if provided, or asks the user to choose one.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath : str, path object or file-like object, optional</span>
+<span class="sd">        The path to the file to import. Any valid string path is</span>
+<span class="sd">        acceptable. The string could be a URL. Valid URL schemes include</span>
+<span class="sd">        http, ftp, s3, gs, and file. Can also be any os.PathLike or any</span>
+<span class="sd">        object with a `read()` method. If not provided, a</span>
+<span class="sd">        `tkinter.filedialog` opens, prompting the user to select a file.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Other arguments are passed to the tkinter.filedialog.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    io : str, path object or file-like object</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">io</span> <span class="o">=</span> <span class="n">filedialog</span><span class="o">.</span><span class="n">askopenfilenames</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">io</span> <span class="o">=</span> <span class="n">filepath</span>
+    <span class="k">return</span> <span class="n">io</span>
+
+
+<span class="n">_filetype_readers</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;csv&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">,</span>
+    <span class="s2">&quot;excel&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">,</span>
+    <span class="s2">&quot;xls&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">,</span>
+    <span class="s2">&quot;xlsx&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">,</span>
+    <span class="s2">&quot;opendocument&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">,</span>
+    <span class="s2">&quot;odf&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span>
+<span class="p">}</span>
+
+<span class="n">_reader_args</span> <span class="o">=</span> <span class="p">{</span><span class="n">reader</span><span class="p">:</span> <span class="p">()</span> <span class="k">for</span> <span class="n">reader</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">_filetype_readers</span><span class="o">.</span><span class="n">values</span><span class="p">())}</span>
+<span class="k">for</span> <span class="n">reader</span> <span class="ow">in</span> <span class="n">_reader_args</span><span class="p">:</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="n">reader</span>
+    <span class="k">while</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s1">&#39;__wrapped__&#39;</span><span class="p">):</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__wrapped__</span>
+    <span class="n">_reader_args</span><span class="p">[</span><span class="n">reader</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="vm">__code__</span><span class="o">.</span><span class="n">co_varnames</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_cols_dropped</span><span class="p">(</span><span class="n">raw_table</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">drop_cols</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;blank&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Drops unimportant columns from a pandas DataFrame.</span>
+
+<span class="sd">    [extended_summary]</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_table : pd.DataFrame</span>
+<span class="sd">        DataFrame without columns dropped.</span>
+<span class="sd">    drop_cols : {&quot;blank&quot;, &quot;uniform&quot;, &quot;keep&quot;}, default &quot;blank&quot;</span>
+<span class="sd">        Should any columns be automatically dropped from the input file?</span>
+<span class="sd">        Options:</span>
+
+<span class="sd">            - `&quot;blank&quot;` : Drop all columns that are blank.</span>
+
+<span class="sd">            - `&quot;uniform&quot;` : Drop all columns that have the same</span>
+<span class="sd">              value for all rows, including blank columns.</span>
+
+<span class="sd">            - `&quot;keep&quot;` : Do not drop any columns.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        [description]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">drop_cols</span> <span class="o">==</span> <span class="s2">&quot;keep&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">raw_table</span>
+    <span class="k">elif</span> <span class="n">drop_cols</span> <span class="o">==</span> <span class="s2">&quot;uninformative&quot;</span><span class="p">:</span>
+        <span class="n">uninformative_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">colname</span> <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">raw_table</span><span class="o">.</span><span class="n">columns</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">raw_table</span><span class="p">[</span><span class="n">colname</span><span class="p">]))</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">raw_table</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">uninformative_cols</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">raw_table</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_file_extension</span><span class="p">(</span><span class="n">io</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">fspath</span><span class="p">(</span><span class="n">io</span><span class="p">)</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_hdx_export_type_tuple</span><span class="p">(</span><span class="n">export_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="n">export_lowercase</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">export_type</span><span class="p">)</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">export_tuple</span> <span class="ow">in</span> <span class="n">_hdx</span><span class="p">[</span><span class="s2">&quot;files&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">((</span><span class="n">word</span> <span class="ow">in</span> <span class="n">export_lowercase</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">export_tuple</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">export_tuple</span>
+    <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;any&quot;</span><span class="p">,)</span>
+
+
+<span class="k">def</span> <span class="nf">_hdx_ext_tuple</span><span class="p">(</span><span class="n">io</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="n">extension</span> <span class="o">=</span> <span class="n">_get_file_extension</span><span class="p">(</span><span class="n">io</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">extension</span> <span class="ow">in</span> <span class="n">_hdx</span><span class="p">[</span><span class="s2">&quot;export_types&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_hdx</span><span class="p">[</span><span class="s2">&quot;export_types&quot;</span><span class="p">][</span><span class="n">extension</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">_hdx</span><span class="p">[</span><span class="s2">&quot;export_types&quot;</span><span class="p">][</span><span class="n">extension</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filepath_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">fspath</span><span class="p">(</span><span class="n">io</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">export_tuple</span> <span class="ow">in</span> <span class="n">_hdx</span><span class="p">[</span><span class="s2">&quot;export_types&quot;</span><span class="p">][</span><span class="n">extension</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="nb">all</span><span class="p">((</span><span class="n">word</span> <span class="ow">in</span> <span class="n">filepath_str</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">export_tuple</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">export_tuple</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Export type not recognized.&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_read</span><span class="p">(</span><span class="n">io</span><span class="p">,</span> <span class="n">reader</span><span class="p">,</span> <span class="n">new_args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">kwargs_</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_reader_args</span><span class="p">[</span><span class="n">reader</span><span class="p">]}</span>
+    <span class="n">kwargs_</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_args</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reader</span><span class="p">(</span><span class="n">io</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_read_hdx_table</span><span class="p">(</span><span class="n">io</span><span class="p">,</span> <span class="n">export_tuple</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">value_error</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">extension</span> <span class="o">=</span> <span class="n">_hdx</span><span class="p">[</span><span class="s2">&quot;files&quot;</span><span class="p">][</span><span class="n">export_tuple</span><span class="p">][</span><span class="s2">&quot;filedialog&quot;</span><span class="p">][</span><span class="s2">&quot;filetypes&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">new_args</span> <span class="o">=</span> <span class="n">_hdx</span><span class="p">[</span><span class="s2">&quot;files&quot;</span><span class="p">][</span><span class="n">export_tuple</span><span class="p">][</span><span class="s2">&quot;args&quot;</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_read</span><span class="p">(</span><span class="n">io</span><span class="p">,</span> <span class="n">_filetype_readers</span><span class="p">[</span><span class="n">extension</span><span class="p">],</span> <span class="n">new_args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">extension_</span><span class="p">,</span> <span class="ow">in</span> <span class="n">_hdx</span><span class="p">[</span><span class="s2">&quot;export_types&quot;</span><span class="p">]:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_read</span><span class="p">(</span><span class="n">io</span><span class="p">,</span> <span class="n">_filetype_readers</span><span class="p">[</span><span class="n">extension_</span><span class="p">],</span>
+                    <span class="n">new_args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="n">value_error</span> <span class="o">=</span> <span class="n">err</span>
+    <span class="n">error_text</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;The provided filepath, &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">io</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;, is not compatable with the provided export_type, &quot;</span>
+        <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_tuple</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;. The export_type provided requires a filepath matching &quot;</span>
+        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">_hdx</span><span class="p">[</span><span class="s2">&quot;files&quot;</span><span class="p">][</span><span class="n">export_tuple</span><span class="p">][</span><span class="s2">&quot;filedialog&quot;</span><span class="p">][</span><span class="s2">&quot;filetypes&quot;</span><span class="p">])</span>
+        <span class="o">+</span> <span class="s2">&quot;; the filepath appears to be a .&quot;</span> <span class="o">+</span> <span class="n">extension</span> <span class="o">+</span> <span class="s2">&quot; file.&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error_text</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">value_error</span>
+
+
+<div class="viewcode-block" id="hdx"><a class="viewcode-back" href="../../waltlabtools.read_quanterix.html#waltlabtools.read.hdx">[docs]</a><span class="k">def</span> <span class="nf">hdx</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">export_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">drop_cols</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;blank&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Reads in a Quanterix HD-X results/history file.</span>
+
+<span class="sd">    This function is a wrapper for pandas.read_excel and pandas.read_csv</span>
+<span class="sd">    with additional options and defaults to make it straightforward to</span>
+<span class="sd">    import a Sample Results Report or Run History file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath : str, path object or file-like object, optional</span>
+<span class="sd">        The path to the file to import. Any valid string path is</span>
+<span class="sd">        acceptable. The string could be a URL. Valid URL schemes include</span>
+<span class="sd">        http, ftp, s3, gs, and file. Can also be any os.PathLike or any</span>
+<span class="sd">        object with a `read()` method. If not provided, a</span>
+<span class="sd">        `tkinter.filedialog` opens, prompting the user to select a file.</span>
+<span class="sd">    export_type : {&quot;sample_results&quot;, &quot;run_history&quot;}, optional</span>
+<span class="sd">        Type of Quanterix exported file. Options:</span>
+
+<span class="sd">            - `&quot;sample results&quot;` : HD-X Sample Results Report</span>
+
+<span class="sd">            - `&quot;run history&quot;` : HD-X Run History file</span>
+
+<span class="sd">        If none is provided, the filetype will be inferred.</span>
+<span class="sd">    drop_cols : {&quot;blank&quot;, &quot;uniform&quot;, &quot;keep&quot;}, default &quot;blank&quot;</span>
+<span class="sd">        Should any columns be automatically dropped from the input file?</span>
+<span class="sd">        Options:</span>
+
+<span class="sd">            - `&quot;blank&quot;` : Drop all columns that are blank.</span>
+
+<span class="sd">            - `&quot;uniform&quot;` : Drop all columns that have the same</span>
+<span class="sd">              value for all rows, including blank columns.</span>
+
+<span class="sd">            - `&quot;keep&quot;` : Do not drop any columns.</span>
+
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional arguments passed to pandas.read_excel or</span>
+<span class="sd">        pandas.read_csv.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    table : pandas.DataFrame</span>
+<span class="sd">        Run History.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    pandas.read_excel, pandas.read_csv : backend functions used by hdx</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">type_tuple</span> <span class="o">=</span> <span class="n">_hdx_export_type_tuple</span><span class="p">(</span><span class="n">export_type</span><span class="o">=</span><span class="n">export_type</span><span class="p">)</span>
+    <span class="n">io</span> <span class="o">=</span> <span class="n">_get_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="o">**</span><span class="n">_hdx</span><span class="p">[</span><span class="s2">&quot;files&quot;</span><span class="p">][</span><span class="n">type_tuple</span><span class="p">][</span><span class="s2">&quot;filedialog&quot;</span><span class="p">])</span>
+    <span class="n">export_tuple</span> <span class="o">=</span> <span class="n">_hdx_ext_tuple</span><span class="p">(</span><span class="n">io</span><span class="p">)</span> <span class="k">if</span> <span class="n">type_tuple</span> <span class="o">==</span> <span class="p">(</span><span class="s2">&quot;any&quot;</span><span class="p">,)</span> <span class="k">else</span> <span class="n">type_tuple</span>
+    <span class="n">raw_table</span> <span class="o">=</span> <span class="n">_read_hdx_table</span><span class="p">(</span><span class="n">io</span><span class="p">,</span> <span class="n">export_tuple</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">_cols_dropped</span><span class="p">(</span><span class="n">raw_table</span><span class="p">,</span> <span class="n">drop_cols</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">table</span></div>
+
+
+<span class="k">def</span> <span class="nf">plate_layout</span><span class="p">(</span><span class="n">io</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">io</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Tyler Dougan.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

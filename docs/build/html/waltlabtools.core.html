@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>waltlabtools.core module &mdash; waltlabtools 0.4.5 documentation</title>
+  <title>waltlabtools.core module &mdash; waltlabtools 0.4.8 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -47,7 +47,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">waltlabtools.core module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.model.html">waltlabtools.model module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.cal_curve.html">waltlabtools.cal_curve module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="waltlabtools.read_quanterix.html">waltlabtools.read_quanterix module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="waltlabtools.read.html">waltlabtools.read module</a></li>
 </ul>
 
     <a href="genindex.html">Index</a>
@@ -85,7 +85,7 @@ analysis.</p>
 waltlabtools, so it can be accessed via, e.g.,</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">waltlabtools</span> <span class="k">as</span> <span class="nn">wlt</span>  <span class="c1"># waltlabtools main functionality</span>
 
-<span class="n">cal_curve</span> <span class="o">=</span> <span class="n">wlt</span><span class="o">.</span><span class="n">CalCurve</span><span class="p">()</span>  <span class="c1"># creates a new empty calibration curve</span>
+<span class="n">my_data</span> <span class="o">=</span> <span class="n">wlt</span><span class="o">.</span><span class="n">flatten</span><span class="p">([[[[[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">],</span> <span class="mi">3</span><span class="p">],</span> <span class="mi">4</span><span class="p">])</span>  <span class="c1"># flatten a list</span>
 </pre></div>
 </div>
 <hr class="docutils" />
@@ -97,10 +97,10 @@ waltlabtools, so it can be accessed via, e.g.,</p>
 enzymes per bead (AEB) using Poisson statistics. The formula used
 is <cite>aeb_</cite> = -log(1 - <cite>fon_</cite>).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>fon_</strong> (<em>numeric or array-like</em>) -- A scalar or array of fractions of beads which are &quot;on.&quot;</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>aeb_</strong> (<em>same as input, or array</em>) -- The average number of enzymes per bead.</p>
 </dd>
 </dl>
@@ -110,7 +110,7 @@ is <cite>aeb_</cite> = -log(1 - <cite>fon_</cite>).</p>
 <dt><a class="reference internal" href="#waltlabtools.core.fon" title="waltlabtools.core.fon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fon</span></code></a></dt><dd><p>inverse of <code class="docutils literal notranslate"><span class="pre">aeb</span></code></p>
 </dd>
 </dl>
-</div>
+</aside>
 </dd></dl>
 
 <dl class="py function">
@@ -123,66 +123,75 @@ underestimate the population standard deviation. See, e.g.,
 sample standard deviation by the correction factor <cite>c4</cite> gives an
 unbiased estimator of the population standard deviation.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>n</strong> (<em>numeric or array</em>) -- The number of samples.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int or array</em>) -- The number of samples.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><em>numeric or array</em> -- The correction factor, usually written <cite>c4</cite> or <cite>b(n)</cite>.</p>
 </dd>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
+<dt><a class="reference internal" href="#waltlabtools.core.std" title="waltlabtools.core.std"><code class="xref py py-obj docutils literal notranslate"><span class="pre">std</span></code></a></dt><dd><p>unbiased standard deviation</p>
+</dd>
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.std</span></code></dt><dd><p>standard deviation</p>
 </dd>
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">lod</span></code></dt><dd><p>limit of detection</p>
 </dd>
 </dl>
-</div>
+</aside>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="waltlabtools.core.dropna">
-<span class="sig-name descname"><span class="pre">dropna</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/core.html#dropna"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.core.dropna" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">dropna</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_inf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/waltlabtools/core.html#dropna"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.core.dropna" title="Permalink to this definition"></a></dt>
 <dd><p>Returns arrays, keeping only rows where all datasets are finite.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>datsets</strong> (<em>iterable of array-likes</em>) -- The data structures to be flattened. They must be the same size
-along their first axis.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datsets</strong> (<em>iterable of array-likes</em>) -- The data structures to be flattened. They must be the same size
+along their first axis or share one common dimension.</p></li>
+<li><p><strong>drop_inf</strong> (<em>bool, default True</em>) -- If True (default), drop with non-finite or NaN values. If False,
+drop only rows with NaN values.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>flattened_datasets</strong> (<em>list of arrays</em>) -- Flattened version of <strong>data</strong>. If on_bad_data=&quot;error&quot;,
-always an array.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>list of arrays</em> -- The datasets provided, now as arrays, with rows removed in which
+any of the arrays has a non-finite value.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="waltlabtools.core.flatten">
-<span class="sig-name descname"><span class="pre">flatten</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_bad_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'warn'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/core.html#flatten"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.core.flatten" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">flatten</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'C'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="_modules/waltlabtools/core.html#flatten"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.core.flatten" title="Permalink to this definition"></a></dt>
 <dd><p>Flattens most data structures.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul>
-<li><p><strong>data</strong> (<em>any</em>) -- The data structure to be flattened. Can also be a primitive.</p></li>
-<li><p><strong>on_bad_data</strong> (<em>{&quot;error&quot;, &quot;ignore&quot;, &quot;warn&quot;}, default &quot;warn&quot;</em>) -- Specifies what to do when the data cannot be coerced to an
-ndarray. Options are as follows:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>&quot;error&quot; : Raises TypeError.</p></li>
-<li><p>&quot;ignore&quot; : Returns a list or, failing that, the original
-object.</p></li>
-<li><p>&quot;warn&quot; : Returns as in &quot;ignore&quot;, but raises a warning.</p></li>
-</ul>
-</div></blockquote>
-</li>
-</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>any</em>) -- The data structure to be flattened. Can also be a primitive.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>flattened_data</strong> (<em>array, list, or primitive</em>) -- Flattened version of <strong>data</strong>. If on_bad_data=&quot;error&quot;,
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>flat_data</strong> (<em>array</em>) -- Flattened version of <strong>data</strong>. If on_bad_data=&quot;error&quot;,
 always an array.</p>
 </dd>
+<dt class="field-odd">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>order</strong> (<em>{&quot;C&quot;,&quot;F&quot;, &quot;A&quot;, &quot;K&quot;}, default &quot;C&quot;</em>) -- The elements of data are read using this index order. &quot;C&quot; means
+to index the elements in row-major, C-style order,
+with the last axis index changing fastest, back to the first
+axis index changing slowest. For full details, see
+numpy.ravel.</p>
+</dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.array</span></code></dt><dd><p>Returns a new array from an array-like object.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ravel</span></code></dt><dd><p>Flattens a numpy array.</p>
+</dd>
+</dl>
+</aside>
 </dd></dl>
 
 <dl class="py function">
@@ -193,10 +202,10 @@ always an array.</p>
 on-beads (fon) using Poisson statistics. The formula used is
 <cite>fon_</cite> = 1 - exp(-<cite>aeb_</cite>).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>aeb_</strong> (<em>numeric or array-like</em>) -- A scalar or array of the average number of enzymes per bead.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>fon_</strong> (<em>same as input, or array</em>) -- The fractions of beads which are &quot;on.&quot;</p>
 </dd>
 </dl>
@@ -206,34 +215,77 @@ on-beads (fon) using Poisson statistics. The formula used is
 <dt><a class="reference internal" href="#waltlabtools.core.aeb" title="waltlabtools.core.aeb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aeb</span></code></a></dt><dd><p>inverse of fon</p>
 </dd>
 </dl>
-</div>
+</aside>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="waltlabtools.core.gmnd">
-<span class="sig-name descname"><span class="pre">gmnd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/core.html#gmnd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.core.gmnd" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">gmnd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/waltlabtools/core.html#gmnd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.core.gmnd" title="Permalink to this definition"></a></dt>
 <dd><p>Geometric meandian.</p>
 <p>For details, see <a class="reference external" href="https://xkcd.com/2435/">https://xkcd.com/2435/</a>. This function compares
-the three most common measures of central tendency for a given
-dataset: the arithmetic mean, the geometric mean, and the median.</p>
+the three most common measures of central tendency: the arithmetic
+mean, the geometric mean, and the median.
+The geometric meandian uses an iterative process that stops when
+the arithmetic mean, geometric mean, and median converge within
+(<cite>atol</cite> + <cite>rtol</cite> * their magnitudes).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>array-like</em>) -- The data for which to take the measure of central tendency.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><p><strong>central_tendencies</strong> (<code class="docutils literal notranslate"><span class="pre">dict</span></code> of <code class="docutils literal notranslate"><span class="pre">str</span></code> -&gt; numeric) -- The measures of central tendency, ordered by their distance
-from the geometric meandian. Its keys are:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>&quot;gmnd&quot; : geometric meandian (always first)</p></li>
-<li><p>&quot;arithmetic&quot; : arithmetic mean</p></li>
-<li><p>&quot;geometric&quot; : geometric mean</p></li>
-<li><p>&quot;median&quot; : median</p></li>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array-like</em>) -- The data for which to take the measure of central tendency.</p></li>
+<li><p><strong>rtol</strong> (<em>float, default 1e-05</em>) -- The relative tolerance parameter.</p></li>
+<li><p><strong>atol</strong> (<em>float, default 1e-08</em>) -- The absolute tolerance parameter.</p></li>
 </ul>
-</div></blockquote>
-</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>gmnd_</strong> (<em>float</em>) -- Geometric meandian.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="waltlabtools.core.std">
+<span class="sig-name descname"><span class="pre">std</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c4'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/waltlabtools/core.html#std"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.core.std" title="Permalink to this definition"></a></dt>
+<dd><p>Unbiased estimate of the population standard deviation.</p>
+<p>Unlike the corresponding function in numpy, this function allows
+specifying of the correction factor more generally in order to
+provide an unbiased estimate of the standard deviation.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul>
+<li><p><strong>data</strong> (<em>numeric or array</em>) -- The data for which to take the standard deviation. Will be
+coerced to a 1-D numpy array via flatten.</p></li>
+<li><p><strong>corr</strong> (<em>{&quot;n&quot;, &quot;n-1&quot;, &quot;n-1.5&quot;, &quot;c4&quot;} or numeric, default &quot;c4&quot;</em>) -- The sample standard deviation under-estimates the population
+standard deviation for a normally distributed variable.
+Specifies how this should be addressed. Options:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>&quot;n&quot; : Divide by the number of samples to yield the
+uncorrected sample standard deviation.</p></li>
+<li><p>&quot;n-1&quot; : Divide by the number of samples minus one to
+yield the square root of the unbiased sample variance.</p></li>
+<li><p>&quot;n-1.5&quot; : Divide by the number of samples minus 1.5 to
+yield the approximate unbiased sample standard deviation.</p></li>
+<li><p>&quot;c4&quot; : Divide by the correction factor to yield the
+exact unbiased sample standard deviation.</p></li>
+<li><p>If numeric, gives the delta degrees of freedom.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>float</em> -- Unbiased estimate of the standard deviation.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#waltlabtools.core.c4" title="waltlabtools.core.c4"><code class="xref py py-obj docutils literal notranslate"><span class="pre">c4</span></code></a></dt><dd><p>correction factor used when corr=&quot;c4&quot;</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.std</span></code></dt><dd><p>standard deviation</p>
+</dd>
+</dl>
+</aside>
 </dd></dl>
 
 </section>

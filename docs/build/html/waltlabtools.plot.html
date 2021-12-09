@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>waltlabtools.plot module &mdash; waltlabtools 0.4.5 documentation</title>
+  <title>waltlabtools.plot module &mdash; waltlabtools 0.4.8 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -45,7 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.core.html">waltlabtools.core module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.model.html">waltlabtools.model module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.cal_curve.html">waltlabtools.cal_curve module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="waltlabtools.read_quanterix.html">waltlabtools.read_quanterix module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="waltlabtools.read.html">waltlabtools.read module</a></li>
 </ul>
 
     <a href="genindex.html">Index</a>
@@ -76,25 +76,68 @@
              
   <section id="module-waltlabtools.plot">
 <span id="waltlabtools-plot-module"></span><h1>waltlabtools.plot module<a class="headerlink" href="#module-waltlabtools.plot" title="Permalink to this headline"></a></h1>
-<p>Class CalCurve, its methods, and related functions.</p>
-<p>Everything in waltlabtools.cal_curve is automatically imported with
-waltlabtools, so it can be accessed via, e.g.,</p>
+<p>Methods for plotting calibration curves, etc.</p>
+<p>In addition to the dependencies for waltlabtools, waltlabtools.plot
+also requires matplotlib.</p>
+<p>Everything in waltlabtools.plot is automatically imported with
+waltlabtools if matplotlib is installed, so it can be accessed via,
+e.g.,</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">waltlabtools</span> <span class="k">as</span> <span class="nn">wlt</span>  <span class="c1"># waltlabtools main functionality</span>
 
-<span class="n">my_cal_curve</span> <span class="o">=</span> <span class="n">wlt</span><span class="o">.</span><span class="n">CalCurve</span><span class="p">()</span>  <span class="c1"># creates a new empty calibration curve</span>
+<span class="n">my_curve</span> <span class="o">=</span> <span class="n">wlt</span><span class="o">.</span><span class="n">CalCurve</span><span class="p">()</span>  <span class="c1"># creates a new empty calibration curve</span>
+<span class="n">wlt</span><span class="o">.</span><span class="n">plot_cal_curve</span><span class="p">(</span><span class="n">my_curve</span><span class="p">)</span>  <span class="c1"># plot my_curve (in this case, empty)</span>
+
+<span class="n">my_curve</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>  <span class="c1"># equivalent method</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <dl class="py function">
 <dt class="sig sig-object py" id="waltlabtools.plot.plot_cal_curve">
-<span class="sig-name descname"><span class="pre">plot_cal_curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curve_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_points_with</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/plot.html#plot_cal_curve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.plot.plot_cal_curve" title="Permalink to this definition"></a></dt>
-<dd><p>Kwarg options.</p>
-<p>xscale, yscale
-xlabel, ylabel
-title
-figsize
-fmt
-xlim, ylim</p>
+<span class="sig-name descname"><span class="pre">plot_cal_curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cal_curve</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curve_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/plot.html#plot_cal_curve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.plot.plot_cal_curve" title="Permalink to this definition"></a></dt>
+<dd><p>[summary]</p>
+<p>[extended_summary]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cal_curve</strong> (<em>CalCurve</em>) -- CalCurve object to plot.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes, optional</em>) -- Optionally provide a matplotlib.axes.Axes object where the curve
+and data should be plotted.</p></li>
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure, optional</em>) -- Optionally provide a matplotlib.figure.Figure object where the
+curve and data should be plotted. Ignored if ax is provided;
+otherwise, a new Axes object will be created within fig.</p></li>
+<li><p><strong>show</strong> (<em>bool, default True</em>) -- Set show=False to return the axes object without showing it.</p></li>
+<li><p><strong>hide</strong> (<em>collection of str or str, optional</em>) -- By default, the calibration curve, calibrator points, limit of
+detection (LOD), and legend are shown. To hide any of these,
+include &quot;points&quot;, &quot;curve&quot;, &quot;lod&quot;, and/or &quot;legend&quot; in hide.
+For example, to hide the legend, use hide=&quot;legend&quot; or
+hide=[&quot;legend&quot;].</p></li>
+<li><p><strong>point_color, curve_color, lod_color</strong> (<em>str or tuple, optional</em>) -- Colors for the calibrator points and curve. Can be a color
+name (<code class="docutils literal notranslate"><span class="pre">&quot;gray&quot;</span></code>) or shorthand (<code class="docutils literal notranslate"><span class="pre">&quot;g&quot;</span></code>); an RGB or RGBA
+tuple of float values in the closed interval [0, 1]
+(<code class="docutils literal notranslate"><span class="pre">(0.5,</span> <span class="pre">0.5,</span> <span class="pre">0.5)</span></code>); a hex RGB or RGBA string
+(<code class="docutils literal notranslate"><span class="pre">&quot;808080&quot;</span></code>); or another form accepted by
+matplotlib.colors. For more details, see
+<a class="reference external" href="https://matplotlib.org/stable/tutorials/colors/colors.html">https://matplotlib.org/stable/tutorials/colors/colors.html</a>.</p></li>
+<li><p><strong>**kwargs</strong> -- Any keyword argument that is unique to one element of the plot
+(figure, axes, curve, points, LOD, legend) can be passed. To
+specify a keyword argument for one of the plot elements, pass
+it via the appropriate argument below.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>[type]</em> -- [description]</p>
+</dd>
+<dt class="field-odd">Other Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax_kw, fig_kw, point_kw, curve_kw, lod_kw, legend_kw</strong> (<em>dict, optional</em>) -- Keywords to pass to specific elements of the plot. For example,
+to set the transparency of the calibrator points to 50%, use
+point_kw={&quot;alpha&quot;: 0.5}.</p></li>
+<li><p><strong>x</strong> (<em>array-like, optional</em>) -- Data to use for x-values when plotting the calibration curve.
+Defaults to generating 50 x-values based on the calibrator
+points.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

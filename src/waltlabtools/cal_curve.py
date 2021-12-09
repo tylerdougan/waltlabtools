@@ -7,7 +7,7 @@ waltlabtools, so it can be accessed via, e.g.,
 
    import waltlabtools as wlt  # waltlabtools main functionality
 
-   my_cal_curve = wlt.CalCurve()  # creates a new empty calibration curve
+   my_curve = wlt.CalCurve()  # creates a new empty calibration curve
 
 
 -----
@@ -17,29 +17,23 @@ waltlabtools, so it can be accessed via, e.g.,
 
 import scipy.optimize as opt
 
-from .core import dropna, _optional_dependencies, std
-from .model import Model, model_dict
+from .core import _optional_dependencies, dropna, flatten, std
+from .model import Model, models
+from .plot import plot_cal_curve
 
 if _optional_dependencies["jax"]:
     import jax.numpy as np
 else:
     import numpy as np
 
-if _optional_dependencies["matplotlib"]:
-    from .plot import plot_cal_curve
-else:
-    def plot_cal_curve(*args, **kwargs):
-        raise ModuleNotFoundError(
-            "Plotting requires matplotlib to be installed.")
 
-
-__all__ = ["regress", "lod", "CalCurve"]
+__all__ = ["regress", "limit_of_detection", "CalCurve"]
 
 
 def _len_for_message(collection) -> str:
     try:
         return str(len(collection))
-    except Exception:
+    except TypeError:
         return "an unknown number of"
 
 
@@ -54,55 +48,22 @@ def _match_coefs(params, coefs) -> dict:
         return {params[0]: coefs}
     elif (not params) and (not coefs):
         return {}
-    raise ValueError(" ".join(["Wrong number of coefficients.",
-            "The function requires", _len_for_message(params), "coefficients:",
-            str(params), ". You provided a", str(type(coefs)), "with",
-            _len_for_message(coefs), "coefficients:", str(coefs)]))
+    raise ValueError(
+        "Wrong number of coefficients. The function requires "
+        + _len_for_message(params)
+        + " coefficients: "
+        + str(params)
+        + ". You provided a "
+        + str(type(coefs))
+        + " with "
+        + _len_for_message(coefs)
+        + " coefficients: "
+        + str(coefs)
+        + "."
+    )
 
 
-def _match_model(model_name) -> Model:
-    """Returns a Model object from a string matching its name.
-
-    Parameters
-    ----------
-    model : str or waltlabtools.Model
-        Model name or waltlabtools.Model object. Ideally a member of
-        model_dict.keys(), but can also be one with some characters
-        off or different capitalization.
-
-    Returns
-    -------
-    named_model : waltlabtools.Model
-        Fixed version of model which is a built-in
-        waltlabtools.Model.
-
-    """
-    if isinstance(model_name, Model):
-        named_model = model_name
-    elif model_name in model_dict.keys():
-        named_model = model_dict[model_name]
-    else:
-        m = str(model_name)
-        if m in model_dict.keys():
-            named_model = model_dict[m]
-        else:
-            m_lower = m.casefold()
-            matches = []
-            for key in model_dict.keys():
-                if (m_lower in key.casefold()) or (key.casefold() in m_lower):
-                    matches.append(key)
-            if len(matches) == 1:
-                named_model = model_dict[matches[0]]
-            else:
-                error_text = " ".join(["Model", model_name, "not found."])
-                if len(matches) > 1:
-                    error_text = " ".join([error_text, "Did you mean one of",
-                        str(matches), "?"])
-                raise KeyError(error_text)
-    return named_model
-
-
-def regress(model, x, y, use_inverse: bool = False, weights="1/y^2", **kwargs):
+def regress(model: Model, x, y, weights="1/y^2", **kwargs):
     """Performs a (nonlinear) regression and returns coefficients.
 
     Parameters
@@ -115,13 +76,13 @@ def regress(model, x, y, use_inverse: bool = False, weights="1/y^2", **kwargs):
         The independent variable, e.g., concentration.
     y : array-like
         The dependent variable, e.g., fluorescence.
-    use_inverse : ``bool``, default False
-        Should ``x`` be regressed as a function of ``y`` instead?
     weights : ``str`` or array-like, default "1/y^2"
         Weights to be used. If array-like, should be the same size as
         **x** and **y**. Otherwise, can be one of the following:
 
             - "1/y^2" : Inverse-squared (1/y^2) weighting.
+
+            - "1/y" : Inverse (1/y) weighting.
 
             - "1" : Equal weighting for all data points.
 
@@ -140,35 +101,25 @@ def regress(model, x, y, use_inverse: bool = False, weights="1/y^2", **kwargs):
     scipy.optimize.curve_fit : backend function used by ``regress``
 
     """
-    named_model = _match_model(model)
-    if weights == "1/y^2":
-        sigma = y
-    elif (weights == "1"):
-        sigma = np.ones(len(y))
-    else:
-        try:
-            sigma = flatten(weights)**-2
-        except Exception:
-            raise NotImplementedError(str(weights)
-                + " is not a valid weighting scheme. Please try another one.")
-    if use_inverse:
-        calibration_function = named_model.inverse
-        xdata, ydata = dropna([y, x, sigma])
-    else:
-        calibration_function = named_model.fun
-        xdata, ydata = dropna([x, y, sigma])
-    kwargs = dict()
-    for kwarg_name, kwarg in zip(
-            ["p0", "sigma", "bounds", "method"],
-            [p0, sigma, bounds, method]):
-        if kwarg is not None:
-            kwargs[kwarg_name] = kwarg
-    popt, pcov = opt.curve_fit(f=calibration_function, xdata=xdata,
-        ydata=ydata, sigma=sigma, **kwargs)
-    return popt
+    named_model = model if isinstance(model, Model) else models[model]
+    sigma = None
+    if isinstance(weights, str):
+        if weights == "1/y^2":
+            sigma = y
+        if weights == "1/y":
+            sigma = np.sqrt(np.array(y))
+        elif weights == "1":
+            sigma = np.ones(len(y))
+    if sigma is None:
+        sigma = flatten(weights, "error") ** -2
+    calibration_function = named_model.fun
+    xdata, ydata, sigma = dropna([x, y, sigma])
+    return opt.curve_fit(
+        f=calibration_function, xdata=xdata, ydata=ydata, sigma=sigma, **kwargs
+    )[0]
 
 
-def lod(blank_signal, inverse_fun=None, sds=3, corr="c4"):
+def limit_of_detection(blank_signal, inverse_fun=None, sds=3, corr="c4"):
     """
     Compute the limit of detection (LOD).
 
@@ -214,15 +165,17 @@ def lod(blank_signal, inverse_fun=None, sds=3, corr="c4"):
 
     See Also
     --------
-    c4 : unbiased estimation of the population standard deviation
+    c4 : factor `c4` for unbiased estimation of the standard deviation
+
+    std : unbiased estimate of the population standard deviation
 
     numpy.std : standard deviation
 
     """
     blank_array = flatten(blank_signal)
     mean = np.mean(blank_array)
-    stdev = std(blank_array)
-    lod_y = mean + sds*stdev
+    stdev = std(blank_array, corr=corr)
+    lod_y = mean + sds * stdev
     if isinstance(inverse_fun, CalCurve):
         lod_x = inverse_fun.inverse(lod_y)
     else:
@@ -231,6 +184,7 @@ def lod(blank_signal, inverse_fun=None, sds=3, corr="c4"):
 
 
 # CLASSES
+
 
 class CalCurve:
     """Calibration curve.
@@ -257,24 +211,38 @@ class CalCurve:
 
     """
 
-    def __init__(self, model=None, x=None, y=None, coefs=(), lod=-np.inf,
-            lod_sds=3, force_lod=False):
+    def __init__(
+        self,
+        model=None,
+        x=None,
+        y=None,
+        coefs=(),
+        lod=-np.inf,
+        lod_sds=3,
+        force_lod: bool = False
+    ):
         """Initializes a new, empty CalCurve object."""
         self.x = flatten(x)
         self.y = flatten(y)
-        self.model = _match_model(model)
+        self.model = model if isinstance(model, Model) else models[model]
         self.coefs = _match_coefs(self.model.params, coefs)
         self.lod = lod
         self.lod_sds = lod_sds
         self.force_lod = force_lod
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Print/represent method for CalCurve objects."""
         coefs_named = "".join(
-            ["".join([self.model.params[i], " = ", str(self.coefs[i]), ", "])
-                for i in range(len(self.coefs))])
-        return "".join([self.model.name, " calibration curve with parameters ",
-            coefs_named, "and LOD = ", str(self.lod)])
+            param + " = " + str(coef) + ", " for param, coef in self.coefs.items()
+        )
+
+        return (
+            self.model.name
+            + " calibration curve with parameters "
+            + coefs_named
+            + "and LOD = "
+            + str(self.lod)
+        )
 
     def bound_lod(self, x_flat):
         """Sets values below the limit of detection (LOD) to the LOD.
@@ -324,7 +292,7 @@ class CalCurve:
         """
         try:
             y = self.model.fun(self.bound_lod(x), **self.coefs)
-        except Exception:
+        except TypeError:
             x_flat = flatten(x)
             y = self.model.fun(self.bound_lod(x_flat), **self.coefs)
         return y
@@ -351,24 +319,54 @@ class CalCurve:
         """
         try:
             x = self.bound_lod(self.model.inverse(y, **self.coefs))
-        except Exception:
+        except TypeError:
             y_flat = flatten(y)
             x = self.bound_lod(self.model.inverse(y_flat, **self.coefs))
         return x
 
-    def plot(self, point_color=None, curve_color=None, x=None, start=None,
-            stop=None, num: int = 1000, plot_points_with=None,
-            show: bool = True, **kwargs):
-        return plot_cal_curve(self, point_color, curve_color, x, start, stop,
-            num, plot_points_with, show, **kwargs)
+    def plot(
+        self,
+        ax=None,
+        fig=None,
+        show: bool = True,
+        hide=(),
+        point_color=None,
+        curve_color=None,
+        lod_color=None,
+        **kwargs
+    ):
+        """Plots a CalCurve object.
+
+        See documentation at waltlabtools.plot.plot_cal_curve().
+
+        """
+        return plot_cal_curve(
+            self,
+            ax=ax,
+            fig=fig,
+            show=show,
+            hide=hide,
+            point_color=point_color,
+            curve_color=curve_color,
+            lod_color=lod_color,
+            **kwargs
+        )
 
     def __iter__(self):
         return zip(self.x, self.y)
 
     @classmethod
-    def from_data(cls, model, x, y, lod_sds=3, corr="c4",
-            force_lod: bool = False, use_inverse: bool = False,
-            weights="1/y^2"):
+    def from_data(
+        cls,
+        model,
+        x,
+        y,
+        lod_sds=3,
+        corr="c4",
+        force_lod: bool = False,
+        weights="1/y^2",
+        **kwargs
+    ):
         """Constructs a calibration curve from data.
 
         Parameters
@@ -407,8 +405,6 @@ class CalCurve:
                 - If numeric, gives the delta degrees of freedom.
         force_lod : ``bool``, default False
             Should readings below the LOD be set to the LOD?
-        use_inverse : ``bool``, default False
-            Should **x** be regressed as a function of **y** instead?
         weights : ``str`` or array-like, default "1/y^2"
             Weights to be used. If array-like, should be the same size
             as **x** and **y**. Otherwise, can be one of the following:
@@ -418,7 +414,7 @@ class CalCurve:
                 - "1" : Equal weighting for all data points.
 
             Other strings raise a ``NotImplementedError``.
-        kwargs
+        **kwargs
             Keyword arguments passed to scipy.optimize.curve_fit.
 
         Returns
@@ -426,19 +422,32 @@ class CalCurve:
         ``CalCurve``
 
         """
-        x_flat = flatten(x)
-        y_flat = flatten(y)
-        coefs = regress(model=model, x=x_flat, y=y_flat,
-            use_inverse=use_inverse, weights=weights, **kwargs)
-        cal_curve = cls(x=x_flat, y=y_flat, model=model, coefs=coefs,
-            lod_sds=lod_sds, force_lod=force_lod)
-        cal_curve.lod = lod(y_flat[x_flat == 0], cal_curve.inverse,
-            sds=lod_sds, corr=corr)
+        x_flat, y_flat = dropna([x, y])
+        coefs = regress(model=model, x=x_flat, y=y_flat, weights=weights, **kwargs)
+        cal_curve = cls(
+            x=x_flat,
+            y=y_flat,
+            model=model,
+            coefs=coefs,
+            lod_sds=lod_sds,
+            force_lod=force_lod,
+        )
+        cal_curve.lod = limit_of_detection(
+            y_flat[x_flat == 0], cal_curve.inverse, sds=lod_sds, corr=corr
+        )
         return cal_curve
 
     @classmethod
-    def from_function(cls, fun, inverse, lod: float = -np.inf, lod_sds=3,
-            force_lod=False, xscale="linear", yscale="linear"):
+    def from_function(
+        cls,
+        fun,
+        inverse,
+        lod: float = -np.inf,
+        lod_sds=3,
+        force_lod: bool = False,
+        xscale="linear",
+        yscale="linear",
+    ):
         """Constructs a calibration curve from a function.
 
         Parameters
@@ -456,7 +465,8 @@ class CalCurve:
             quantification, LLOQ).
         force_lod : ``bool``, default False
             Should readings below the LOD be set to the LOD?
-        xscale, yscale : {"linear", "log", "symlog", "logit"}, default "linear"
+        xscale, yscale : {"linear", "log", "symlog", "logit"} or
+        matplotlib.ScaleBase, default "linear"
             The natural scaling transformations for `x` and `y`. For
             example, "log" means that the data may be distributed
             log-normally and are best visualized on a log scale.

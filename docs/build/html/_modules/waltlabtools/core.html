@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>waltlabtools.core &mdash; waltlabtools 0.4.5 documentation</title>
+  <title>waltlabtools.core &mdash; waltlabtools 0.4.8 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -44,7 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.core.html">waltlabtools.core module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.model.html">waltlabtools.model module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.cal_curve.html">waltlabtools.cal_curve module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.read_quanterix.html">waltlabtools.read_quanterix module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../waltlabtools.read.html">waltlabtools.read module</a></li>
 </ul>
 
     <a href="genindex.html">Index</a>
@@ -86,7 +86,7 @@
 
 <span class="sd">   import waltlabtools as wlt  # waltlabtools main functionality</span>
 
-<span class="sd">   cal_curve = wlt.CalCurve()  # creates a new empty calibration curve</span>
+<span class="sd">   my_data = wlt.flatten([[[[[0], 1], 2], 3], 4])  # flatten a list</span>
 
 
 <span class="sd">-----</span>
@@ -94,124 +94,223 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="kn">import</span> <span class="nn">scipy.special</span> <span class="k">as</span> <span class="nn">spec</span>
-<span class="k">if</span> <span class="s2">&quot;jax&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+
+<span class="n">_optional_dependencies</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">package_name</span><span class="p">:</span> <span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="n">package_name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">package_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;matplotlib&quot;</span><span class="p">,</span> <span class="s2">&quot;pandas&quot;</span><span class="p">,</span> <span class="s2">&quot;sklearn&quot;</span><span class="p">,</span> <span class="s2">&quot;numba&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="s2">&quot;jax&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">np</span>
     <span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">jit</span>
-    <span class="n">_use_jax</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">_optional_dependencies</span><span class="p">[</span><span class="s2">&quot;jax&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-    <span class="k">def</span> <span class="nf">jit</span><span class="p">(</span><span class="n">fun</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">fun</span>
-    <span class="n">_use_jax</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">_optional_dependencies</span><span class="p">[</span><span class="s2">&quot;numba&quot;</span><span class="p">]:</span>
+        <span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">jit</span>
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="k">def</span> <span class="nf">jit</span><span class="p">(</span><span class="n">fun</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Identity function.</span>
+
+<span class="sd">            Used to replace jit (just-in-time compilation) when jit is</span>
+<span class="sd">            not available from jax or numba. For faster calculations</span>
+<span class="sd">            using just-in-time compilation, install jax or numba.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            fun : function</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            fun : function</span>
+<span class="sd">                The same function, unchanged.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="n">fun</span>
+
+    <span class="n">_optional_dependencies</span><span class="p">[</span><span class="s2">&quot;jax&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;flatten&quot;</span><span class="p">,</span> <span class="s2">&quot;dropna&quot;</span><span class="p">,</span> <span class="s2">&quot;aeb&quot;</span><span class="p">,</span> <span class="s2">&quot;fon&quot;</span><span class="p">,</span> <span class="s2">&quot;c4&quot;</span><span class="p">,</span> <span class="s2">&quot;gmnd&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;flatten&quot;</span><span class="p">,</span> <span class="s2">&quot;dropna&quot;</span><span class="p">,</span> <span class="s2">&quot;aeb&quot;</span><span class="p">,</span> <span class="s2">&quot;fon&quot;</span><span class="p">,</span> <span class="s2">&quot;c4&quot;</span><span class="p">,</span> <span class="s2">&quot;gmnd&quot;</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">]</span>
 
-
-<span class="n">_optional_dependencies</span> <span class="o">=</span> <span class="p">{</span><span class="n">package_name</span><span class="p">:</span> <span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="n">package_name</span><span class="p">)</span>
-        <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">package_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;matplotlib&quot;</span><span class="p">,</span> <span class="s2">&quot;pandas&quot;</span><span class="p">,</span> <span class="s2">&quot;sklearn&quot;</span><span class="p">,</span> <span class="s2">&quot;tkinter&quot;</span><span class="p">]</span>
-<span class="p">}</span>
-<span class="n">_optional_dependencies</span><span class="p">[</span><span class="s2">&quot;jax&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_use_jax</span>
-
-
+<span class="n">_ATOL</span> <span class="o">=</span> <span class="mf">1e-8</span>
 <span class="n">_ddofs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;n-1&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;n-1.5&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s2">&quot;c4&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
 
 
-<div class="viewcode-block" id="flatten"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.flatten">[docs]</a><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">on_bad_data</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_flatten_helper</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;C&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">flat_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">flat_data</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">flat_data</span>
+
+
+<div class="viewcode-block" id="flatten"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.core.flatten">[docs]</a><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;C&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Flattens most data structures.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : any</span>
 <span class="sd">        The data structure to be flattened. Can also be a primitive.</span>
-<span class="sd">    on_bad_data : {&quot;error&quot;, &quot;ignore&quot;, &quot;warn&quot;}, default &quot;warn&quot;</span>
-<span class="sd">        Specifies what to do when the data cannot be coerced to an</span>
-<span class="sd">        ndarray. Options are as follows:</span>
-
-<span class="sd">            - &quot;error&quot; : Raises TypeError.</span>
-
-<span class="sd">            - &quot;ignore&quot; : Returns a list or, failing that, the original</span>
-<span class="sd">              object.</span>
-
-<span class="sd">            - &quot;warn&quot; : Returns as in &quot;ignore&quot;, but raises a warning.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    flattened_data : array, list, or primitive</span>
+<span class="sd">    flat_data : array</span>
 <span class="sd">        Flattened version of **data**. If on_bad_data=&quot;error&quot;,</span>
 <span class="sd">        always an array.</span>
 
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    order : {&quot;C&quot;,&quot;F&quot;, &quot;A&quot;, &quot;K&quot;}, default &quot;C&quot;</span>
+<span class="sd">        The elements of data are read using this index order. &quot;C&quot; means</span>
+<span class="sd">        to index the elements in row-major, C-style order,</span>
+<span class="sd">        with the last axis index changing fastest, back to the first</span>
+<span class="sd">        axis index changing slowest. For full details, see</span>
+<span class="sd">        numpy.ravel.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    numpy.array : Returns a new array from an array-like object.</span>
+
+<span class="sd">    numpy.ravel : Flattens a numpy array.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
-    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">):</span>
-            <span class="n">flat_data</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">datum</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">):</span>
-                    <span class="n">flat_data</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">flatten</span><span class="p">(</span><span class="n">datum</span><span class="p">))</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">flat_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">datum</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">flat_data</span> <span class="o">=</span> <span class="n">data</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">flat_data</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">on_bad_data</span> <span class="o">!=</span> <span class="s2">&quot;ignore&quot;</span><span class="p">:</span>
-                <span class="n">error_text</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;Input data were coerced from type&quot;</span><span class="p">,</span>
-                    <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)),</span> <span class="s2">&quot;to type&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">flat_data</span><span class="p">)),</span>
-                    <span class="s2">&quot;but could not be coerced to an ndarray.&quot;</span><span class="p">])</span>
-                <span class="k">if</span> <span class="n">on_bad_data</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">error_text</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">error_text</span><span class="p">,</span> <span class="ne">Warning</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">flat_data</span></div>
+        <span class="k">return</span> <span class="n">_flatten_helper</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">,</span> <span class="ne">AssertionError</span><span class="p">):</span>
+        <span class="n">flat_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">flat_data</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">flatten</span><span class="p">(</span><span class="n">datum</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">flat_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flatten</span><span class="p">(</span><span class="n">datum</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">_flatten_helper</span><span class="p">(</span><span class="n">flat_data</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="dropna"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.dropna">[docs]</a><span class="k">def</span> <span class="nf">dropna</span><span class="p">(</span><span class="n">datasets</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_find_rotation</span><span class="p">(</span><span class="n">array_shapes</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Finds the common axis along which to drop NaNs.</span>
+
+<span class="sd">    Helper function for dropna.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    array_shapes : list</span>
+<span class="sd">        List of tuples, where each tuple is the shape of an array</span>
+<span class="sd">        provided to dropna.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        Tuple of the form (common_size, common_dims), where:</span>
+
+<span class="sd">            - common_size is the length of the common axis that all</span>
+<span class="sd">              arrays share</span>
+
+<span class="sd">            - common_dims is a list of the dimension in each array which</span>
+<span class="sd">              is the dimension along which to drop NaNs</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">first_dims</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">array_shapes</span><span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">first_dims</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">first_dims</span> <span class="o">!=</span> <span class="p">{</span><span class="mi">1</span><span class="p">}):</span>
+        <span class="c1"># All arrays are the same size along their first dimension.</span>
+        <span class="k">return</span> <span class="n">first_dims</span><span class="o">.</span><span class="n">pop</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">array_shapes</span><span class="p">]</span>
+    <span class="c1"># Otherwise, arrays are different sizes along their first dimension.</span>
+    <span class="n">all_sizes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">flatten</span><span class="p">(</span><span class="n">array_shapes</span><span class="p">))</span>
+    <span class="n">common_size</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">all_sizes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">array_shapes</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">common_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">common_size</span> <span class="o">=</span> <span class="n">size</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">common_size</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">break</span>
+    <span class="k">if</span> <span class="n">common_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span>
+            <span class="s2">&quot;Datasets must have the same size along their first axis &quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;or share one common dimension. The supplied datasets have sizes of &quot;</span>
+            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">array_shapes</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot;.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">common_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">common_size</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">array_shapes</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">common_size</span><span class="p">,</span> <span class="n">common_dims</span>
+
+
+<span class="k">def</span> <span class="nf">_na_sieve</span><span class="p">(</span>
+    <span class="n">arrayed_datasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">common_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">common_dims</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">drop_inf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Compresses away the rows where any dataset has a NaN value.</span>
+
+<span class="sd">    Helper function for dropna.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    arrayed_datasets : list</span>
+<span class="sd">        The data structures to be flattened. They must be the same size</span>
+<span class="sd">        along their first axis or share one common dimension.</span>
+<span class="sd">    common_size : int</span>
+<span class="sd">        The length of the common axis that all arrays share.</span>
+<span class="sd">    common_dims : list</span>
+<span class="sd">        A list of the dimension in each array which is the dimension</span>
+<span class="sd">        along which to drop NaNs.</span>
+<span class="sd">    drop_inf : bool, optional</span>
+<span class="sd">        If True (default), drop with non-finite or NaN values. If False,</span>
+<span class="sd">        drop only rows with NaN values.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of arrays</span>
+<span class="sd">        The datasets provided, now as arrays, with rows removed in which</span>
+<span class="sd">        any of the arrays has a non-finite value.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">notna_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">common_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">keep_fn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span> <span class="k">if</span> <span class="n">drop_inf</span> <span class="k">else</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">arrayed_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">arrayed_datasets</span><span class="p">):</span>
+        <span class="n">axis_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">arrayed_data</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span>
+        <span class="n">axis_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">common_dims</span><span class="p">[</span><span class="n">a</span><span class="p">])</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">axis_list</span><span class="p">)</span>
+        <span class="n">data_finitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">keep_fn</span><span class="p">(</span><span class="n">arrayed_data</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+        <span class="n">notna_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">notna_array</span><span class="p">,</span> <span class="n">data_finitude</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">notna_array</span><span class="p">,</span> <span class="n">arrayed_datasets</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">common_dims</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">common_dims</span><span class="p">))</span>
+    <span class="p">]</span>
+
+
+<div class="viewcode-block" id="dropna"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.core.dropna">[docs]</a><span class="k">def</span> <span class="nf">dropna</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">drop_inf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Returns arrays, keeping only rows where all datasets are finite.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    datsets : iterable of array-likes</span>
 <span class="sd">        The data structures to be flattened. They must be the same size</span>
-<span class="sd">        along their first axis.</span>
+<span class="sd">        along their first axis or share one common dimension.</span>
+<span class="sd">    drop_inf : bool, default True</span>
+<span class="sd">        If True (default), drop with non-finite or NaN values. If False,</span>
+<span class="sd">        drop only rows with NaN values.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    flattened_datasets : list of arrays</span>
-<span class="sd">        Flattened version of **data**. If on_bad_data=&quot;error&quot;,</span>
-<span class="sd">        always an array.</span>
+<span class="sd">    list of arrays</span>
+<span class="sd">        The datasets provided, now as arrays, with rows removed in which</span>
+<span class="sd">        any of the arrays has a non-finite value.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">arrayed_datasets</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">sizes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">array_shapes</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
-        <span class="n">arrayed_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">arrayed_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">arrayed_datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arrayed_data</span><span class="p">)</span>
-        <span class="n">sizes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">arrayed_data</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sizes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">common_size</span> <span class="o">=</span> <span class="n">sizes</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-        <span class="n">notna_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">common_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">arrayed_data</span> <span class="ow">in</span> <span class="n">arrayed_datasets</span><span class="p">:</span>
-            <span class="n">data_finitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">arrayed_data</span><span class="p">),</span>
-                <span class="n">axis</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">arrayed_data</span><span class="o">.</span><span class="n">ndim</span><span class="p">)))</span>
-            <span class="n">notna_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">notna_array</span><span class="p">,</span> <span class="n">data_finitude</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">arrayed_data</span><span class="p">[</span><span class="n">notna_array</span><span class="p">]</span> <span class="k">for</span> <span class="n">arrayed_data</span> <span class="ow">in</span> <span class="n">arrayed_datasets</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span>
-            <span class="s2">&quot;Datasets must have the same size along their first axis. &quot;</span>
-            <span class="o">+</span> <span class="s2">&quot;The supplied datasets have sizes of &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sizes</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span></div>
+        <span class="n">array_shapes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">arrayed_data</span><span class="p">))</span>
+    <span class="n">common_size</span><span class="p">,</span> <span class="n">common_dims</span> <span class="o">=</span> <span class="n">_find_rotation</span><span class="p">(</span><span class="n">array_shapes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_na_sieve</span><span class="p">(</span><span class="n">arrayed_datasets</span><span class="p">,</span> <span class="n">common_size</span><span class="p">,</span> <span class="n">common_dims</span><span class="p">,</span> <span class="n">drop_inf</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="aeb"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.aeb">[docs]</a><span class="k">def</span> <span class="nf">aeb</span><span class="p">(</span><span class="n">fon_</span><span class="p">):</span>
+<div class="viewcode-block" id="aeb"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.core.aeb">[docs]</a><span class="k">def</span> <span class="nf">aeb</span><span class="p">(</span><span class="n">fon_</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The average number of enzymes per bead.</span>
 
 <span class="sd">    Converts the fraction of on-beads (fon) to the average number of</span>
@@ -239,7 +338,7 @@
         <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">flatten</span><span class="p">(</span><span class="n">fon_</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="fon"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.fon">[docs]</a><span class="k">def</span> <span class="nf">fon</span><span class="p">(</span><span class="n">aeb_</span><span class="p">):</span>
+<div class="viewcode-block" id="fon"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.core.fon">[docs]</a><span class="k">def</span> <span class="nf">fon</span><span class="p">(</span><span class="n">aeb_</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The fraction of beads which are on.</span>
 
 <span class="sd">    Converts the average enzymes per bead (AEB) to the fraction of</span>
@@ -262,12 +361,12 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">aeb</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">aeb_</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">flatten</span><span class="p">(</span><span class="n">aeb</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">flatten</span><span class="p">(</span><span class="n">aeb_</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="c4"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.c4">[docs]</a><span class="k">def</span> <span class="nf">c4</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="c4"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.core.c4">[docs]</a><span class="k">def</span> <span class="nf">c4</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Factor `c4` for unbiased estimation of the standard deviation.</span>
 
 <span class="sd">    For a finite sample, the sample standard deviation tends to</span>
@@ -278,7 +377,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    n : numeric or array</span>
+<span class="sd">    n : int or array</span>
 <span class="sd">        The number of samples.</span>
 
 <span class="sd">    Returns</span>
@@ -288,80 +387,114 @@
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
+<span class="sd">    std : unbiased standard deviation</span>
+
 <span class="sd">    numpy.std : standard deviation</span>
 
 <span class="sd">    lod : limit of detection</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">spec</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">spec</span><span class="o">.</span><span class="n">gamma</span><span class="p">((</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">spec</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">spec</span><span class="o">.</span><span class="n">gamma</span><span class="p">((</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">std</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">corr</span><span class="o">=</span><span class="s2">&quot;c4&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="std"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.core.std">[docs]</a><span class="k">def</span> <span class="nf">std</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">corr</span><span class="o">=</span><span class="s2">&quot;c4&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Unbiased estimate of the population standard deviation.</span>
+
+<span class="sd">    Unlike the corresponding function in numpy, this function allows</span>
+<span class="sd">    specifying of the correction factor more generally in order to</span>
+<span class="sd">    provide an unbiased estimate of the standard deviation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : numeric or array</span>
+<span class="sd">        The data for which to take the standard deviation. Will be</span>
+<span class="sd">        coerced to a 1-D numpy array via flatten.</span>
+
+<span class="sd">    corr : {&quot;n&quot;, &quot;n-1&quot;, &quot;n-1.5&quot;, &quot;c4&quot;} or numeric, default &quot;c4&quot;</span>
+<span class="sd">        The sample standard deviation under-estimates the population</span>
+<span class="sd">        standard deviation for a normally distributed variable.</span>
+<span class="sd">        Specifies how this should be addressed. Options:</span>
+
+<span class="sd">            - &quot;n&quot; : Divide by the number of samples to yield the</span>
+<span class="sd">              uncorrected sample standard deviation.</span>
+
+<span class="sd">            - &quot;n-1&quot; : Divide by the number of samples minus one to</span>
+<span class="sd">              yield the square root of the unbiased sample variance.</span>
+
+<span class="sd">            - &quot;n-1.5&quot; : Divide by the number of samples minus 1.5 to</span>
+<span class="sd">              yield the approximate unbiased sample standard deviation.</span>
+
+<span class="sd">            - &quot;c4&quot; : Divide by the correction factor to yield the</span>
+<span class="sd">              exact unbiased sample standard deviation.</span>
+
+<span class="sd">            - If numeric, gives the delta degrees of freedom.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Unbiased estimate of the standard deviation.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    c4 : correction factor used when corr=&quot;c4&quot;</span>
+
+<span class="sd">    numpy.std : standard deviation</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">flat_data</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">ddof</span> <span class="o">=</span> <span class="n">_ddofs</span><span class="p">[</span><span class="n">corr</span><span class="p">]</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">ddof</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">corr</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">corr</span><span class="p">)</span>
-                <span class="o">+</span> <span class="s2">&quot; is not a valid correction factor. Please try another one.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">error_text</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">corr</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; is not a valid correction factor. Please try another one.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error_text</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
     <span class="n">corr_factor</span> <span class="o">=</span> <span class="n">c4</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">flat_data</span><span class="p">))</span> <span class="k">if</span> <span class="p">(</span><span class="n">corr</span> <span class="o">==</span> <span class="s2">&quot;c4&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="mi">1</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">flat_data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="n">ddof</span><span class="p">)</span><span class="o">/</span><span class="n">corr_factor</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">flat_data</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="n">ddof</span><span class="p">)</span> <span class="o">/</span> <span class="n">corr_factor</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="gmnd"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.gmnd">[docs]</a><span class="k">def</span> <span class="nf">gmnd</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="gmnd"><a class="viewcode-back" href="../../waltlabtools.core.html#waltlabtools.core.gmnd">[docs]</a><span class="k">def</span> <span class="nf">gmnd</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-05</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-08</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Geometric meandian.</span>
 
 <span class="sd">    For details, see https://xkcd.com/2435/. This function compares</span>
-<span class="sd">    the three most common measures of central tendency for a given</span>
-<span class="sd">    dataset: the arithmetic mean, the geometric mean, and the median.</span>
+<span class="sd">    the three most common measures of central tendency: the arithmetic</span>
+<span class="sd">    mean, the geometric mean, and the median.</span>
+<span class="sd">    The geometric meandian uses an iterative process that stops when</span>
+<span class="sd">    the arithmetic mean, geometric mean, and median converge within</span>
+<span class="sd">    (`atol` + `rtol` * their magnitudes).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : array-like</span>
 <span class="sd">        The data for which to take the measure of central tendency.</span>
+<span class="sd">    rtol : float, default 1e-05</span>
+<span class="sd">        The relative tolerance parameter.</span>
+<span class="sd">    atol : float, default 1e-08</span>
+<span class="sd">        The absolute tolerance parameter.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    central_tendencies : ``dict`` of ``str`` -&gt; numeric</span>
-<span class="sd">        The measures of central tendency, ordered by their distance</span>
-<span class="sd">        from the geometric meandian. Its keys are:</span>
-
-<span class="sd">            - &quot;gmnd&quot; : geometric meandian (always first)</span>
-
-<span class="sd">            - &quot;arithmetic&quot; : arithmetic mean</span>
-
-<span class="sd">            - &quot;geometric&quot; : geometric mean</span>
-
-<span class="sd">            - &quot;median&quot; : median</span>
+<span class="sd">    gmnd_ : float</span>
+<span class="sd">        Geometric meandian.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">flat_data</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">data_amin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">flat_data</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">data_amin</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
-            <span class="s2">&quot;Geometric mean requires all numbers to be nonnegative.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Because the data provided included&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">data_amin</span><span class="p">)),</span> <span class="s2">&quot;,&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;the geometric meandian is unlikely to provide any insight.&quot;</span><span class="p">]))</span>
-    <span class="n">mean_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">flat_data</span><span class="p">)</span>
-    <span class="n">geomean_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">flat_data</span><span class="p">)))</span>
-    <span class="n">median_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">flat_data</span><span class="p">)</span>
-    <span class="n">data_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">((</span><span class="n">mean_</span><span class="p">,</span> <span class="n">geomean_</span><span class="p">,</span> <span class="n">median_</span><span class="p">))</span>
+    <span class="n">mean_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">flat_data</span><span class="p">)</span>
+    <span class="n">geomean_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">flat_data</span><span class="p">)))</span>
+    <span class="n">median_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">flat_data</span><span class="p">)</span>
+    <span class="n">data_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">mean_</span><span class="p">,</span> <span class="n">geomean_</span><span class="p">,</span> <span class="n">median_</span><span class="p">))</span>
     <span class="n">converged</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">while</span> <span class="ow">not</span> <span class="n">converged</span><span class="p">:</span>
-        <span class="n">data_i</span><span class="p">,</span> <span class="n">converged</span> <span class="o">=</span> <span class="n">_gmnd_f</span><span class="p">(</span><span class="n">data_i</span><span class="p">)</span>
+        <span class="n">data_i</span><span class="p">,</span> <span class="n">converged</span> <span class="o">=</span> <span class="n">_gmnd_f</span><span class="p">(</span><span class="n">data_i</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
     <span class="n">gmnd_</span> <span class="o">=</span> <span class="n">data_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">avgs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">gmnd_</span><span class="p">,</span> <span class="n">mean_</span><span class="p">,</span> <span class="n">geomean_</span><span class="p">,</span> <span class="n">median_</span><span class="p">])</span>
-    <span class="n">errors</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">gmnd_</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-</span> <span class="n">avgs</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-    <span class="n">named_errors</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span>
-        <span class="n">errors</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;gmnd&quot;</span><span class="p">,</span> <span class="s2">&quot;arithmetic&quot;</span><span class="p">,</span> <span class="s2">&quot;geometric&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">],</span> <span class="n">avgs</span><span class="p">))</span>
-    <span class="n">central_tendencies</span> <span class="o">=</span> <span class="p">{</span><span class="n">ne</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">ne</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">ne</span> <span class="ow">in</span> <span class="n">named_errors</span><span class="p">}</span>
-    <span class="k">return</span> <span class="n">central_tendencies</span></div>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">gmnd_</span><span class="p">)</span></div>
 
 
 <span class="nd">@jit</span>
-<span class="k">def</span> <span class="nf">_gmnd_f</span><span class="p">(</span><span class="n">data_i</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_gmnd_f</span><span class="p">(</span><span class="n">data_i</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-05</span><span class="p">,</span> <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-08</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Backend for geometric meandian.</span>
 
 <span class="sd">    Parameters</span>
@@ -369,19 +502,32 @@
 <span class="sd">    data_i : array of length 3</span>
 <span class="sd">        The current iteration&#39;s arithmetic mean, geometric mean, and</span>
 <span class="sd">        median.</span>
+<span class="sd">    rtol : float, default 1e-05</span>
+<span class="sd">        The relative tolerance parameter.</span>
+<span class="sd">    atol : float, default 1e-08</span>
+<span class="sd">        The absolute tolerance parameter.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    data_iplus1 : array of length 3</span>
 <span class="sd">        The next iteration&#39;s arithmetic mean, geometric mean, and</span>
 <span class="sd">        median.</span>
+<span class="sd">    converged : bool</span>
+<span class="sd">        Whether the next iteration has converged within the given</span>
+<span class="sd">        tolerance.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">mean_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">data_i</span><span class="p">)</span>
+    <span class="n">mean_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data_i</span><span class="p">)</span>
     <span class="n">geomean_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">data_i</span><span class="p">)))</span>
-    <span class="n">median_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">data_i</span><span class="p">)</span>
-    <span class="n">data_iplus1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">((</span><span class="n">mean_</span><span class="p">,</span> <span class="n">geomean_</span><span class="p">,</span> <span class="n">median_</span><span class="p">))</span>
-    <span class="n">converged</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">data_iplus1</span> <span class="o">==</span> <span class="n">data_i</span><span class="p">)</span>
+    <span class="n">median_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">data_i</span><span class="p">)</span>
+    <span class="n">data_iplus1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">mean_</span><span class="p">,</span> <span class="n">geomean_</span><span class="p">,</span> <span class="n">median_</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">data_iplus1</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)),</span> <span class="kc">True</span>
+    <span class="n">converged</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">data_iplus1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">data_i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">data_iplus1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">data_i</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">data_iplus1</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">data_i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">data_iplus1</span><span class="p">,</span> <span class="n">converged</span>
 </pre></div>
 

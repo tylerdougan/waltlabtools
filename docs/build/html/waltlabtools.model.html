@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>waltlabtools.model module &mdash; waltlabtools 0.4.5 documentation</title>
+  <title>waltlabtools.model module &mdash; waltlabtools 0.4.8 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -47,7 +47,7 @@
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.core.html">waltlabtools.core module</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">waltlabtools.model module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.cal_curve.html">waltlabtools.cal_curve module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="waltlabtools.read_quanterix.html">waltlabtools.read_quanterix module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="waltlabtools.read.html">waltlabtools.read module</a></li>
 </ul>
 
     <a href="genindex.html">Index</a>
@@ -89,13 +89,13 @@ waltlabtools, so it can be accessed via, e.g.,</p>
 <hr class="docutils" />
 <dl class="py class">
 <dt class="sig sig-object py" id="waltlabtools.model.Model">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.model.Model" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaintext_formula</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/waltlabtools/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.model.Model" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Mathematical model for calibration curve fitting.</p>
 <p>A Model is an object with a function and its inverse, with one
 or more free parameters that can be fit to calibration curve data.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>fun</strong> (<em>function</em>) -- Forward functional form. Should be a function which takes in <cite>x</cite>
 and other parameters and returns <cite>y</cite>. The first parameter of
@@ -109,7 +109,8 @@ be the same coefficients as in fun.</p></li>
 <li><p><strong>params</strong> (<em>list-like of str</em>) -- The names of the parameters for the function. This should be
 the same length as the number of arguments which fun and
 inverse take after their inputs <cite>x</cite> and <cite>y</cite>, respectively.</p></li>
-<li><p><strong>xscale, yscale</strong> (<em>{&quot;linear&quot;, &quot;log&quot;, &quot;symlog&quot;, &quot;logit&quot;}, default &quot;linear&quot;</em>) -- The natural scaling transformations for <cite>x</cite> and <cite>y</cite>. For
+<li><p><strong>xscale, yscale</strong> (<em>{&quot;linear&quot;, &quot;log&quot;, &quot;symlog&quot;, &quot;logit&quot;} or</em>)</p></li>
+<li><p><strong>matplotlib.ScaleBase, default &quot;linear&quot;</strong> -- The natural scaling transformations for <cite>x</cite> and <cite>y</cite>. For
 example, &quot;log&quot; means that the data may be distributed
 log-normally and are best visualized on a log scale.</p></li>
 </ul>
@@ -118,17 +119,17 @@ log-normally and are best visualized on a log scale.</p></li>
 </dd></dl>
 
 <dl class="py data">
-<dt class="sig sig-object py" id="waltlabtools.model.model_dict">
-<span class="sig-name descname"><span class="pre">model_dict</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'4PL':</span> <span class="pre">4PL</span> <span class="pre">Model</span> <span class="pre">with</span> <span class="pre">parameters</span> <span class="pre">('a',</span> <span class="pre">'b',</span> <span class="pre">'c',</span> <span class="pre">'d'),</span> <span class="pre">'5PL':</span> <span class="pre">5PL</span> <span class="pre">Model</span> <span class="pre">with</span> <span class="pre">parameters</span> <span class="pre">('a',</span> <span class="pre">'b',</span> <span class="pre">'c',</span> <span class="pre">'d',</span> <span class="pre">'g'),</span> <span class="pre">'Hill':</span> <span class="pre">Hill</span> <span class="pre">Model</span> <span class="pre">with</span> <span class="pre">parameters</span> <span class="pre">('a',</span> <span class="pre">'b',</span> <span class="pre">'c'),</span> <span class="pre">'linear':</span> <span class="pre">linear</span> <span class="pre">Model</span> <span class="pre">with</span> <span class="pre">parameters</span> <span class="pre">('a',</span> <span class="pre">'b'),</span> <span class="pre">'logistic':</span> <span class="pre">logistic</span> <span class="pre">Model</span> <span class="pre">with</span> <span class="pre">parameters</span> <span class="pre">('a',</span> <span class="pre">'b',</span> <span class="pre">'c',</span> <span class="pre">'d'),</span> <span class="pre">'power':</span> <span class="pre">power</span> <span class="pre">Model</span> <span class="pre">with</span> <span class="pre">parameters</span> <span class="pre">('a',</span> <span class="pre">'b')}</span></em><a class="headerlink" href="#waltlabtools.model.model_dict" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="waltlabtools.model.models">
+<span class="sig-name descname"><span class="pre">models</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'4PL':</span> <span class="pre">4PL</span> <span class="pre">Model:</span> <span class="pre">d</span> <span class="pre">+</span> <span class="pre">(a</span> <span class="pre">-</span> <span class="pre">d)</span> <span class="pre">/</span> <span class="pre">[1</span> <span class="pre">+</span> <span class="pre">(x/c)^b],</span> <span class="pre">'5PL':</span> <span class="pre">5PL</span> <span class="pre">Model:</span> <span class="pre">d</span> <span class="pre">+</span> <span class="pre">(a</span> <span class="pre">-</span> <span class="pre">d)</span> <span class="pre">/</span> <span class="pre">[1</span> <span class="pre">+</span> <span class="pre">(x/c)^b]^g,</span> <span class="pre">'Hill':</span> <span class="pre">Hill</span> <span class="pre">Model:</span> <span class="pre">y</span> <span class="pre">=</span> <span class="pre">a</span> <span class="pre">x^b</span> <span class="pre">/</span> <span class="pre">(c^b</span> <span class="pre">+</span> <span class="pre">x^b),</span> <span class="pre">'linear':</span> <span class="pre">linear</span> <span class="pre">Model:</span> <span class="pre">y</span> <span class="pre">=</span> <span class="pre">a</span> <span class="pre">x</span> <span class="pre">+</span> <span class="pre">b,</span> <span class="pre">'logistic':</span> <span class="pre">logistic</span> <span class="pre">Model:</span> <span class="pre">y</span> <span class="pre">=</span> <span class="pre">d</span> <span class="pre">+</span> <span class="pre">(a</span> <span class="pre">-</span> <span class="pre">d)</span> <span class="pre">/</span> <span class="pre">{1</span> <span class="pre">+</span> <span class="pre">exp[-b</span> <span class="pre">(x</span> <span class="pre">-</span> <span class="pre">c)]},</span> <span class="pre">'power':</span> <span class="pre">power</span> <span class="pre">Model:</span> <span class="pre">y</span> <span class="pre">=</span> <span class="pre">a</span> <span class="pre">x^b}</span></em><a class="headerlink" href="#waltlabtools.model.models" title="Permalink to this definition"></a></dt>
 <dd><p>Built-in regression models.</p>
 <p>Keys of model_dict are strings giving model names; values are
 waltlabtools.Model objects.</p>
 <p>&quot;linear&quot; : Linear function.</p>
 <p>&quot;power&quot; : Power function.</p>
-<p>&quot;Hill&quot; : Hill function.</p>
+<p>&quot;hill&quot; : Hill function.</p>
 <p>&quot;logistic&quot; : Logistic function.</p>
-<p>&quot;4PL&quot; : Four-parameter logistic (4PL) function.</p>
-<p>&quot;5PL&quot; : Five-parameter logistic (5PL) function.</p>
+<p>&quot;4pl&quot; : Four-parameter logistic (4PL) function.</p>
+<p>&quot;5pl&quot; : Five-parameter logistic (5PL) function.</p>
 </dd></dl>
 
 </section>

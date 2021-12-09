@@ -1,7 +1,7 @@
-waltlabtools.read\_quanterix module
-===================================
+waltlabtools.read module
+========================
 
-.. automodule:: waltlabtools.read_quanterix
+.. automodule:: waltlabtools.read
    :members:
    :undoc-members:
    :show-inheritance:

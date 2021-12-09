@@ -22,7 +22,7 @@ if _optional_dependencies["jax"]:
 else:
     import numpy as np
 
-__all__ = ["Model", "model_dict"]
+__all__ = ["Model", "models"]
 
 
 class Model:
@@ -49,93 +49,111 @@ class Model:
         The names of the parameters for the function. This should be
         the same length as the number of arguments which fun and
         inverse take after their inputs `x` and `y`, respectively.
-    xscale, yscale : {"linear", "log", "symlog", "logit"}, default "linear"
+    xscale, yscale : {"linear", "log", "symlog", "logit"} or
+    matplotlib.ScaleBase, default "linear"
         The natural scaling transformations for `x` and `y`. For
         example, "log" means that the data may be distributed
         log-normally and are best visualized on a log scale.
 
     """
 
-    def __init__(self, fun=None, inverse=None, name: str = "", params=(),
-            xscale="linear", yscale="linear"):
+    def __init__(
+        self,
+        fun=None,
+        inverse=None,
+        name: str = "",
+        params=(),
+        xscale="linear",
+        yscale="linear",
+        plaintext_formula: str = "",
+    ):
         self.fun = fun
         self.inverse = inverse
         self.name = name
         self.params = params
         self.xscale = xscale
         self.yscale = yscale
+        self.plaintext_formula = plaintext_formula
 
     def __iter__(self):
         return self.params
 
-    def __repr__(self):
-        return " ".join([self.name, "Model with parameters", str(self.params)])
+    def __repr__(self) -> str:
+        name_prefix = self.name + " Model" if self.name else "Model"
+        if self.plaintext_formula:
+            return name_prefix + ": " + self.plaintext_formula
+        else:
+            return name_prefix + " with parameters " + str(self.params)
 
 
-# CONSTANTS
+# Models
 
-def _f_linear(x, a, b):
-    """Linear function."""
-    return a*x + b
-def _i_linear(y, a, b):
-    """Linear inverse."""
-    return (y - b) / a
-m_linear = Model(_f_linear, _i_linear, "linear",
-    ("a", "b"), "linear", "linear")
-
-
-def _f_power(x, a, b):
-    """Power function."""
-    return a * x**b
-def _i_power(y, a, b):
-    """Power inverse."""
-    return (y / a)**(1/b)
-m_power = Model(_f_power, _i_power, "power",
-    ("a", "b"), "log", "log")
+m_linear = Model(
+    lambda x, a, b: a * x + b,
+    lambda y, a, b: (y - b) / a,
+    "linear",
+    ("a", "b"),
+    "linear",
+    "linear",
+    "y = a x + b",
+)
 
 
-def _f_hill(x, a, b, c):
-    """Hill function."""
-    return (a * x**b) / (c**b + x**b)
-def _i_hill(y, a, b, c):
-    """Hill inverse."""
-    return c * (a/y - 1)**(-1/b)
-m_hill = Model(_f_hill, _i_hill, "Hill",
-    ("a", "b", "c"), "log", "log")
+m_power = Model(
+    lambda x, a, b: a * x ** b,
+    lambda y, a, b: (y / a) ** (1 / b),
+    "power",
+    ("a", "b"),
+    "log",
+    "log",
+    "y = a x^b",
+)
 
 
-def _f_logistic(x, a, b, c, d):
-    """Logistic function."""
-    return d + (a - d) / (1 + np.exp(-b*(x - c)))
-def _i_logistic(y, a, b, c, d):
-    """Logistic inverse."""
-    return c - np.log((a - d)/(y - d) - 1) / b
-m_logistic = Model(_f_linear, _i_logistic, "logistic",
-    ("a", "b", "c", "d"), "linear", "linear")
+m_hill = Model(
+    lambda x, a, b, c: (a * x ** b) / (c ** b + x ** b),
+    lambda y, a, b, c: c * (a / y - 1) ** (-1 / b),
+    "Hill",
+    ("a", "b", "c"),
+    "log",
+    "log",
+    "y = a x^b / (c^b + x^b)",
+)
+
+m_logistic = Model(
+    lambda x, a, b, c, d: d + (a - d) / (1 + np.exp(-b * (x - c))),
+    lambda y, a, b, c, d: c - np.log((a - d) / (y - d) - 1) / b,
+    "logistic",
+    ("a", "b", "c", "d"),
+    "linear",
+    "linear",
+    "y = d + (a - d) / {1 + exp[-b (x - c)]}",
+)
 
 
-def _f_4PL(x, a, b, c, d):
-    """Four-parameter logistic (4PL) function."""
-    return d + (a - d)/(1 + (x/c)**b)
-def _i_4PL(y, a, b, c, d):
-    """Four-parameter logistic (4PL) inverse."""
-    return c*((a-d)/(y-d) - 1)**(1/b)
-m_4PL = Model(_f_4PL, _i_4PL, "4PL",
-    ("a", "b", "c", "d"), "log", "log")
+m_4pl = Model(
+    lambda x, a, b, c, d: d + (a - d) / (1 + (x / c) ** b),
+    lambda y, a, b, c, d: c * ((a - d) / (y - d) - 1) ** (1 / b),
+    "4PL",
+    ("a", "b", "c", "d"),
+    "log",
+    "log",
+    "d + (a - d) / [1 + (x/c)^b]",
+)
+
+m_5pl = Model(
+    lambda x, a, b, c, d, g: d + (a - d) / (1 + (x / c) ** b) ** g,
+    lambda y, a, b, c, d, g: c * (((a - d) / (y - d)) ** (1 / g) - 1) ** (1 / b),
+    "5PL",
+    ("a", "b", "c", "d", "g"),
+    "log",
+    "log",
+    "d + (a - d) / [1 + (x/c)^b]^g",
+)
 
 
-def _f_5PL(x, a, b, c, d, g):
-    """Five-parameter logistic (5PL) function."""
-    return d + (a - d)/(1 + (x/c)**b)**g
-def _i_5PL(y, a, b, c, d, g):
-    """Five-parameter logistic (5PL) inverse."""
-    return c*(((a-d)/(y-d))**(1/g) - 1)**(1/b)
-m_5PL = Model(_f_5PL, _i_5PL, "5PL",
-    ("a", "b", "c", "d", "g"), "log", "log")
-
-
-model_list = [m_linear, m_power, m_hill, m_logistic, m_4PL, m_5PL]
-model_dict = {model.name: model for model in model_list}
+_model_list = [m_linear, m_power, m_hill, m_logistic, m_4pl, m_5pl]
+models = {model.name: model for model in _model_list}
 """Built-in regression models.
 
 Keys of model_dict are strings giving model names; values are
@@ -147,12 +165,46 @@ Models
 
 "power" : Power function.
 
-"Hill" : Hill function.
+"hill" : Hill function.
 
 "logistic" : Logistic function.
 
-"4PL" : Four-parameter logistic (4PL) function.
+"4pl" : Four-parameter logistic (4PL) function.
 
-"5PL" : Five-parameter logistic (5PL) function.
+"5pl" : Five-parameter logistic (5PL) function.
 
 """
+
+
+#def match_model(model_name) -> Model:
+#    """Returns a Model object from a string matching its name.
+#
+#    Parameters
+#    ----------
+#    model : str or waltlabtools.Model
+#        Model name or waltlabtools.Model object. Ideally a member of
+#        model_dict.keys(), but can also be one with some characters
+#        off or different capitalization.
+#
+#    Returns
+#    -------
+#    named_model : waltlabtools.Model
+#        Fixed version of model which is a built-in
+#        waltlabtools.Model.
+#
+#    """
+#    if isinstance(model_name, Model):
+#        return model_name
+#
+#    m = str(model_name).casefold()
+#    if m in _model_dict:
+#        return _model_dict[m]
+#
+#    matches = [key for key in _model_dict.keys() if (m in key) or (key in m)]
+#    if len(matches) == 1:
+#        return _model_dict[matches[0]]
+#
+#    error_text = "Model " + str(model_name) + " not found."
+#    if len(matches) > 1:
+#        error_text = error_text + " Did you mean " + " or ".join(matches) + "?"
+#    raise KeyError(error_text)
