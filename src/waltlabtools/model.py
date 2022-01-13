@@ -152,8 +152,9 @@ m_5pl = Model(
 )
 
 
-_model_list = [m_linear, m_power, m_hill, m_logistic, m_4pl, m_5pl]
-models = {model.name: model for model in _model_list}
+models = {
+    model.name: model for model in [m_linear, m_power, m_hill, m_logistic, m_4pl, m_5pl]
+}
 """Built-in regression models.
 
 Keys of model_dict are strings giving model names; values are
@@ -165,46 +166,12 @@ Models
 
 "power" : Power function.
 
-"hill" : Hill function.
+"Hill" : Hill function.
 
 "logistic" : Logistic function.
 
-"4pl" : Four-parameter logistic (4PL) function.
+"4PL" : Four-parameter logistic (4PL) function.
 
-"5pl" : Five-parameter logistic (5PL) function.
+"5PL" : Five-parameter logistic (5PL) function.
 
 """
-
-
-#def match_model(model_name) -> Model:
-#    """Returns a Model object from a string matching its name.
-#
-#    Parameters
-#    ----------
-#    model : str or waltlabtools.Model
-#        Model name or waltlabtools.Model object. Ideally a member of
-#        model_dict.keys(), but can also be one with some characters
-#        off or different capitalization.
-#
-#    Returns
-#    -------
-#    named_model : waltlabtools.Model
-#        Fixed version of model which is a built-in
-#        waltlabtools.Model.
-#
-#    """
-#    if isinstance(model_name, Model):
-#        return model_name
-#
-#    m = str(model_name).casefold()
-#    if m in _model_dict:
-#        return _model_dict[m]
-#
-#    matches = [key for key in _model_dict.keys() if (m in key) or (key in m)]
-#    if len(matches) == 1:
-#        return _model_dict[matches[0]]
-#
-#    error_text = "Model " + str(model_name) + " not found."
-#    if len(matches) > 1:
-#        error_text = error_text + " Did you mean " + " or ".join(matches) + "?"
-#    raise KeyError(error_text)

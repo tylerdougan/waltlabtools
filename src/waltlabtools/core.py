@@ -40,34 +40,27 @@ else:
         from numba import jit
     else:
 
-        def jit(fun):
-            """Identity function.
-
-            Used to replace jit (just-in-time compilation) when jit is
-            not available from jax or numba. For faster calculations
-            using just-in-time compilation, install jax or numba.
-
-            Parameters
-            ----------
-            fun : function
-
-            Returns
-            -------
-            fun : function
-                The same function, unchanged.
-            """
-            return fun
+        def jit(func):
+            """Dummy jit decorator for when numba is not installed."""
+            return func
 
     _optional_dependencies["jax"] = False
 
 
-__all__ = ["flatten", "dropna", "aeb", "fon", "c4", "gmnd", "std"]
+__all__ = ["flatten", "dropna", "aeb", "fon", "c4", "std", "gmnd"]
 
-_ATOL = 1e-8
-_ddofs = {"n": 0, "n-1": 1, "n-1.5": 1.5, "c4": 1}
+_DDOFS = {"n": 0, "n-1": 1, "n-1.5": 1.5, "c4": 1}
 
 
 def _flatten_helper(data, order: str = "C") -> np.ndarray:
+    """Flattens data structures that can easily be flattened.
+
+    Raises
+    ------
+    AssertionError
+        If the numpy.ravel returns an array with dtype=object.
+
+    """
     flat_data = np.ravel(np.array(data), order=order)
     assert flat_data.dtype != np.dtype("O")
     return flat_data
@@ -84,8 +77,7 @@ def flatten(data, order: str = "C") -> np.ndarray:
     Returns
     -------
     flat_data : array
-        Flattened version of **data**. If on_bad_data="error",
-        always an array.
+        Flattened version of **data**.
 
     Other Parameters
     ----------------
@@ -105,62 +97,14 @@ def flatten(data, order: str = "C") -> np.ndarray:
     """
     try:
         return _flatten_helper(data, order=order)
-    except (TypeError, RuntimeError, AssertionError):
-        flat_data = []
+    except (TypeError, RuntimeError, AssertionError, ValueError):
+        flat_data: list = []
         for datum in data:
             try:
                 flat_data.extend(flatten(datum, order=order))
             except TypeError:
                 flat_data.append(flatten(datum, order=order))
     return _flatten_helper(flat_data, order=order)
-
-
-def _find_rotation(array_shapes: list) -> tuple:
-    """Finds the common axis along which to drop NaNs.
-
-    Helper function for dropna.
-
-    Parameters
-    ----------
-    array_shapes : list
-        List of tuples, where each tuple is the shape of an array
-        provided to dropna.
-
-    Returns
-    -------
-    tuple
-        Tuple of the form (common_size, common_dims), where:
-
-            - common_size is the length of the common axis that all
-              arrays share
-
-            - common_dims is a list of the dimension in each array which
-              is the dimension along which to drop NaNs
-
-    """
-    first_dims = {s[0] for s in array_shapes}
-    if (len(first_dims) == 1) and (first_dims != {1}):
-        # All arrays are the same size along their first dimension.
-        return first_dims.pop(), [0 for i in array_shapes]
-    # Otherwise, arrays are different sizes along their first dimension.
-    all_sizes = set(flatten(array_shapes))
-    common_size = 0
-    for size in all_sizes:
-        if all(s.count(size) == 1 for s in array_shapes):
-            if common_size == 0:
-                common_size = size
-            else:
-                common_size = 0
-                break
-    if common_size == 0:
-        raise IndexError(
-            "Datasets must have the same size along their first axis "
-            + "or share one common dimension. The supplied datasets have sizes of "
-            + str(array_shapes)
-            + "."
-        )
-    common_dims = [s.index(common_size) for s in array_shapes]
-    return common_size, common_dims
 
 
 def _na_sieve(
@@ -187,7 +131,7 @@ def _na_sieve(
     Returns
     -------
     list of arrays
-        The datasets provided, now as arrays, with rows removed in which
+        The datasets provided, with rows removed in which
         any of the arrays has a non-finite value.
 
     """
@@ -200,13 +144,13 @@ def _na_sieve(
         data_finitude = np.all(keep_fn(arrayed_data), axis=axis)
         notna_array = np.logical_and(notna_array, data_finitude)
     return [
-        np.compress(notna_array, arrayed_datasets[i], common_dims[i])
+        np.compress(condition=notna_array, a=arrayed_datasets[i], axis=common_dims[i])
         for i in range(len(common_dims))
     ]
 
 
-def dropna(datasets, drop_inf: bool = True) -> list:
-    """Returns arrays, keeping only rows where all datasets are finite.
+def dropna(datasets, drop_inf: bool = True):
+    """Drops rows in which any dataset has a missing values.
 
     Parameters
     ----------
@@ -224,14 +168,41 @@ def dropna(datasets, drop_inf: bool = True) -> list:
         any of the arrays has a non-finite value.
 
     """
-    arrayed_datasets = []
-    array_shapes = []
-    for data in datasets:
-        arrayed_data = np.array(data)
-        arrayed_datasets.append(arrayed_data)
-        array_shapes.append(np.shape(arrayed_data))
-    common_size, common_dims = _find_rotation(array_shapes)
-    return _na_sieve(arrayed_datasets, common_size, common_dims, drop_inf)
+    arrayed_datasets = [np.array(dataset) for dataset in datasets]
+    dataset_shapes = [dataset.shape for dataset in arrayed_datasets]
+
+    # First option: along any dimension, every dataset is the same size.
+    max_dim = max(len(shape) for shape in dataset_shapes)
+    possible_dims = {}
+    for dim in range(1 - max_dim, max_dim):
+        possible_sizes = {shape[dim] for shape in dataset_shapes}
+        if len(possible_sizes) == 1:
+            possible_dims[dim] = possible_sizes.pop()
+    if len(possible_dims) == 1:
+        common_dim, common_size = possible_dims.popitem()
+        common_dims = [common_dim] * len(arrayed_datasets)
+
+    # Second option: there is one size shared by all datasets.
+    else:
+        possible_sizes = (set(dataset_shapes[0]) - {0, 1}).intersection(*dataset_shapes)
+        if len(possible_sizes) == 0:
+            raise ValueError("The datasets do not have any common sizes.")
+        if len(possible_sizes) > 1:
+            raise ValueError("The datasets have multiple common sizes.")
+
+        common_size = possible_sizes.pop()
+        common_dims = []
+        for shape in dataset_shapes:
+            if shape.count(common_size) == 1:
+                raise ValueError("A dataset has multiple dimensions of the same size.")
+            common_dims.append(shape.index(common_size))
+
+    return _na_sieve(
+        arrayed_datasets=arrayed_datasets,
+        common_size=common_size,
+        common_dims=common_dims,
+        drop_inf=drop_inf,
+    )
 
 
 def aeb(fon_):
@@ -259,7 +230,7 @@ def aeb(fon_):
     try:
         return -np.log(1 - fon_)
     except TypeError:
-        return -np.log(1 - flatten(fon_))
+        return -np.log(1 - np.array(fon_))
 
 
 def fon(aeb_):
@@ -287,7 +258,7 @@ def fon(aeb_):
     try:
         return 1 - np.exp(-aeb_)
     except TypeError:
-        return 1 - np.exp(-flatten(aeb_))
+        return 1 - np.exp(-np.array(aeb_))
 
 
 def c4(n):
@@ -367,7 +338,7 @@ def std(data, corr="c4") -> float:
     """
     flat_data = flatten(data)
     try:
-        ddof = _ddofs[corr]
+        ddof = _DDOFS[corr]
     except KeyError:
         try:
             ddof = float(corr)
@@ -403,6 +374,12 @@ def gmnd(data, rtol: float = 1e-05, atol: float = 1e-08) -> float:
     -------
     gmnd_ : float
         Geometric meandian.
+
+    Notes
+    -----
+    The purpose of this function is to demonstrate the functional
+    decomposition necessary to perform just-in-time compilation (jit)
+    using jax or numba.
 
     """
     flat_data = flatten(data)

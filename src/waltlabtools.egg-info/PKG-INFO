@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: waltlabtools
-Version: 0.4.8
+Version: 0.5.0
 Summary: A collection of tools for biomedical research assay analysis in Python.
 Home-page: https://github.com/tylerdougan/waltlabtools
 Author: Tyler Dougan
@@ -15,8 +15,6 @@ Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
 Classifier: Operating System :: OS Independent
 Requires-Python: >=3.6
 Description-Content-Type: text/x-rst
-Provides-Extra: read
-Provides-Extra: optional
 License-File: LICENSE
 
 waltlabtools

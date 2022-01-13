@@ -1,74 +1,43 @@
-"""Functions for reading in data from Quanterix instruments.
+"""Functions for reading instrument-generated data.
 
-This module provides tools for interacting with a
-`Quanterix Simoa HD-X Analyzer
-<https://www.quanterix.com/instruments/simoa-hd-x-analyzer/>`__.
-
-In addition to the dependencies for waltlabtools,
-waltlabtools.read also requires pandas 0.25 or greater.
-
-The public functions in waltlabtools.read can be accessed via,
-e.g.,
+Everything in waltlabtools.read is automatically imported with
+waltlabtools, so it can be accessed via, e.g.,
 
 .. code-block:: python
 
    import waltlabtools as wlt  # waltlabtools main functionality
-   import waltlabtools.read  # for Quanterix data
 
-   subset_data = wlt.read.quanterix()  # read run history
-
-if also using other functionality from the waltlabtools package, or
-
-.. code-block:: python
-
-   from waltlabtools import read_quanterix  # for Quanterix data
-
-   subset_data = read.quanterix()  # read run history
-
-if using only the waltlabtools.readmodule.
-
-
------
-
+   my_hdx_report = wlt.read_hdx()  # extracts data from an HD-X file
 
 """
 
+from inspect import signature
 import os
 from tkinter import filedialog
+
 import pandas as pd
 
-__all__ = ["hdx"]
+from .cal_curve import CalCurve
+from .model import Model, models
+
+__all__ = ["read_raw_hdx", "read_hdx"]
 
 
-_hdx = {}
+def _read_tsv(*args, **kwargs):
+    """Reads a tsv file. See `pandas.read_csv` for more information."""
+    kwargs["sep"] = "\t"
+    return pd.read_csv(*args, **kwargs)
 
-_hdx["files"] = {
-    ("sample", "results"): {
-        "filedialog": {
-            "title": "Choose a Sample Results Report File",
-            "filetypes": [("Excel 97–2004 Workbook", "xls")]},
-        "args": {"header": 5}},
-    ("run", "history"): {
-        "filedialog": {
-            "title": "Choose a Run History File",
-            "filetypes": [("Comma-Separated Values", "csv")]},
-        "args": {"header": 0}},
-    ("any",): {
-        "filedialog": {
-            "title": "Choose a Sample Results Report or Run History File",
-            "filetypes": [
-                ("Excel 97–2004 Workbook", "xls"),
-                ("Comma-Separated Values", "csv"),
-                ("All Files", "*")]},
-        "args": {}},
+
+_PD_READERS = {
+    "csv": pd.read_csv,
+    "xls": pd.read_excel,
+    "xlsx": pd.read_excel,
+    "json": pd.read_json,
+    "html": pd.read_html,
+    "tsv": _read_tsv,
 }
-
-
-_hdx["export_types"] = {
-    "xls": ("sample", "results"),
-    "csv": ("run", "history")
-}
-_hdx["export_types"][("any",)] = list(set(_hdx["export_types"].values()))
+"""Mapping from file extensions to pandas read functions."""
 
 
 def _get_file(filepath=None, **kwargs):
@@ -91,127 +60,16 @@ def _get_file(filepath=None, **kwargs):
 
     """
     if filepath is None:
-        io = filedialog.askopenfilenames(**kwargs)
+        io = filedialog.askopenfilename(**kwargs)
     else:
         io = filepath
     return io
 
 
-_filetype_readers = {
-    "csv": pd.read_csv,
-    "excel": pd.read_excel,
-    "xls": pd.read_excel,
-    "xlsx": pd.read_excel,
-    "opendocument": pd.read_excel,
-    "odf": pd.read_excel
-}
+def read_raw_hdx(filepath=None, **kwargs) -> pd.DataFrame:
+    """Read in an HD-X Sample Results Report or Run History.
 
-_reader_args = {reader: () for reader in set(_filetype_readers.values())}
-for reader in _reader_args:
-    func = reader
-    while hasattr(func, '__wrapped__'):
-        func = func.__wrapped__
-    _reader_args[reader] = set(func.__code__.co_varnames)
-
-
-def _cols_dropped(raw_table: pd.DataFrame,
-        drop_cols: str = "blank") -> pd.DataFrame:
-    """Drops unimportant columns from a pandas DataFrame.
-
-    [extended_summary]
-
-    Parameters
-    ----------
-    raw_table : pd.DataFrame
-        DataFrame without columns dropped.
-    drop_cols : {"blank", "uniform", "keep"}, default "blank"
-        Should any columns be automatically dropped from the input file?
-        Options:
-
-            - `"blank"` : Drop all columns that are blank.
-
-            - `"uniform"` : Drop all columns that have the same
-              value for all rows, including blank columns.
-
-            - `"keep"` : Do not drop any columns.
-
-
-    Returns
-    -------
-    pd.DataFrame
-        [description]
-    """
-    if drop_cols == "keep":
-        return raw_table
-    elif drop_cols == "uninformative":
-        uninformative_cols = [colname for colname in raw_table.columns
-            if len(set(raw_table[colname])) <= 1]
-        return raw_table.drop(columns=uninformative_cols)
-    else:
-        return raw_table.dropna(axis="columns", how="all")
-
-
-def _get_file_extension(io) -> str:
-    return os.fspath(io).rsplit('.', maxsplit=1)[-1]
-
-
-def _hdx_export_type_tuple(export_type=None) -> tuple:
-    export_lowercase = str(export_type).casefold()
-    for export_tuple in _hdx["files"]:
-        if all((word in export_lowercase) for word in export_tuple):
-            return export_tuple
-    return ("any",)
-
-
-def _hdx_ext_tuple(io=None) -> tuple:
-    extension = _get_file_extension(io)
-    if extension in _hdx["export_types"]:
-        if isinstance(_hdx["export_types"][extension], tuple):
-            return _hdx["export_types"][extension]
-        else:
-            filepath_str = str(os.fspath(io))
-            for export_tuple in _hdx["export_types"][extension]:
-                if all((word in filepath_str) for word in export_tuple):
-                    return export_tuple
-    raise ValueError("Export type not recognized.")
-
-
-def _read(io, reader, new_args, **kwargs) -> pd.DataFrame:
-    kwargs_ = {key: value for key, value in kwargs.items()
-        if key in _reader_args[reader]}
-    kwargs_.update(new_args)
-    return reader(io, **kwargs_)
-
-
-def _read_hdx_table(io, export_tuple, **kwargs) -> pd.DataFrame:
-    value_error = None
-    extension = _hdx["files"][export_tuple]["filedialog"]["filetypes"][0][1]
-    new_args = _hdx["files"][export_tuple]["args"]
-    try:
-        return _read(io, _filetype_readers[extension], new_args, **kwargs)
-    except ValueError:
-        for extension_, in _hdx["export_types"]:
-            try:
-                return _read(io, _filetype_readers[extension_],
-                    new_args, **kwargs)
-            except ValueError as err:
-                value_error = err
-    error_text = ("The provided filepath, " + str(io)
-        + ", is not compatable with the provided export_type, "
-        + " ".join(export_tuple)
-        + ". The export_type provided requires a filepath matching "
-        + str(_hdx["files"][export_tuple]["filedialog"]["filetypes"])
-        + "; the filepath appears to be a ." + extension + " file.")
-    raise ValueError(error_text) from value_error
-
-
-def hdx(filepath=None, export_type=None,
-        drop_cols: str = "blank", **kwargs) -> pd.DataFrame:
-    """Reads in a Quanterix HD-X results/history file.
-
-    This function is a wrapper for pandas.read_excel and pandas.read_csv
-    with additional options and defaults to make it straightforward to
-    import a Sample Results Report or Run History file.
+    Essentially a wrapper for `pandas.read_csv` or `pandas.read_excel`.
 
     Parameters
     ----------
@@ -221,46 +79,146 @@ def hdx(filepath=None, export_type=None,
         http, ftp, s3, gs, and file. Can also be any os.PathLike or any
         object with a `read()` method. If not provided, a
         `tkinter.filedialog` opens, prompting the user to select a file.
-    export_type : {"sample_results", "run_history"}, optional
-        Type of Quanterix exported file. Options:
-
-            - `"sample results"` : HD-X Sample Results Report
-
-            - `"run history"` : HD-X Run History file
-
-        If none is provided, the filetype will be inferred.
-    drop_cols : {"blank", "uniform", "keep"}, default "blank"
-        Should any columns be automatically dropped from the input file?
-        Options:
-
-            - `"blank"` : Drop all columns that are blank.
-
-            - `"uniform"` : Drop all columns that have the same
-              value for all rows, including blank columns.
-
-            - `"keep"` : Do not drop any columns.
-
-    **kwargs
-        Additional arguments passed to pandas.read_excel or
-        pandas.read_csv.
 
     Returns
     -------
-    table : pandas.DataFrame
-        Run History.
+    pandas.DataFrame
 
     See Also
     --------
-    pandas.read_excel, pandas.read_csv : backend functions used by hdx
+    read.hdx : read in a spreadsheet and extract data automatically
 
     """
-    type_tuple = _hdx_export_type_tuple(export_type=export_type)
-    io = _get_file(filepath, **_hdx["files"][type_tuple]["filedialog"])
-    export_tuple = _hdx_ext_tuple(io) if type_tuple == ("any",) else type_tuple
-    raw_table = _read_hdx_table(io, export_tuple, **kwargs)
-    table = _cols_dropped(raw_table, drop_cols)
-    return table
+    io = _get_file(
+        filepath,
+        title="Choose a Sample Results Report or Run History File",
+        filetypes=[
+            ("Sample Results Report", "xls"),
+            ("Run History", "csv"),
+            ("All Files", "*"),
+        ],
+    )
+    file_extension = os.fspath(io).split(".")[-1]
+    reader = _PD_READERS[file_extension]
+    reader_kwargs = {"header": 5 if file_extension == "xls" else 0}
+    reader_kwargs.update(
+        {
+            key: value
+            for key, value in kwargs.items()
+            if (key in signature(reader).parameters)
+            and (key not in signature(pd.DataFrame.pivot_table).parameters)
+        }
+    )
+    return reader(io, **reader_kwargs)
 
 
-def plate_layout(io):
-    return io
+def read_hdx(
+    filepath=None,
+    cal_curve=None,
+    x_col: str = "Replicate Conc.",
+    y_col: str = "Replicate AEB",
+    index="Sample Barcode",
+    columns=None,
+    calibrators: tuple = ("Sample Type", "Calibrator"),
+    samples: tuple = ("Sample Type", "Specimen"),
+    sort: bool = False,
+    **kwargs,
+) -> pd.DataFrame:
+    """Extracts data from an HD-X Sample Results Report or Run History.
+
+    Transforms a spreadsheet into a pandas DataFrame whose columns are
+    different assays/plexes (often corresponding to individual
+    biomarkers) and whose rows are different samples. By default, the
+    concentrations calculated by the HD-X software are used, but they
+    can also be calculated independently from AEBs by passing a CalCurve
+    object or a Model from which to generate a calibration curve.
+
+    Parameters
+    ----------
+    filepath : str, path object, file-like object, or pandas.DataFrame
+    optional
+        The path to the file to import. Any valid string path is
+        acceptable. The string could be a URL. Valid URL schemes include
+        http, ftp, s3, gs, and file. Can also be any os.PathLike or any
+        object with a `read()` method. Can also be a pandas.DataFrame
+        if the data have already been imported. If `filepath` is not
+        provided, a `tkinter.filedialog` opens, prompting the user to
+        select a file.
+    cal_curve : CalCurve, callable, Model, or str, optional
+        To calculate concentrations from AEBs, pass one of the following
+        types of arguments:
+
+            - CalCurve: Calculate the concentrations using the
+              CalCurve.inverse method.
+
+            - callable: Transform data to concentrations with the
+              given function.
+
+            - Model: Generate a calibration curve from the data using
+              the given model, and calculate concentrations using this
+              calibration curve.
+
+            - str: Should be an element of `models`. Generate a
+              calibration curve from the data using the model named, and
+              calculate concentrations using this calibration curve.
+
+    x_col : str, default "Replicate Conc."
+        Name of the column in the imported file to be used as the
+        concentration. Ignored when `cal_curve` is a CalCurve object
+        or callable.
+    y_col : str, default "Replicate AEB"
+        Name of the column in the imported file to be used as the
+        signal (e.g., AEB), from which the concentration is calculated.
+        Ignored unless `cal_curve` is provided. To use `cal_curve` to
+        transform the concentrations rather than the AEBs, explicitly
+        pass ``y_col="Replicate Conc."``.
+    index: str or list of str, default "Sample Barcode"
+        Column(s) of the spreadsheet to use as the index of the table,
+        i.e., the unique barcodes for each sample. For example, to use
+        plate well positions instead, pass ``index="Location"``.
+    columns: str or list of str, optional
+        Column(s) of the spreadsheet to use as the columns of the table
+        uniquely specifying each biomarker/assay/plex. Default (None)
+        is equivalent to passing ``["Assay", "Plex"]``.
+    calibrators : tuple, default ("Sample Type", "Calibrator")
+        Two-tuple of (colname, value) specifying the calibrators. For
+        example, by default, all rows that have a "Sample Type" of
+        "Calibrator" are counted as calibrators.
+    samples : tuple, default ("Sample Type", "Specimen")
+        Two-tuple of (colname, value) specifying the samples. For
+        example, by default, all rows that have a "Sample Type" of
+        "Specimen" are counted as samples and returned in the table.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame whose rows (specified by `index`) are samples and
+        whose columns are biomarkers/assays/plexes (specified by
+        `columns`).
+
+    See Also
+    --------
+    read.raw_hdx : read in a spreadsheet without transforming
+
+    """
+    # Import file.
+    if isinstance(filepath, pd.DataFrame):
+        raw_df = filepath.copy()
+    else:
+        raw_df = read_raw_hdx(filepath, **kwargs)
+
+    # Form pivot table.
+    pivot_table_kwargs = {
+        "values": x_col,
+        "index": index,
+        "columns": ["Assay", "Plex"] if columns is None else columns,
+        "sort": sort,
+    }
+    pivot_table_kwargs.update(
+        {
+            key: value
+            for key, value in kwargs.items()
+            if key in signature(pd.DataFrame.pivot_table).parameters
+        }
+    )
+    return raw_df[raw_df[samples[0]] == samples[1]].pivot_table(**pivot_table_kwargs)

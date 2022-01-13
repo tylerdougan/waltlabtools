@@ -63,7 +63,7 @@ def _match_coefs(params, coefs) -> dict:
     )
 
 
-def regress(model: Model, x, y, weights="1/y^2", **kwargs):
+def regress(model, x, y, weights="1/y^2", **kwargs):
     """Performs a (nonlinear) regression and returns coefficients.
 
     Parameters
@@ -120,8 +120,7 @@ def regress(model: Model, x, y, weights="1/y^2", **kwargs):
 
 
 def limit_of_detection(blank_signal, inverse_fun=None, sds=3, corr="c4"):
-    """
-    Compute the limit of detection (LOD).
+    """Computes the limit of detection (LOD).
 
     Parameters
     ----------
@@ -219,7 +218,7 @@ class CalCurve:
         coefs=(),
         lod=-np.inf,
         lod_sds=3,
-        force_lod: bool = False
+        force_lod: bool = False,
     ):
         """Initializes a new, empty CalCurve object."""
         self.x = flatten(x)
@@ -253,9 +252,9 @@ class CalCurve:
 
         Parameters
         ----------
-        x_flat : array
-            Data to be bounded. Must be an array, such as the output of
-            ``flatten``.
+        x_flat : numeric or array.
+            Data to be bounded. Must be numeric or an array, such as the
+            output of ``flatten``.
 
         Returns
         -------
@@ -293,7 +292,7 @@ class CalCurve:
         try:
             y = self.model.fun(self.bound_lod(x), **self.coefs)
         except TypeError:
-            x_flat = flatten(x)
+            x_flat = np.array(x)
             y = self.model.fun(self.bound_lod(x_flat), **self.coefs)
         return y
 
@@ -320,7 +319,7 @@ class CalCurve:
         try:
             x = self.bound_lod(self.model.inverse(y, **self.coefs))
         except TypeError:
-            y_flat = flatten(y)
+            y_flat = np.array(y)
             x = self.bound_lod(self.model.inverse(y_flat, **self.coefs))
         return x
 
@@ -442,7 +441,7 @@ class CalCurve:
         cls,
         fun,
         inverse,
-        lod: float = -np.inf,
+        lod=-np.inf,
         lod_sds=3,
         force_lod: bool = False,
         xscale="linear",

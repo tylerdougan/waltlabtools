@@ -1,33 +1,70 @@
-<!DOCTYPE html>
-<html class="writer-html5" lang="en" >
-<head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>waltlabtools.read module &mdash; waltlabtools 0.4.8 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
+  <title>waltlabtools.read module &mdash; waltlabtools 0.5.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    <script src="_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="waltlabtools.cal_curve module" href="waltlabtools.cal_curve.html" /> 
+    <link rel="next" title="waltlabtools.mosaic module" href="waltlabtools.mosaic.html" />
+    <link rel="prev" title="waltlabtools.plot module" href="waltlabtools.plot.html" /> 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="index.html" class="icon icon-home"> waltlabtools
+          
+
+          
           </a>
+
+          
+            
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -35,8 +72,18 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
     
+            
+            
+              
+            
+            
               <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="README.html">waltlabtools</a></li>
@@ -46,135 +93,234 @@
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.core.html">waltlabtools.core module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.model.html">waltlabtools.model module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.cal_curve.html">waltlabtools.cal_curve module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="waltlabtools.plot.html">waltlabtools.plot module</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">waltlabtools.read module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="waltlabtools.mosaic.html">waltlabtools.mosaic module</a></li>
 </ul>
 
+            
+          
     <a href="genindex.html">Index</a>
   
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">waltlabtools</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
       <li>waltlabtools.read module</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
+            
             <a href="_sources/waltlabtools.read.rst.txt" rel="nofollow"> View page source</a>
+          
+        
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <section id="module-waltlabtools.read">
-<span id="waltlabtools-read-module"></span><h1>waltlabtools.read module<a class="headerlink" href="#module-waltlabtools.read" title="Permalink to this headline"></a></h1>
-<p>Functions for reading in data from Quanterix instruments.</p>
-<p>This module provides tools for interacting with a
-<a class="reference external" href="https://www.quanterix.com/instruments/simoa-hd-x-analyzer/">Quanterix Simoa HD-X Analyzer</a>.</p>
-<p>In addition to the dependencies for waltlabtools,
-waltlabtools.read also requires pandas 0.25 or greater.</p>
-<p>The public functions in waltlabtools.read can be accessed via,
-e.g.,</p>
+<span id="waltlabtools-read-module"></span><h1>waltlabtools.read module<a class="headerlink" href="#module-waltlabtools.read" title="Permalink to this headline">¶</a></h1>
+<p>Functions for reading instrument-generated data.</p>
+<p>Everything in waltlabtools.read is automatically imported with
+waltlabtools, so it can be accessed via, e.g.,</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">waltlabtools</span> <span class="k">as</span> <span class="nn">wlt</span>  <span class="c1"># waltlabtools main functionality</span>
-<span class="kn">import</span> <span class="nn">waltlabtools.read</span>  <span class="c1"># for Quanterix data</span>
 
-<span class="n">subset_data</span> <span class="o">=</span> <span class="n">wlt</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">quanterix</span><span class="p">()</span>  <span class="c1"># read run history</span>
+<span class="n">my_hdx_report</span> <span class="o">=</span> <span class="n">wlt</span><span class="o">.</span><span class="n">read_hdx</span><span class="p">()</span>  <span class="c1"># extracts data from an HD-X file</span>
 </pre></div>
 </div>
-<p>if also using other functionality from the waltlabtools package, or</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">waltlabtools</span> <span class="kn">import</span> <span class="n">read_quanterix</span>  <span class="c1"># for Quanterix data</span>
-
-<span class="n">subset_data</span> <span class="o">=</span> <span class="n">read</span><span class="o">.</span><span class="n">quanterix</span><span class="p">()</span>  <span class="c1"># read run history</span>
-</pre></div>
-</div>
-<p>if using only the waltlabtools.readmodule.</p>
-<hr class="docutils" />
 <dl class="py function">
-<dt class="sig sig-object py" id="waltlabtools.read.hdx">
-<span class="sig-name descname"><span class="pre">hdx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'blank'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="reference internal" href="_modules/waltlabtools/read.html#hdx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.read.hdx" title="Permalink to this definition"></a></dt>
-<dd><p>Reads in a Quanterix HD-X results/history file.</p>
-<p>This function is a wrapper for pandas.read_excel and pandas.read_csv
-with additional options and defaults to make it straightforward to
-import a Sample Results Report or Run History file.</p>
+<dt class="sig sig-object py" id="waltlabtools.read.read_hdx">
+<span class="sig-name descname"><span class="pre">read_hdx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cal_curve</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Replicate</span> <span class="pre">Conc.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Replicate</span> <span class="pre">AEB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Sample</span> <span class="pre">Barcode'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibrators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">('Sample</span> <span class="pre">Type',</span> <span class="pre">'Calibrator')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">('Sample</span> <span class="pre">Type',</span> <span class="pre">'Specimen')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="reference internal" href="_modules/waltlabtools/read.html#read_hdx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.read.read_hdx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts data from an HD-X Sample Results Report or Run History.</p>
+<p>Transforms a spreadsheet into a pandas DataFrame whose columns are
+different assays/plexes (often corresponding to individual
+biomarkers) and whose rows are different samples. By default, the
+concentrations calculated by the HD-X software are used, but they
+can also be calculated independently from AEBs by passing a CalCurve
+object or a Model from which to generate a calibration curve.</p>
 <dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul>
-<li><p><strong>filepath</strong> (<em>str, path object or file-like object, optional</em>) -- The path to the file to import. Any valid string path is
+<li><p><strong>filepath</strong> (<em>str, path object, file-like object, or pandas.DataFrame</em>)</p></li>
+<li><p><strong>optional</strong> -- The path to the file to import. Any valid string path is
 acceptable. The string could be a URL. Valid URL schemes include
 http, ftp, s3, gs, and file. Can also be any os.PathLike or any
-object with a <cite>read()</cite> method. If not provided, a
-<cite>tkinter.filedialog</cite> opens, prompting the user to select a file.</p></li>
-<li><p><strong>export_type</strong> (<em>{&quot;sample_results&quot;, &quot;run_history&quot;}, optional</em>) --</p>
-<p>Type of Quanterix exported file. Options:</p>
+object with a <cite>read()</cite> method. Can also be a pandas.DataFrame
+if the data have already been imported. If <cite>filepath</cite> is not
+provided, a <cite>tkinter.filedialog</cite> opens, prompting the user to
+select a file.</p></li>
+<li><p><strong>cal_curve</strong> (<em>CalCurve, callable, Model, or str, optional</em>) -- To calculate concentrations from AEBs, pass one of the following
+types of arguments:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><cite>&quot;sample results&quot;</cite> : HD-X Sample Results Report</p></li>
-<li><p><cite>&quot;run history&quot;</cite> : HD-X Run History file</p></li>
-</ul>
-</div></blockquote>
-<p>If none is provided, the filetype will be inferred.</p>
-</li>
-<li><p><strong>drop_cols</strong> (<em>{&quot;blank&quot;, &quot;uniform&quot;, &quot;keep&quot;}, default &quot;blank&quot;</em>) -- Should any columns be automatically dropped from the input file?
-Options:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><cite>&quot;blank&quot;</cite> : Drop all columns that are blank.</p></li>
-<li><p><cite>&quot;uniform&quot;</cite> : Drop all columns that have the same
-value for all rows, including blank columns.</p></li>
-<li><p><cite>&quot;keep&quot;</cite> : Do not drop any columns.</p></li>
+<li><p>CalCurve: Calculate the concentrations using the
+CalCurve.inverse method.</p></li>
+<li><p>callable: Transform data to concentrations with the
+given function.</p></li>
+<li><p>Model: Generate a calibration curve from the data using
+the given model, and calculate concentrations using this
+calibration curve.</p></li>
+<li><p>str: Should be an element of <cite>models</cite>. Generate a
+calibration curve from the data using the model named, and
+calculate concentrations using this calibration curve.</p></li>
 </ul>
 </div></blockquote>
 </li>
-<li><p><strong>**kwargs</strong> -- Additional arguments passed to pandas.read_excel or
-pandas.read_csv.</p></li>
+<li><p><strong>x_col</strong> (<em>str, default &quot;Replicate Conc.&quot;</em>) -- Name of the column in the imported file to be used as the
+concentration. Ignored when <cite>cal_curve</cite> is a CalCurve object
+or callable.</p></li>
+<li><p><strong>y_col</strong> (<em>str, default &quot;Replicate AEB&quot;</em>) -- Name of the column in the imported file to be used as the
+signal (e.g., AEB), from which the concentration is calculated.
+Ignored unless <cite>cal_curve</cite> is provided. To use <cite>cal_curve</cite> to
+transform the concentrations rather than the AEBs, explicitly
+pass <code class="docutils literal notranslate"><span class="pre">y_col=&quot;Replicate</span> <span class="pre">Conc.&quot;</span></code>.</p></li>
+<li><p><strong>index</strong> (<em>str or list of str, default &quot;Sample Barcode&quot;</em>) -- Column(s) of the spreadsheet to use as the index of the table,
+i.e., the unique barcodes for each sample. For example, to use
+plate well positions instead, pass <code class="docutils literal notranslate"><span class="pre">index=&quot;Location&quot;</span></code>.</p></li>
+<li><p><strong>columns</strong> (<em>str or list of str, optional</em>) -- Column(s) of the spreadsheet to use as the columns of the table
+uniquely specifying each biomarker/assay/plex. Default (None)
+is equivalent to passing <code class="docutils literal notranslate"><span class="pre">[&quot;Assay&quot;,</span> <span class="pre">&quot;Plex&quot;]</span></code>.</p></li>
+<li><p><strong>calibrators</strong> (<em>tuple, default (&quot;Sample Type&quot;, &quot;Calibrator&quot;)</em>) -- Two-tuple of (colname, value) specifying the calibrators. For
+example, by default, all rows that have a &quot;Sample Type&quot; of
+&quot;Calibrator&quot; are counted as calibrators.</p></li>
+<li><p><strong>samples</strong> (<em>tuple, default (&quot;Sample Type&quot;, &quot;Specimen&quot;)</em>) -- Two-tuple of (colname, value) specifying the samples. For
+example, by default, all rows that have a &quot;Sample Type&quot; of
+&quot;Specimen&quot; are counted as samples and returned in the table.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>table</strong> (<em>pandas.DataFrame</em>) -- Run History.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>pandas.DataFrame</em> -- DataFrame whose rows (specified by <cite>index</cite>) are samples and
+whose columns are biomarkers/assays/plexes (specified by
+<cite>columns</cite>).</p>
 </dd>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.read_excel</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">pandas.read_csv</span></code></p>
-</aside>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">read.raw_hdx</span></code></dt><dd><p>read in a spreadsheet without transforming</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="waltlabtools.read.read_raw_hdx">
+<span class="sig-name descname"><span class="pre">read_raw_hdx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="reference internal" href="_modules/waltlabtools/read.html#read_raw_hdx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#waltlabtools.read.read_raw_hdx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in an HD-X Sample Results Report or Run History.</p>
+<p>Essentially a wrapper for <cite>pandas.read_csv</cite> or <cite>pandas.read_excel</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>str, path object or file-like object, optional</em>) -- The path to the file to import. Any valid string path is
+acceptable. The string could be a URL. Valid URL schemes include
+http, ftp, s3, gs, and file. Can also be any os.PathLike or any
+object with a <cite>read()</cite> method. If not provided, a
+<cite>tkinter.filedialog</cite> opens, prompting the user to select a file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>pandas.DataFrame</em></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">read.hdx</span></code></dt><dd><p>read in a spreadsheet and extract data automatically</p>
+</dd>
+</dl>
+</div>
 </dd></dl>
 
 </section>
 
 
            </div>
+           
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="waltlabtools.cal_curve.html" class="btn btn-neutral float-left" title="waltlabtools.cal_curve module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="waltlabtools.mosaic.html" class="btn btn-neutral float-right" title="waltlabtools.mosaic module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="waltlabtools.plot.html" class="btn btn-neutral float-left" title="waltlabtools.plot module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
     </div>
+  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Tyler Dougan.</p>
-  </div>
+    <p>
+        &copy; Copyright 2021, Tyler Dougan
 
-   
+    </p>
+  </div> 
 
 </footer>
+
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

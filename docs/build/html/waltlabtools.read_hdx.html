@@ -1,32 +1,68 @@
-<!DOCTYPE html>
-<html class="writer-html5" lang="en" >
-<head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>waltlabtools.read_hdx module &mdash; waltlabtools 0.4.8 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
+  <title>waltlabtools.read_hdx module &mdash; waltlabtools 0.5.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    <script src="_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="index.html" class="icon icon-home"> waltlabtools
+          
+
+          
           </a>
+
+          
+            
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -34,8 +70,18 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
     
+            
+            
+              
+            
+            
               <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="README.html">waltlabtools</a></li>
@@ -45,62 +91,186 @@
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.core.html">waltlabtools.core module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.model.html">waltlabtools.model module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.cal_curve.html">waltlabtools.cal_curve module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="waltlabtools.plot.html">waltlabtools.plot module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="waltlabtools.read.html">waltlabtools.read module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="waltlabtools.mosaic.html">waltlabtools.mosaic module</a></li>
 </ul>
 
+            
+          
     <a href="genindex.html">Index</a>
   
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">waltlabtools</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
       <li>waltlabtools.read_hdx module</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
+            
             <a href="_sources/waltlabtools.read_hdx.rst.txt" rel="nofollow"> View page source</a>
+          
+        
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
-  <section id="waltlabtools-read-hdx-module">
-<h1>waltlabtools.read_hdx module<a class="headerlink" href="#waltlabtools-read-hdx-module" title="Permalink to this headline"></a></h1>
+            
+  <section id="module-waltlabtools.read_hdx">
+<span id="waltlabtools-read-hdx-module"></span><h1>waltlabtools.read_hdx module<a class="headerlink" href="#module-waltlabtools.read_hdx" title="Permalink to this headline">¶</a></h1>
+<p>Extracts data from an HD-X Sample Results Report or Run History.</p>
+<p>Transforms a spreadsheet into a pandas DataFrame whose columns are
+different assays/plexes (often corresponding to individual
+biomarkers) and whose rows are different samples. By default, the
+concentrations calculated by the HD-X software are used, but they
+can also be calculated independently from AEBs by passing a CalCurve
+object or a Model from which to generate a calibration curve.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>filepath</strong> (<em>str, path object, file-like object, or pandas.DataFrame</em>)</p></li>
+<li><p><strong>optional</strong> -- The path to the file to import. Any valid string path is
+acceptable. The string could be a URL. Valid URL schemes include
+http, ftp, s3, gs, and file. Can also be any os.PathLike or any
+object with a <cite>read()</cite> method. Can also be a pandas.DataFrame
+if the data have already been imported. If <cite>filepath</cite> is not
+provided, a <cite>tkinter.filedialog</cite> opens, prompting the user to
+select a file.</p></li>
+<li><p><strong>cal_curve</strong> (<em>CalCurve, callable, Model, or str, optional</em>) -- To calculate concentrations from AEBs, pass one of the following
+types of arguments:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>CalCurve: Calculate the concentrations using the
+CalCurve.inverse method.</p></li>
+<li><p>callable: Transform data to concentrations with the
+given function.</p></li>
+<li><p>Model: Generate a calibration curve from the data using
+the given model, and calculate concentrations using this
+calibration curve.</p></li>
+<li><p>str: Should be an element of <cite>models</cite>. Generate a
+calibration curve from the data using the model named, and
+calculate concentrations using this calibration curve.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>x_col</strong> (<em>str, default &quot;Replicate Conc.&quot;</em>) -- Name of the column in the imported file to be used as the
+concentration. Ignored when <cite>cal_curve</cite> is a CalCurve object
+or callable.</p></li>
+<li><p><strong>y_col</strong> (<em>str, default &quot;Replicate AEB&quot;</em>) -- Name of the column in the imported file to be used as the
+signal (e.g., AEB), from which the concentration is calculated.
+Ignored unless <cite>cal_curve</cite> is provided. To use <cite>cal_curve</cite> to
+transform the concentrations rather than the AEBs, explicitly
+pass <code class="docutils literal notranslate"><span class="pre">y_col=&quot;Replicate</span> <span class="pre">Conc.&quot;</span></code>.</p></li>
+<li><p><strong>index</strong> (<em>str or list of str, default &quot;Sample Barcode&quot;</em>) -- Column(s) of the spreadsheet to use as the index of the table,
+i.e., the unique barcodes for each sample. For example, to use
+plate well positions instead, pass <code class="docutils literal notranslate"><span class="pre">index=&quot;Location&quot;</span></code>.</p></li>
+<li><p><strong>columns</strong> (<em>str or list of str, optional</em>) -- Column(s) of the spreadsheet to use as the columns of the table
+uniquely specifying each biomarker/assay/plex. Default (None)
+is equivalent to passing <code class="docutils literal notranslate"><span class="pre">[&quot;Assay&quot;,</span> <span class="pre">&quot;Plex&quot;]</span></code>.</p></li>
+<li><p><strong>calibrators</strong> (<em>tuple, default (&quot;Sample Type&quot;, &quot;Calibrator&quot;)</em>) -- Two-tuple of (colname, value) specifying the calibrators. For
+example, by default, all rows that have a &quot;Sample Type&quot; of
+&quot;Calibrator&quot; are counted as calibrators.</p></li>
+<li><p><strong>samples</strong> (<em>tuple, default (&quot;Sample Type&quot;, &quot;Specimen&quot;)</em>) -- Two-tuple of (colname, value) specifying the samples. For
+example, by default, all rows that have a &quot;Sample Type&quot; of
+&quot;Specimen&quot; are counted as samples and returned in the table.</p></li>
+</ul>
+</dd>
+<dt class="field-even">returns</dt>
+<dd class="field-even"><p><em>pandas.DataFrame</em> -- DataFrame whose rows (specified by <cite>index</cite>) are samples and
+whose columns are biomarkers/assays/plexes (specified by
+<cite>columns</cite>).</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">read.raw_hdx</span></code></dt><dd><p>read in a spreadsheet without transforming</p>
+</dd>
+</dl>
+</div>
 </section>
 
 
            </div>
+           
           </div>
           <footer>
+  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Tyler Dougan.</p>
-  </div>
+    <p>
+        &copy; Copyright 2021, Tyler Dougan
 
-   
+    </p>
+  </div> 
 
 </footer>
+
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

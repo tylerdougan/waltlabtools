@@ -12,9 +12,7 @@ Submodules
    waltlabtools.model
    waltlabtools.mosaic
    waltlabtools.plot
-   waltlabtools.read copy
    waltlabtools.read
-   waltlabtools.read_hdx
 
 Module contents
 ---------------

@@ -61,3 +61,7 @@ Changelog
 
 0.4.6
  - Simplified code
+
+0.5.0
+ - Added `mosaic` module for analysis of MOSAIC flow cytometry data
+ - Updates to `read` module
