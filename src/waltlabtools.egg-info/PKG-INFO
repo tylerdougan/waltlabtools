@@ -1,11 +1,11 @@
 Metadata-Version: 2.1
 Name: waltlabtools
-Version: 0.5.0
+Version: 0.5.2
 Summary: A collection of tools for biomedical research assay analysis in Python.
 Home-page: https://github.com/tylerdougan/waltlabtools
+Download-URL: https://pypi.org/project/waltlabtools/#files
 Author: Tyler Dougan
 License: GNU General Public License v3 (GPLv3)
-Download-URL: https://pypi.org/project/waltlabtools/#files
 Project-URL: Bug Tracker, https://github.com/tylerdougan/waltlabtools/issues
 Project-URL: Documentation, https://waltlabtools.readthedocs.io/README.html
 Project-URL: Conda, https://anaconda.org/tylerdougan/waltlabtools

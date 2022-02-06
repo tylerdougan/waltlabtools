@@ -65,3 +65,9 @@ Changelog
 0.5.0
  - Added `mosaic` module for analysis of MOSAIC flow cytometry data
  - Updates to `read` module
+
+0.5.1
+ - Updated conda
+
+0.5.2
+ - Attempted to update conda
