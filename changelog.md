@@ -71,3 +71,6 @@ Changelog
 
 0.5.2
  - Attempted to update conda
+
+0.5.3
+ - Changed requirements to aid conda installation

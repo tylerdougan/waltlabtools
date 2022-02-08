@@ -1,14 +1,16 @@
 Metadata-Version: 2.1
 Name: waltlabtools
-Version: 0.5.2
+Version: 0.5.5
 Summary: A collection of tools for biomedical research assay analysis in Python.
 Home-page: https://github.com/tylerdougan/waltlabtools
 Download-URL: https://pypi.org/project/waltlabtools/#files
 Author: Tyler Dougan
+Author-email: tyler_dougan@hst.harvard.edu
 License: GNU General Public License v3 (GPLv3)
 Project-URL: Bug Tracker, https://github.com/tylerdougan/waltlabtools/issues
 Project-URL: Documentation, https://waltlabtools.readthedocs.io/README.html
 Project-URL: Conda, https://anaconda.org/tylerdougan/waltlabtools
+Keywords: python,numpy,modeling,curve-fitting,diagnostics,biomedical-data-science,calibration-curve,assay,elisa,concentrations
 Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)

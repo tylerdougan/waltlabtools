@@ -25,7 +25,7 @@ import scipy.special as spec
 
 _optional_dependencies = {
     package_name: (importlib.util.find_spec(package_name) is not None)
-    for package_name in ["matplotlib", "pandas", "sklearn", "numba"]
+    for package_name in ["sklearn", "numba"]
 }
 
 if "jax" in sys.modules:
@@ -41,7 +41,7 @@ else:
     else:
 
         def jit(func):
-            """Dummy jit decorator for when numba is not installed."""
+            """Dummy jit decorator for when numba/jax is not installed."""
             return func
 
     _optional_dependencies["jax"] = False
