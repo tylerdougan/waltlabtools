@@ -179,16 +179,21 @@ def mixture_orientation(
     -------
     off_label, sds_threshold, ordered_means
         Tuple of length 3. Its elements:
+
         - off_label : 1 or 2
             The label of the Gaussian mixture model with the lower mean.
+
         - sds_threshold : float
             The number of standard deviations above the mean to use as a
             threshold for distinguishing on-beads in the case where
             there are very few on-beads.
+
         - ordered_means : ndarray of length 2
             The two means of the Gaussian mixture model, ordered from
             lowest to highest (off to on).
+
     """
+
     off_label = np.argmin(means_)
     off_on = np.array([off_label, 1 - off_label])
     low_sd = np.sqrt(covariances_[off_label])

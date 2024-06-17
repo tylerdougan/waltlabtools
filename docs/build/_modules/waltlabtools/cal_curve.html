@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>waltlabtools.cal_curve &#8212; waltlabtools 1.0-beta.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../_static/documentation_options.js?v=ecc40d0e"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for waltlabtools.cal_curve</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Integral</span><span class="p">,</span> <span class="n">Real</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">matplotlib.axes</span> <span class="kn">import</span> <span class="n">Axes</span>
+<span class="kn">from</span> <span class="nn">matplotlib.figure</span> <span class="kn">import</span> <span class="n">Figure</span><span class="p">,</span> <span class="n">SubFigure</span>
+<span class="kn">from</span> <span class="nn">matplotlib.scale</span> <span class="kn">import</span> <span class="n">ScaleBase</span><span class="p">,</span> <span class="n">scale_factory</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span><span class="p">,</span> <span class="n">least_squares</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">RegressorMixin</span><span class="p">,</span> <span class="n">TransformerMixin</span>
+<span class="kn">from</span> <span class="nn">sklearn.exceptions</span> <span class="kn">import</span> <span class="n">DataConversionWarning</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils._param_validation</span> <span class="kn">import</span> <span class="n">Interval</span><span class="p">,</span> <span class="n">StrOptions</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.validation</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_check_sample_weight</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+    <span class="n">check_is_fitted</span><span class="p">,</span>
+    <span class="n">check_non_negative</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">._backend</span> <span class="kn">import</span> <span class="n">gmean</span><span class="p">,</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">._plot</span> <span class="kn">import</span> <span class="n">get_fig_ax</span><span class="p">,</span> <span class="n">subplots</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_get_value_or_key</span><span class="p">,</span>
+    <span class="n">coerce_array</span><span class="p">,</span>
+    <span class="n">deprecate</span><span class="p">,</span>
+    <span class="n">dropna</span><span class="p">,</span>
+    <span class="n">flatten</span><span class="p">,</span>
+    <span class="n">geothmetic_meandian</span><span class="p">,</span>
+    <span class="n">match_kwargs</span><span class="p">,</span>
+    <span class="n">std</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.model</span> <span class="kn">import</span> <span class="n">MODELS</span><span class="p">,</span> <span class="n">Model</span>
+
+
+<span class="nd">@coerce_array</span>
+<span class="k">def</span> <span class="nf">_slice_dim</span><span class="p">(</span>
+    <span class="n">a</span><span class="p">,</span>
+    <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">keep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Slice an array along one or more dimensions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    a : ArrayLike</span>
+<span class="sd">        The input array to be sliced.</span>
+<span class="sd">    axis : None or int or tuple of ints, optional</span>
+<span class="sd">        The dimension(s) along which to slice the array. If None, all</span>
+<span class="sd">        dimensions except the first will be sliced. If an integer, a</span>
+<span class="sd">        single dimension will be sliced. If a collection of integers,</span>
+<span class="sd">        multiple dimensions will be sliced. Default is None.</span>
+<span class="sd">    keep : int, default 0</span>
+<span class="sd">        The index to keep along the sliced dimensions. Default is 0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ArrayLike</span>
+<span class="sd">        The sliced array.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">a</span>
+    <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">axis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">Collection</span><span class="p">):</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="p">(</span><span class="n">axis</span><span class="p">,)</span>
+    <span class="n">indexer</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">keep</span> <span class="k">if</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">axis</span> <span class="k">else</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="n">indexer</span><span class="p">]</span>
+
+
+<span class="n">_AGGREGATION_STRATEGIES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;median&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">,</span>
+    <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">,</span>
+    <span class="s2">&quot;average&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">,</span>
+    <span class="s2">&quot;geomean&quot;</span><span class="p">:</span> <span class="n">gmean</span><span class="p">,</span>
+    <span class="s2">&quot;gmean&quot;</span><span class="p">:</span> <span class="n">gmean</span><span class="p">,</span>
+    <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">,</span>
+    <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">,</span>
+    <span class="s2">&quot;geothmetic_meandian&quot;</span><span class="p">:</span> <span class="n">geothmetic_meandian</span><span class="p">,</span>
+    <span class="s2">&quot;gmnd&quot;</span><span class="p">:</span> <span class="n">geothmetic_meandian</span><span class="p">,</span>
+    <span class="s2">&quot;first&quot;</span><span class="p">:</span> <span class="n">partial</span><span class="p">(</span><span class="n">_slice_dim</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <span class="s2">&quot;last&quot;</span><span class="p">:</span> <span class="n">partial</span><span class="p">(</span><span class="n">_slice_dim</span><span class="p">,</span> <span class="n">keep</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="n">_WEIGHTING_SCHEMES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="o">**</span><span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">]},</span>
+    <span class="s2">&quot;1/y&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">y</span><span class="p">,</span>
+    <span class="s2">&quot;1/y^2&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;1/X&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">X</span><span class="p">,</span>
+    <span class="s2">&quot;1/X^2&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">X</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="CalCurve">
+<a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.cal_curve.CalCurve">[docs]</a>
+<span class="k">class</span> <span class="nc">CalCurve</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">RegressorMixin</span><span class="p">,</span> <span class="n">TransformerMixin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calibration Curve transformer and regressor.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : Model or str, default=&quot;4PL&quot;</span>
+<span class="sd">        The model to use for the calibration curve. Can be an instance</span>
+<span class="sd">        of a Model or a string representing the model name. Current</span>
+<span class="sd">        available options are:</span>
+<span class="sd">        - &quot;linear&quot; : Linear function.</span>
+<span class="sd">        - &quot;power&quot; : Power function.</span>
+<span class="sd">        - &quot;Hill&quot; : Hill function.</span>
+<span class="sd">        - &quot;logistic&quot; : Logistic function.</span>
+<span class="sd">        - &quot;3PL&quot; : Four-parameter logistic (3PL) function.</span>
+<span class="sd">        - &quot;4PL&quot; : Four-parameter logistic (4PL) function.</span>
+<span class="sd">        - &quot;5PL&quot; : Five-parameter logistic (5PL) function.</span>
+
+<span class="sd">    agg_reps : str Callable, or None, default=&quot;median&quot;</span>
+<span class="sd">        Aggregation method for replicates. Can be a string representing</span>
+<span class="sd">        an aggregation strategy or a callable function. Current</span>
+<span class="sd">        available options are:</span>
+<span class="sd">        - &quot;median&quot;</span>
+<span class="sd">        - &quot;mean&quot;</span>
+<span class="sd">        - &quot;average&quot;</span>
+<span class="sd">        - &quot;geomean&quot;, &quot;gmean&quot;</span>
+<span class="sd">        - &quot;min&quot;</span>
+<span class="sd">        - &quot;max&quot;</span>
+<span class="sd">        - &quot;geothmetic_meandian&quot;, &quot;gmnd&quot;</span>
+<span class="sd">        - &quot;first&quot;</span>
+<span class="sd">        - &quot;last&quot;</span>
+<span class="sd">        If None, then no aggregation is performed.</span>
+
+<span class="sd">    coef_init : array-like, optional</span>
+<span class="sd">        Initial coefficients for the model.</span>
+
+<span class="sd">    warm_start : bool, default=False</span>
+<span class="sd">        Whether to reuse the solution of the previous call to fit as</span>
+<span class="sd">        initialization.</span>
+
+<span class="sd">    solver : str, default=&quot;trf&quot;</span>
+<span class="sd">        Solver to use for optimization. Options are &quot;trf&quot;, &quot;dogbox&quot;, or</span>
+<span class="sd">        &quot;lm&quot;.</span>
+
+<span class="sd">    lod_sds : float, default=3</span>
+<span class="sd">        Number of standard deviations for limit of detection</span>
+<span class="sd">        calculation.</span>
+
+<span class="sd">    max_iter : int, optional</span>
+<span class="sd">        Maximum number of iterations for the solver.</span>
+
+<span class="sd">    ensure_2d : bool, default=False</span>
+<span class="sd">        Whether to ensure the input is 2-dimensional.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    coef_ : ndarray</span>
+<span class="sd">        Coefficients of the fitted model.</span>
+
+<span class="sd">    n_iter_ : int</span>
+<span class="sd">        Number of iterations run by the solver.</span>
+
+<span class="sd">    lod_ : float</span>
+<span class="sd">        Calculated limit of detection.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_parameter_constraints</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># see docs for _param_validation.validate_parameter_constraints</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">Model</span><span class="p">,</span> <span class="n">StrOptions</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">MODELS</span><span class="p">))],</span>
+        <span class="s2">&quot;agg_reps&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">callable</span><span class="p">,</span> <span class="n">StrOptions</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">_AGGREGATION_STRATEGIES</span><span class="p">))],</span>
+        <span class="s2">&quot;coef_init&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;array-like&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+        <span class="s2">&quot;warm_start&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;boolean&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;solver&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">StrOptions</span><span class="p">({</span><span class="s2">&quot;trf&quot;</span><span class="p">,</span> <span class="s2">&quot;dogbox&quot;</span><span class="p">,</span> <span class="s2">&quot;lm&quot;</span><span class="p">})],</span>
+        <span class="s2">&quot;lod_sds&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">Interval</span><span class="p">(</span><span class="n">Real</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)],</span>
+        <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">Interval</span><span class="p">(</span><span class="n">Integral</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">),</span> <span class="kc">None</span><span class="p">],</span>
+        <span class="s2">&quot;ensure_2d&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;boolean&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">Model</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;4PL&quot;</span><span class="p">,</span>
+        <span class="n">agg_reps</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span>
+        <span class="n">coef_init</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">warm_start</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">solver</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trf&quot;</span><span class="p">,</span>
+        <span class="n">lod_sds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="n">max_iter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ensure_2d</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agg_reps</span> <span class="o">=</span> <span class="n">agg_reps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coef_init</span> <span class="o">=</span> <span class="n">coef_init</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warm_start</span> <span class="o">=</span> <span class="n">warm_start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="n">solver</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lod_sds</span> <span class="o">=</span> <span class="n">lod_sds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span> <span class="o">=</span> <span class="n">max_iter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ensure_2d</span> <span class="o">=</span> <span class="n">ensure_2d</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The keyword arguments </span><span class="si">{</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2"> are not recognized. &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;Version 1.0 introduced breaking changes to the CalCurve class. &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;Please refer to the documentation for the most recent API.&quot;</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">X</span><span class="o">=</span><span class="s2">&quot;no_validation&quot;</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="s2">&quot;no_validation&quot;</span><span class="p">,</span>
+        <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">validate_separately</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">cast_to_ndarray</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">check_params</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">check_params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;ensure_2d&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_2d</span><span class="p">,</span>
+            <span class="s2">&quot;force_all_finite&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">}</span> <span class="o">|</span> <span class="n">check_params</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_validate_data</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+            <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+            <span class="n">reset</span><span class="o">=</span><span class="n">reset</span><span class="p">,</span>
+            <span class="n">validate_separately</span><span class="o">=</span><span class="n">validate_separately</span><span class="p">,</span>
+            <span class="n">cast_to_ndarray</span><span class="o">=</span><span class="n">cast_to_ndarray</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">check_params</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_aggregate_replicates</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="n">blank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">X</span> <span class="o">==</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">agg_reps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">,</span> <span class="n">blank</span>
+
+        <span class="n">unique_X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">agg_reps</span> <span class="o">=</span> <span class="n">_get_value_or_key</span><span class="p">(</span><span class="n">_AGGREGATION_STRATEGIES</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">agg_reps</span><span class="p">)</span>
+        <span class="n">unique_weight</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">unique_X</span><span class="p">:</span>
+            <span class="n">sw_x</span> <span class="o">=</span> <span class="n">sample_weight</span><span class="p">[</span><span class="n">x</span> <span class="o">==</span> <span class="n">X</span><span class="p">]</span>
+            <span class="n">unique_weight</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">agg_reps</span><span class="p">(</span><span class="n">sw_x</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">sw_x</span><span class="p">))</span>
+        <span class="n">unique_weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">unique_weight</span><span class="p">)</span>
+        <span class="n">unique_X</span> <span class="o">=</span> <span class="n">unique_X</span><span class="p">[</span><span class="n">unique_weight</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">unique_weight</span> <span class="o">=</span> <span class="n">unique_weight</span><span class="p">[</span><span class="n">unique_weight</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">unique_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">agg_reps</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">x</span> <span class="o">==</span> <span class="n">X</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">unique_X</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">unique_X</span><span class="p">,</span> <span class="n">unique_y</span><span class="p">,</span> <span class="n">unique_weight</span><span class="p">,</span> <span class="n">blank</span>
+
+    <span class="k">def</span> <span class="nf">_get_sample_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sample_weight</span> <span class="ow">in</span> <span class="n">_WEIGHTING_SCHEMES</span><span class="p">:</span>
+            <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">_WEIGHTING_SCHEMES</span><span class="p">[</span><span class="n">sample_weight</span><span class="p">](</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_check_sample_weight</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CalCurve.fit">
+<a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.cal_curve.CalCurve.fit">[docs]</a>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit the model to data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array-like of shape (n_samples,) or (n_samples, n_features)</span>
+<span class="sd">            Training data features, e.g., concentrations.</span>
+
+<span class="sd">        y : array-like of shape (n_samples,)</span>
+<span class="sd">            Target signal values, e.g., AEB or fluorescence intensity.</span>
+
+<span class="sd">        sample_weight : str or array-like, optional</span>
+<span class="sd">            Sample weights.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        CalCurve</span>
+<span class="sd">            Fitted estimator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_params</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">_get_value_or_key</span><span class="p">(</span><span class="n">MODELS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="c1"># data</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_data</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+            <span class="n">X</span><span class="p">,</span>
+            <span class="n">y</span><span class="p">,</span>
+            <span class="n">ensure_min_samples</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">coef_init</span><span class="p">),</span>
+            <span class="n">y_numeric</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_2d</span><span class="p">:</span>
+            <span class="n">check_non_negative</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">whom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features_in_</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_2d</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;CalCurve input X should be a 1d array or 2d array with 1 feature; &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;using only the first of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_features_in_</span><span class="si">}</span><span class="s2"> features.&quot;</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                    <span class="n">DataConversionWarning</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_</span><span class="p">,</span> <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">dropna</span><span class="p">(</span>
+            <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sample_weight</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">,</span> <span class="n">blank</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aggregate_replicates</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_</span><span class="p">,</span> <span class="n">sample_weight</span>
+        <span class="p">)</span>
+
+        <span class="c1"># coef_init</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warm_start</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;coef_&quot;</span><span class="p">):</span>
+            <span class="n">coef_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coef_</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">coef_init</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">coef_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">coef_init</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">coef_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coef_init</span>
+
+        <span class="c1"># optimization</span>
+        <span class="k">def</span> <span class="nf">loss_func</span><span class="p">(</span><span class="n">coefs</span><span class="p">):</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="o">*</span><span class="n">coefs</span><span class="p">)</span>
+            <span class="n">residuals</span> <span class="o">=</span> <span class="n">predictions</span> <span class="o">-</span> <span class="n">y</span>
+            <span class="k">return</span> <span class="n">residuals</span> <span class="o">*</span> <span class="n">sample_weight</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">jac</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">jac</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">jac</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">jac</span> <span class="o">=</span> <span class="s2">&quot;2-point&quot;</span>
+        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">least_squares</span><span class="p">(</span>
+                <span class="n">loss_func</span><span class="p">,</span>
+                <span class="n">x0</span><span class="o">=</span><span class="n">coef_init</span><span class="p">,</span>
+                <span class="n">jac</span><span class="o">=</span><span class="n">jac</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">max_nfev</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coef_</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_iter_</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">nfev</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lod_</span> <span class="o">=</span> <span class="n">limit_of_detection</span><span class="p">(</span><span class="n">blank</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">lod_sds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lod_sds</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="CalCurve.signal">
+<a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.cal_curve.CalCurve.signal">[docs]</a>
+    <span class="k">def</span> <span class="nf">signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Predict the signal (e.g., AEB) for given concentrations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array-like</span>
+<span class="sd">            Input data of concentrations.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        signal : array-like</span>
+<span class="sd">            Predicted signal values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">coef_</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CalCurve.conc">
+<a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.cal_curve.CalCurve.conc">[docs]</a>
+    <span class="k">def</span> <span class="nf">conc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Estimate the concentration for given signal values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y : array-like</span>
+<span class="sd">            Signal values.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        conc : array-like</span>
+<span class="sd">            Estimated concentration values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">coef_</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CalCurve.predict">
+<a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.cal_curve.CalCurve.predict">[docs]</a>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Predict signal using the calibration curve model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array-like of shape (n_samples, n_features) or (n_samples,)</span>
+<span class="sd">            Input data of concentrations.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        y : ndarray</span>
+<span class="sd">            Predicted signal values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_data</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="CalCurve.transform">
+<a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.cal_curve.CalCurve.transform">[docs]</a>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transform concentrations into signal.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array-like of shape (n_samples, n_features) or (n_samples,)</span>
+<span class="sd">            Input data of concentrations.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        y : ndarray</span>
+<span class="sd">            Transformed signal values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_data</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># if self.ensure_2d:</span>
+        <span class="c1">#     X = X[:, 0].reshape(-1, 1)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CalCurve.inverse_transform">
+<a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.cal_curve.CalCurve.inverse_transform">[docs]</a>
+    <span class="k">def</span> <span class="nf">inverse_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Estimate the concentration for given signal values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y : array-like of shape (n_samples, n_features) or (n_samples,)</span>
+<span class="sd">            Signal values.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        conc : array-like</span>
+<span class="sd">            Back-calculated concentration values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># (n_samples, n_features) -&gt; (n_samples, n_features)</span>
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_data</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">y_numeric</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conc</span><span class="p">(</span><span class="n">y</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_make_curve_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make the points to interpolate for plotting a calibration curve.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cc : CalCurve</span>
+<span class="sd">            Fitted calibration curve.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        X_curve, y_curve</span>
+<span class="sd">            Points for plotting the calibration curve.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        xscale : str or matplotlib.scale.ScaleBase, optional</span>
+<span class="sd">            Override the calibration curve&#39;s x-scale.</span>
+<span class="sd">        num : int, default 50</span>
+<span class="sd">            Number of samples to generate. Default is 50. Must be</span>
+<span class="sd">            non-negative.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">xscale</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;xscale&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">xscale</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xscale</span><span class="p">,</span> <span class="n">ScaleBase</span><span class="p">):</span>
+            <span class="n">xscale</span> <span class="o">=</span> <span class="n">scale_factory</span><span class="p">(</span>
+                <span class="n">scale</span><span class="o">=</span><span class="n">xscale</span><span class="p">,</span>
+                <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="o">**</span><span class="n">match_kwargs</span><span class="p">(</span><span class="n">scale_factory</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">),</span>  <span class="c1"># type: ignore</span>
+            <span class="p">)</span>
+
+        <span class="n">trans</span> <span class="o">=</span> <span class="n">xscale</span><span class="o">.</span><span class="n">get_transform</span><span class="p">()</span>
+        <span class="n">vmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">)</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">)</span>
+        <span class="n">minpos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lod_</span><span class="p">):</span>
+            <span class="n">vmin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">vmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lod_</span><span class="p">)</span>
+            <span class="n">minpos</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">minpos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lod_</span><span class="p">)</span>
+        <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="n">xscale</span><span class="o">.</span><span class="n">limit_range_for_scale</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">minpos</span><span class="o">=</span><span class="n">minpos</span><span class="p">)</span>
+        <span class="n">trvmin</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">vmin</span><span class="p">)</span>
+        <span class="n">trvmax</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">vmax</span><span class="p">)</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="n">trvmin</span> <span class="o">-</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">trvmax</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="n">trvmax</span> <span class="o">-</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">trvmin</span>
+        <span class="n">X_curve</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">inverted</span><span class="p">()</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">y_curve</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">X_curve</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_curve_points</span> <span class="o">=</span> <span class="p">(</span><span class="n">X_curve</span><span class="p">,</span> <span class="n">y_curve</span><span class="p">)</span>
+        <span class="n">calculated</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;xscale&quot;</span><span class="p">:</span> <span class="n">xscale</span><span class="p">,</span>
+            <span class="s2">&quot;trans&quot;</span><span class="p">:</span> <span class="n">trans</span><span class="p">,</span>
+            <span class="s2">&quot;vmin&quot;</span><span class="p">:</span> <span class="n">vmin</span><span class="p">,</span>
+            <span class="s2">&quot;vmax&quot;</span><span class="p">:</span> <span class="n">vmax</span><span class="p">,</span>
+            <span class="s2">&quot;trvmin&quot;</span><span class="p">:</span> <span class="n">trvmin</span><span class="p">,</span>
+            <span class="s2">&quot;trvmax&quot;</span><span class="p">:</span> <span class="n">trvmax</span><span class="p">,</span>
+            <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span>
+            <span class="s2">&quot;stop&quot;</span><span class="p">:</span> <span class="n">stop</span><span class="p">,</span>
+            <span class="s2">&quot;X_curve&quot;</span><span class="p">:</span> <span class="n">X_curve</span><span class="p">,</span>
+            <span class="s2">&quot;y_curve&quot;</span><span class="p">:</span> <span class="n">y_curve</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">calculated</span>
+
+<div class="viewcode-block" id="CalCurve.plot">
+<a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.cal_curve.CalCurve.plot">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">fig</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Figure</span> <span class="o">|</span> <span class="n">SubFigure</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ax</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the calibration curve and calibrator points.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fig : matplotlib.figure.Figure, optional</span>
+<span class="sd">            The figure object. If None, the current figure will be</span>
+<span class="sd">            used. If there is no current figure, a new figure will be</span>
+<span class="sd">            created.</span>
+<span class="sd">        ax : matplotlib.axes.Axes, optional</span>
+<span class="sd">            The axes object. If None, the current axes will be used. If</span>
+<span class="sd">            there is no current axes, a new axes will be created.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments for customizing the plot, such</span>
+<span class="sd">            as `xlabel`, `ylabel`, and `title`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_curve_points</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">get_fig_ax</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span>
+        <span class="n">X_curve</span><span class="p">,</span> <span class="n">y_curve</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_curve_points</span>
+
+        <span class="n">lod_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lod_</span><span class="p">,</span>
+            <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linestyle&quot;</span><span class="p">:</span> <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;limit of detection: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lod_</span><span class="si">:</span><span class="s2">.2g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">}</span> <span class="o">|</span> <span class="n">match_kwargs</span><span class="p">(</span><span class="s2">&quot;lod_&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">lod_kwargs</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="o">**</span><span class="n">lod_kwargs</span><span class="p">)</span>
+
+        <span class="n">curve_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">X_curve</span><span class="p">,</span>
+            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">y_curve</span><span class="p">,</span>
+            <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;tab:green&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> calibration curve&quot;</span><span class="p">,</span>
+        <span class="p">}</span> <span class="o">|</span> <span class="n">match_kwargs</span><span class="p">(</span><span class="s2">&quot;curve_&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">curve_kwargs</span><span class="p">)</span>
+
+        <span class="n">point_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">,</span>
+            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_</span><span class="p">,</span>
+            <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linestyle&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;marker&quot;</span><span class="p">:</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;calibrator points&quot;</span><span class="p">,</span>
+        <span class="p">}</span> <span class="o">|</span> <span class="n">match_kwargs</span><span class="p">(</span><span class="s2">&quot;point_&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">point_kwargs</span><span class="p">)</span>
+
+        <span class="n">ax_kwargs</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;xscale&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">xscale</span><span class="p">,</span>
+                <span class="s2">&quot;yscale&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">yscale</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="o">|</span> <span class="n">match_kwargs</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+            <span class="o">|</span> <span class="n">match_kwargs</span><span class="p">(</span><span class="s2">&quot;ax_&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="o">**</span><span class="n">ax_kwargs</span><span class="p">)</span>
+
+        <span class="n">legend_kwargs</span> <span class="o">=</span> <span class="n">match_kwargs</span><span class="p">(</span><span class="s2">&quot;legend_&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="o">**</span><span class="n">legend_kwargs</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_more_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensure_2d</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;allow_nan&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;poor_score&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;requires_positive_X&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;allow_nan&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;requires_positive_X&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;X_types&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;2darray&quot;</span><span class="p">,</span> <span class="s2">&quot;1darray&quot;</span><span class="p">],</span>
+            <span class="p">}</span>
+
+    <span class="c1"># Deprecated methods</span>
+<div class="viewcode-block" id="CalCurve.bound_lod">
+<a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.cal_curve.CalCurve.bound_lod">[docs]</a>
+    <span class="nd">@deprecate</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">bound_lod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_flat</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">x_flat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lod_</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CalCurve.fun">
+<a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.cal_curve.CalCurve.fun">[docs]</a>
+    <span class="nd">@deprecate</span><span class="p">(</span><span class="s2">&quot;CalCurve.signal, CalCurve.predict, or CalCurve.transform&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bound_lod</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">coef_</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">x_flat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bound_lod</span><span class="p">(</span><span class="n">x_flat</span><span class="p">),</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">coef_</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">y</span></div>
+
+
+<div class="viewcode-block" id="CalCurve.inverse">
+<a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.cal_curve.CalCurve.inverse">[docs]</a>
+    <span class="nd">@deprecate</span><span class="p">(</span><span class="s2">&quot;CalCurve.conc or CalCurve.inverse_transform&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bound_lod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">coef_</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">y_flat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bound_lod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">y_flat</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">coef_</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+
+<div class="viewcode-block" id="CalCurve.from_data">
+<a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.cal_curve.CalCurve.from_data">[docs]</a>
+    <span class="nd">@deprecate</span><span class="p">(</span><span class="s2">&quot;CalCurve.fit&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_data</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">,</span>
+        <span class="n">y</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">,</span>
+        <span class="n">lod_sds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">corr</span><span class="o">=</span><span class="s2">&quot;c4&quot;</span><span class="p">,</span>
+        <span class="n">force_lod</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">weights</span><span class="o">=</span><span class="s2">&quot;1/y^2&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">cc</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">lod_sds</span><span class="o">=</span><span class="n">lod_sds</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cc</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CalCurve.from_function">
+<a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.cal_curve.CalCurve.from_function">[docs]</a>
+    <span class="nd">@deprecate</span><span class="p">()</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_function</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">fun</span><span class="p">,</span>
+        <span class="n">inverse</span><span class="p">,</span>
+        <span class="n">lod</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+        <span class="n">lod_sds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">force_lod</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+        <span class="n">yscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">pass</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="regress">
+<a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.cal_curve.regress">[docs]</a>
+<span class="nd">@deprecate</span><span class="p">(</span><span class="s2">&quot;CalCurve.fit&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">regress</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="s2">&quot;1/y^2&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">named_model</span> <span class="o">=</span> <span class="n">model</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">Model</span><span class="p">)</span> <span class="k">else</span> <span class="n">MODELS</span><span class="p">[</span><span class="n">model</span><span class="p">]</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">weights</span> <span class="o">==</span> <span class="s2">&quot;1/y^2&quot;</span><span class="p">:</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="k">if</span> <span class="n">weights</span> <span class="o">==</span> <span class="s2">&quot;1/y&quot;</span><span class="p">:</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">weights</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">sigma</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">flatten</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="o">**</span> <span class="o">-</span><span class="mi">2</span>
+    <span class="n">calibration_function</span> <span class="o">=</span> <span class="n">named_model</span><span class="o">.</span><span class="n">func</span>
+    <span class="n">xdata</span><span class="p">,</span> <span class="n">ydata</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="n">dropna</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">curve_fit</span><span class="p">(</span>
+        <span class="n">f</span><span class="o">=</span><span class="n">calibration_function</span><span class="p">,</span> <span class="n">xdata</span><span class="o">=</span><span class="n">xdata</span><span class="p">,</span> <span class="n">ydata</span><span class="o">=</span><span class="n">ydata</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="limit_of_detection">
+<a class="viewcode-back" href="../../waltlabtools.html#waltlabtools.cal_curve.limit_of_detection">[docs]</a>
+<span class="k">def</span> <span class="nf">limit_of_detection</span><span class="p">(</span>
+    <span class="n">blank</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">inverse</span><span class="p">:</span> <span class="n">CalCurve</span> <span class="o">|</span> <span class="n">Model</span> <span class="o">|</span> <span class="n">Callable</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">lod_sds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="n">corr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;c4&quot;</span><span class="p">,</span>
+    <span class="n">coef</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">nan_policy</span><span class="o">=</span><span class="s2">&quot;omit&quot;</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the limit of detection (LOD).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    blank : array-like</span>
+<span class="sd">        Signal (e.g., average number of enzymes per bead, AEB) of the</span>
+<span class="sd">        zero calibrator. Must have at least two elements.</span>
+<span class="sd">    inverse_fun : ``function`` or ``CalCurve``</span>
+<span class="sd">        The functional form used for the calibration curve. If a</span>
+<span class="sd">        function, it should accept the measurement reading (`y`, e.g.,</span>
+<span class="sd">        fluorescence) as its only argument and return the value (`x`,</span>
+<span class="sd">        e.g., concentration). If **inverse_fun** is a ``CalCurve``</span>
+<span class="sd">        object, the LOD will be calculated from its ``inverse`` method.</span>
+<span class="sd">    sds : numeric, optional</span>
+<span class="sd">        How many standard deviations above the mean should the</span>
+<span class="sd">        background should the limit of detection be calculated at?</span>
+<span class="sd">        Common values include 2.5 (Quanterix), 3 (Walt Lab), and 10</span>
+<span class="sd">        (lower limit of quantification, LLOQ).</span>
+<span class="sd">    corr : {&quot;n&quot;, &quot;n-1&quot;, &quot;n-1.5&quot;, &quot;c4&quot;} or numeric, default &quot;c4&quot;</span>
+<span class="sd">        The sample standard deviation under-estimates the population</span>
+<span class="sd">        standard deviation for a normally distributed variable.</span>
+<span class="sd">        Specifies how this should be addressed. Options:</span>
+
+<span class="sd">            - &quot;n&quot; : Divide by the number of samples to yield the</span>
+<span class="sd">              uncorrected sample standard deviation.</span>
+
+<span class="sd">            - &quot;n-1&quot; : Divide by the number of samples minus one to</span>
+<span class="sd">              yield the square root of the unbiased sample variance.</span>
+
+<span class="sd">            - &quot;n-1.5&quot; : Divide by the number of samples minus 1.5 to</span>
+<span class="sd">              yield the approximate unbiased sample standard deviation.</span>
+
+<span class="sd">            - &quot;c4&quot; : Divide by the correction factor to yield the</span>
+<span class="sd">              exact unbiased sample standard deviation.</span>
+
+<span class="sd">            - If numeric, gives the delta degrees of freedom.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numeric</span>
+<span class="sd">        The limit of detection, in units of x (e.g., concentration).</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    c4 : factor `c4` for unbiased estimation of the standard deviation</span>
+
+<span class="sd">    std : unbiased estimate of the population standard deviation</span>
+
+<span class="sd">    numpy.std : standard deviation</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">blank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">blank</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">nan_policy</span> <span class="o">==</span> <span class="s2">&quot;omit&quot;</span><span class="p">:</span>
+        <span class="n">blank</span> <span class="o">=</span> <span class="n">blank</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">blank</span><span class="p">)]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">blank</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># noqa: PLR2004</span>
+        <span class="c1"># warnings.warn(f&quot;limit_of_detection undefined for {len(blank)} replicates&quot;)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="n">lod_signal</span> <span class="o">=</span> <span class="n">lod_sds</span> <span class="o">*</span> <span class="n">std</span><span class="p">(</span><span class="n">blank</span><span class="p">,</span> <span class="n">corr</span><span class="o">=</span><span class="n">corr</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">blank</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inverse</span><span class="p">,</span> <span class="n">CalCurve</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">inverse</span><span class="o">.</span><span class="n">conc</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inverse</span><span class="p">,</span> <span class="n">Model</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">inverse</span><span class="o">.</span><span class="n">inverse</span>
+    <span class="k">elif</span> <span class="nb">callable</span><span class="p">(</span><span class="n">inverse</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">inverse</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">_get_value_or_key</span><span class="p">(</span><span class="n">MODELS</span><span class="p">,</span> <span class="n">inverse</span><span class="p">,</span> <span class="p">(</span><span class="n">CalCurve</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">Callable</span><span class="p">))</span><span class="o">.</span><span class="n">inverse</span>
+
+    <span class="k">if</span> <span class="n">coef</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">lod_signal</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># kwargs can be provided or not</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">lod_signal</span><span class="p">,</span> <span class="o">*</span><span class="n">coef</span><span class="p">)</span>  <span class="c1"># only if coef is provided</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Coefficients can be given in coef or kwargs, but not both.&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">class</span> <span class="nc">_CalCurveSeries</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Subclass of pandas.Series for when entries are CalCurves.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_CalCurveSeries</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="k">else</span> <span class="n">result</span>
+
+    <span class="c1"># def subplots(</span>
+    <span class="c1">#     self, nrows: int = 1, ncols: int = 1, **kwargs</span>
+    <span class="c1"># ) -&gt; tuple[Figure, np.ndarray]:</span>
+    <span class="c1">#     &quot;&quot;&quot;Create a figure and axes grid.</span>
+
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     nrows, ncols : int, default 1</span>
+    <span class="c1">#         Number of rows/columns of the subplot grid.</span>
+
+    <span class="c1">#     **kwargs</span>
+    <span class="c1">#         Additional keyword arguments passed to `plt.subplots()`.</span>
+
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     -------</span>
+    <span class="c1">#     fig : matplotlib.figure.Figure</span>
+    <span class="c1">#         The created figure object.</span>
+    <span class="c1">#     axs : matplotlib.axes.Axes or array of Axes</span>
+    <span class="c1">#         ax can be either a single Axes object, or an array of Axes</span>
+    <span class="c1">#         objects if more than one subplot was created.</span>
+
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     figsize = (</span>
+    <span class="c1">#         ncols * rcParams[&quot;figure.figsize&quot;][0],</span>
+    <span class="c1">#         nrows * rcParams[&quot;figure.figsize&quot;][1],</span>
+    <span class="c1">#     )</span>
+    <span class="c1">#     return plt.subplots(</span>
+    <span class="c1">#         nrows=nrows,</span>
+    <span class="c1">#         ncols=ncols,</span>
+    <span class="c1">#         figsize=figsize,</span>
+    <span class="c1">#         squeeze=False,</span>
+    <span class="c1">#         **match_kwargs(plt.subplots, kwargs),</span>
+    <span class="c1">#     )</span>
+
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Axes</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the calibration curve and calibrator points.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fig : matplotlib.figure.Figure, optional</span>
+<span class="sd">            The figure object. If None, the current figure will be</span>
+<span class="sd">            used. If there is no current figure, a new figure will be</span>
+<span class="sd">            created.</span>
+<span class="sd">        ax : matplotlib.axes.Axes, optional</span>
+<span class="sd">            The axes object. If None, the current axes will be used. If</span>
+<span class="sd">            there is no current axes, a new axes will be created.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments for customizing the plot, such</span>
+<span class="sd">            as `xlabel`, `ylabel`, and `title`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fig&quot;</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ax&quot;</span><span class="p">)</span>
+        <span class="n">max_cols</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_cols&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+        <span class="n">levels</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">i</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">nunique</span><span class="p">(</span><span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="n">levels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+            <span class="n">ncols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="n">levels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
+            <span class="n">nrows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">ax_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
+                <span class="c1"># idx = sorted(self.index[self.index.get_level_values(levels[0]) == col])</span>
+                <span class="c1"># ax_s[col] = dict(zip(idx, axs[:, c]))</span>
+                <span class="n">ax_s</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">ax_s</span><span class="p">[</span><span class="n">col</span><span class="p">]),</span> <span class="n">c</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nrows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">/</span> <span class="n">max_cols</span><span class="p">))</span>
+            <span class="n">ncols</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">/</span> <span class="n">nrows</span><span class="p">))</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">ax_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">axs</span><span class="p">))))</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">ax_s</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">i</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="n">i</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="o">**</span><span class="n">match_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">ax_s</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ax_s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">axs</span>  <span class="c1"># type: ignore</span>
+        <span class="c1"># self_notna = self[self.notna()]</span>
+
+        <span class="c1"># if len(self_notna) == 0:</span>
+        <span class="c1">#     # empty series</span>
+        <span class="c1">#     ax_map = {}</span>
+
+        <span class="c1"># elif len(self_notna) == 1:</span>
+        <span class="c1">#     # only one CalCurve in series</span>
+        <span class="c1">#     if ax is not None and isinstance(ax, Axes):</span>
+        <span class="c1">#         if fig is None:</span>
+        <span class="c1">#             fig = ax.figure</span>
+        <span class="c1">#     elif fig is not None:</span>
+        <span class="c1">#         ax = fig.subplots(**match_kwargs(plt.subplots, kwargs))</span>
+        <span class="c1">#     else:</span>
+        <span class="c1">#         fig, ax = self.subplots(**kwargs)</span>
+        <span class="c1">#     ax_map = {self.index[0]: ax}</span>
+
+        <span class="c1"># elif self.index.nlevels == 1:</span>
+        <span class="c1">#     # only one assay or only one plex</span>
+        <span class="c1">#     if len(self) &lt;= max_cols:</span>
+        <span class="c1">#         fig, axs = self.subplots(ncols=len(self_notna), **kwargs)</span>
+        <span class="c1">#         ax_map = {self_notna.index[i]: axs[i] for i in range(len(self_notna))}</span>
+        <span class="c1">#     else:</span>
+        <span class="c1">#         nrows = int(np.ceil(len(self) / max_cols))</span>
+        <span class="c1">#         fig, axs = self.subplots(nrows=nrows, ncols=max_cols, **kwargs)</span>
+        <span class="c1">#         ax_map = {</span>
+        <span class="c1">#             self_notna.index[i]: axs[divmod(i, max_cols)]</span>
+        <span class="c1">#             for i in range(len(self_notna))</span>
+        <span class="c1">#         }</span>
+
+        <span class="c1"># else:</span>
+        <span class="c1">#     # try to lay out cal curves according to assay and plex</span>
+        <span class="c1">#     ncols = self.index.get_level_values(0).nunique()</span>
+        <span class="c1">#     nrows = self.index.get_level_values(0).value_counts().max()</span>
+        <span class="c1">#     fig, axs = self.subplots(nrows=nrows, ncols=ncols, **kwargs)</span>
+        <span class="c1">#     ax_map = {}</span>
+        <span class="c1">#     for a0, assay_level_0 in enumerate(</span>
+        <span class="c1">#         sorted(self_notna.index.get_level_values(0).unique())</span>
+        <span class="c1">#     ):</span>
+        <span class="c1">#         for a1, assay_level_1 in enumerate(</span>
+        <span class="c1">#             sorted(self_notna[assay_level_0].index)</span>
+        <span class="c1">#         ):</span>
+        <span class="c1">#             ax_map[(assay_level_0, assay_level_1)] = axs[a1, a0]</span>
+
+        <span class="c1"># for assay, ax in ax_map.items():</span>
+        <span class="c1">#     if hasattr(assay, &quot;__iter__&quot;) and not isinstance(assay, str):</span>
+        <span class="c1">#         title = &quot;\n&quot;.join([str(a) for a in assay])</span>
+        <span class="c1">#     else:</span>
+        <span class="c1">#         title = assay</span>
+        <span class="c1">#     self[assay].plot(</span>
+        <span class="c1">#         ax=ax, title=title, **match_kwargs(self[assay].plot, kwargs)</span>
+        <span class="c1">#     )  # type: ignore</span>
+        <span class="c1"># return</span>
+
+        <span class="c1"># # if tight_layout:</span>
+        <span class="c1"># #     plt.tight_layout()</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">waltlabtools</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Tyler Dougan.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
