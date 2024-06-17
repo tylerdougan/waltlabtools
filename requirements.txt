@@ -9,3 +9,7 @@ pandas
 # Optional
 jax
 numba
+
+# Documentation
+sphinx
+sphinx_rtd_theme
