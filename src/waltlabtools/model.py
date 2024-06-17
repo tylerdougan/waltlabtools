@@ -1,28 +1,12 @@
-"""Class Model, its methods, and related functions.
+from collections.abc import Callable
+from typing import Any, Optional
 
-Everything in waltlabtools.model is automatically imported with
-waltlabtools, so it can be accessed via, e.g.,
+import numpy as np
+from matplotlib.scale import ScaleBase
 
-.. code-block:: python
+from .core import coerce_array
 
-   import waltlabtools as wlt  # waltlabtools main functionality
-
-   my_model = wlt.Model()  # creates a new empty Model object
-
-
------
-
-
-"""
-
-from .core import _optional_dependencies
-
-if _optional_dependencies["jax"]:
-    import jax.numpy as np
-else:
-    import numpy as np
-
-__all__ = ["Model", "models"]
+EPS = np.finfo(float).resolution
 
 
 class Model:
@@ -33,16 +17,19 @@ class Model:
 
     Parameters
     ----------
-    fun : function
-        Forward functional form. Should be a function which takes in `x`
-        and other parameters and returns `y`. The first parameter of
-        fun should be `x`, and the remaining parameters should be
-        the coefficients which are fit to the data (typically floats).
+    func : function
+        Forward functional form, mapping levels (e.g., concentrations)
+        to signal values (e.g., AEB). Should be a function which takes
+        in `X` and other parameters and returns `y`. The first
+        parameter of func should be `X`, and the remaining parameters
+        should be the coefficients which are fit to the data (typically
+        floats).
     inverse : function
-        Inverse functional form. Should be a function which takes in `y`
-        and other parameters and returns `x`. The first parameter of
-        **inverse** should be `y`, and the remaining parameters should
-        be the same coefficients as in fun.
+        Inverse functional form, mapping signal values (e.g., AEB) to
+        levels (e.g., concentrations). Should be a function which takes
+        in `y` and other parameters and returns `X`. The first
+        parameter of inverse should be `y`, and the remaining
+        parameters should be the same coefficients as in fun.
     name : str
         The name of the function. For example, "4PL" or "linear".
     params : list-like of str
@@ -59,106 +46,296 @@ class Model:
 
     def __init__(
         self,
-        fun=None,
-        inverse=None,
+        func: Callable,
+        inverse: Callable,
+        coef_init: Any,
         name: str = "",
-        params=(),
-        xscale="linear",
-        yscale="linear",
         plaintext_formula: str = "",
+        xscale: str | ScaleBase = "linear",
+        yscale: str | ScaleBase = "linear",
+        jac: Optional[Callable] = None,
     ):
-        self.fun = fun
+        self.func = func
         self.inverse = inverse
+        self.coef_init = coef_init
         self.name = name
-        self.params = params
+        self.plaintext_formula = plaintext_formula
         self.xscale = xscale
         self.yscale = yscale
-        self.plaintext_formula = plaintext_formula
-
-    def __iter__(self):
-        return self.params
-
-    def __repr__(self) -> str:
-        name_prefix = self.name + " Model" if self.name else "Model"
-        if self.plaintext_formula:
-            return name_prefix + ": " + self.plaintext_formula
-        else:
-            return name_prefix + " with parameters " + str(self.params)
+        self.coef_init = coef_init
+        self.jac = jac
 
 
-# Models
+# LINEAR
+# @coerce_array
+def linear(X, a: float = 1, b: float = 0):
+    return a * X + b
 
-m_linear = Model(
-    lambda x, a, b: a * x + b,
-    lambda y, a, b: (y - b) / a,
-    "linear",
-    ("a", "b"),
-    "linear",
-    "linear",
-    "y = a x + b",
+
+# @coerce_array
+def linear_inverse(y, a: float = 1, b: float = 0):
+    return (y - b) / a
+
+
+def jac_linear(coef, X, y, sample_weight):
+    J_a = X * sample_weight
+    J_b = sample_weight
+    return np.column_stack((J_a, J_b))
+
+
+linear_model = Model(
+    func=linear,
+    inverse=linear_inverse,
+    coef_init=np.array([1, 0]),
+    name="linear",
+    plaintext_formula="y = a x + b",
+    xscale="linear",
+    yscale="linear",
+    jac=jac_linear,
 )
 
 
-m_power = Model(
-    lambda x, a, b: a * x ** b,
-    lambda y, a, b: (y / a) ** (1 / b),
-    "power",
-    ("a", "b"),
-    "log",
-    "log",
-    "y = a x^b",
+# POWER
+@coerce_array
+def power(X, a: float = 1, b: float = 1):
+    return b * X**a
+
+
+@coerce_array
+def power_inverse(y, a: float = 1, b: float = 1):
+    return (y / b) ** (1 / a)
+
+
+def jac_power(coef, X: np.ndarray, y: np.ndarray, sample_weight: np.ndarray):
+    a, b = coef  # Unpack the coefficients
+    # Derivative with respect to a
+    J_a = b * X**a * np.log(X + EPS) * sample_weight
+    # Derivative with respect to b
+    J_b = X**a * sample_weight
+    return np.column_stack((J_a, J_b))  # Shape (n_samples, 2)
+
+
+power_model = Model(
+    func=power,
+    inverse=power_inverse,
+    coef_init=np.array([1, 1]),
+    name="power",
+    plaintext_formula="y = a x^b",
+    xscale="log",
+    yscale="log",
+    jac=jac_power,
 )
 
 
-m_hill = Model(
-    lambda x, a, b, c: (a * x ** b) / (c ** b + x ** b),
-    lambda y, a, b, c: c * (a / y - 1) ** (-1 / b),
-    "Hill",
-    ("a", "b", "c"),
-    "log",
-    "log",
-    "y = a x^b / (c^b + x^b)",
-)
-
-m_logistic = Model(
-    lambda x, a, b, c, d: d + (a - d) / (1 + np.exp(-b * (x - c))),
-    lambda y, a, b, c, d: c - np.log((a - d) / (y - d) - 1) / b,
-    "logistic",
-    ("a", "b", "c", "d"),
-    "linear",
-    "linear",
-    "y = d + (a - d) / {1 + exp[-b (x - c)]}",
-)
+# HILL
+def hill(X, a: float = 1, b: float = 1, c: float = 1):
+    return (a * X**b) / (c**b + X**b)
 
 
-m_4pl = Model(
-    lambda x, a, b, c, d: d + (a - d) / (1 + (x / c) ** b),
-    lambda y, a, b, c, d: c * ((a - d) / (y - d) - 1) ** (1 / b),
-    "4PL",
-    ("a", "b", "c", "d"),
-    "log",
-    "log",
-    "d + (a - d) / [1 + (x/c)^b]",
-)
+def hill_inverse(y, a: float = 1, b: float = 1, c: float = 1):
+    return c * (a / y - 1) ** (-1 / b)
 
-m_5pl = Model(
-    lambda x, a, b, c, d, g: d + (a - d) / (1 + (x / c) ** b) ** g,
-    lambda y, a, b, c, d, g: c * (((a - d) / (y - d)) ** (1 / g) - 1) ** (1 / b),
-    "5PL",
-    ("a", "b", "c", "d", "g"),
-    "log",
-    "log",
-    "d + (a - d) / [1 + (x/c)^b]^g",
+
+def jac_hill(coef, X, y, sample_weight):
+    a, b, c = coef  # Unpack the coefficients
+    denominator = c**b + X**b
+    # Derivative with respect to a
+    J_a = (X**b / (denominator)) * sample_weight
+    # Derivative with respect to b
+    J_b = a * (c * X) ** b * np.log((X + EPS) / c) / (denominator**2) * sample_weight
+    # Derivative with respect to c
+    J_c = (-a * X**b * b * c ** (b - 1) / (denominator**2)) * sample_weight
+    return np.column_stack((J_a, J_b, J_c))  # Shape (n_samples, 3)
+
+
+hill_model = Model(
+    func=hill,
+    inverse=hill_inverse,
+    coef_init=np.array([1, 1, 1]),
+    name="Hill",
+    plaintext_formula="y = a x^b / (c^b + x^b)",
+    xscale="log",
+    yscale="log",
+    jac=jac_hill,
 )
 
 
-models = {
-    model.name: model for model in [m_linear, m_power, m_hill, m_logistic, m_4pl, m_5pl]
+# LOGISTIC
+@coerce_array
+def logistic(X, a: float = 1, b: float = 1, c: float = 0, d: float = 0):
+    return d + (a - d) / (1 + np.exp(-b * (X - c)))
+
+
+@coerce_array
+def logistic_inverse(y, a: float = 1, b: float = 1, c: float = 0, d: float = 0):
+    return c - np.log((a - d) / (y - d) - 1) / b
+
+
+logistic_model = Model(
+    func=logistic,
+    inverse=logistic_inverse,
+    coef_init=np.array([1, 1, 0, 0]),
+    name="logistic",
+    plaintext_formula="y = d + (a - d) / {1 + exp[-b (x - c)]}",
+    xscale="linear",
+    yscale="linear",
+)
+
+
+# 3PL
+@coerce_array
+def three_param_logistic(X, a: float = 0, c: float = 1, d: float = 30):
+    return d + (a - d) / (1 + X / c)
+
+
+@coerce_array
+def three_param_logistic_inverse(y, a: float = 0, c: float = 1, d: float = 30):
+    return c * ((a - d) / (y - d) - 1)
+
+
+def jac_three_param_logistic(coef, X, y, sample_weight):
+    a, c, d = coef
+    one_plus_X_over_c = 1 + X / c
+
+    # Derivative with respect to a
+    J_a = (1 / one_plus_X_over_c) * sample_weight
+
+    # Derivative with respect to c
+    J_c = ((a - d) * X) / (c**2 * one_plus_X_over_c**2) * sample_weight
+
+    # Derivative with respect to d
+    J_d = (1 - 1 / one_plus_X_over_c) * sample_weight
+
+    return np.column_stack((J_a, J_c, J_d))
+
+
+three_param_logistic_model = Model(
+    func=three_param_logistic,
+    inverse=three_param_logistic_inverse,
+    coef_init=np.array([0, 1, 30]),
+    name="3PL",
+    plaintext_formula="y = d + (a - d) / (1 + x/c)",
+    xscale="log",
+    yscale="log",
+    jac=jac_three_param_logistic,
+)
+
+
+# 4PL
+@coerce_array
+def four_param_logistic(X, a: float = 0, b: float = 1, c: float = 1, d: float = 30):
+    return d + (a - d) / (1 + (X / c) ** b)
+
+
+@coerce_array
+def four_param_logistic_inverse(
+    y, a: float = 0, b: float = 1, c: float = 1, d: float = 30
+):
+    return c * ((a - d) / (y - d) - 1) ** (1 / b)
+
+
+def jac_four_param_logistic(coef, X, y, sample_weight):
+    a, b, c, d = coef
+    X_over_c_b = (X / c) ** b
+    one_plus_X_over_c_b = 1 + X_over_c_b
+
+    # Derivative with respect to a
+    J_a = (1 / one_plus_X_over_c_b) * sample_weight
+
+    # Derivative with respect to b
+    J_b = (
+        (a - d) * X_over_c_b * np.log((X + EPS) / c) / one_plus_X_over_c_b**2
+    ) * sample_weight
+
+    # Derivative with respect to c
+    J_c = ((a - d) * b * X**b / (c ** (b + 1) * one_plus_X_over_c_b**2)) * sample_weight
+
+    # Derivative with respect to d
+    J_d = (1 - 1 / one_plus_X_over_c_b) * sample_weight
+
+    return np.column_stack((J_a, J_b, J_c, J_d))
+
+
+four_param_logistic_model = Model(
+    func=four_param_logistic,
+    inverse=four_param_logistic_inverse,
+    coef_init=np.array([0, 1, 1, 30]),
+    name="4PL",
+    plaintext_formula="y = d + (a - d) / [1 + (x/c)^b]",
+    xscale="log",
+    yscale="log",
+    jac=jac_four_param_logistic,
+)
+
+
+# 5PL
+@coerce_array
+def five_param_logistic(
+    X, a: float = 0, b: float = 1, c: float = 1, d: float = 30, g: float = 1
+):
+    return d + (a - d) / (1 + (X / c) ** b) ** g
+
+
+@coerce_array
+def five_param_logistic_inverse(
+    y, a: float = 0, b: float = 1, c: float = 1, d: float = 30, g: float = 1
+):
+    return c * (((a - d) / (y - d)) ** (1 / g) - 1) ** (1 / b)
+
+
+def jac_five_param_logistic(coef, X, y, sample_weight):
+    a, b, c, d, g = coef
+    X_over_c_b = (X / c) ** b
+    one_plus_X_over_c_b = 1 + X_over_c_b
+    # Derivative with respect to a
+    J_a = (1 / one_plus_X_over_c_b**g) * sample_weight
+    # Derivative with respect to b
+    J_b = (
+        g
+        * (a - d)
+        * X_over_c_b
+        * np.log((X + EPS) / c)
+        / one_plus_X_over_c_b ** (g + 1)
+    ) * sample_weight
+    # Derivative with respect to c
+    J_c = (
+        g * (a - d) * b * X**b / (c ** (b + 1) * one_plus_X_over_c_b ** (g + 1))
+    ) * sample_weight
+    # Derivative with respect to d
+    J_d = (1 - 1 / one_plus_X_over_c_b**g) * sample_weight
+    # Derivative with respect to g
+    J_g = (
+        -((a - d) * np.log(one_plus_X_over_c_b) / one_plus_X_over_c_b**g)
+        * sample_weight
+    )
+    return np.column_stack((J_a, J_b, J_c, J_d, J_g))
+
+
+five_param_logistic_model = Model(
+    func=five_param_logistic,
+    inverse=five_param_logistic_inverse,
+    coef_init=np.array([0, 1, 1, 30, 1]),
+    name="5PL",
+    plaintext_formula="y = d + (a - d) / [1 + (x/c)^b]^g",
+    xscale="log",
+    yscale="log",
+    jac=jac_five_param_logistic,
+)
+
+
+MODELS: dict[str, Model] = {
+    "linear": linear_model,
+    "power": power_model,
+    "Hill": hill_model,
+    "logistic": logistic_model,
+    "3PL": three_param_logistic_model,
+    "4PL": four_param_logistic_model,
+    "5PL": five_param_logistic_model,
 }
 """Built-in regression models.
 
-Keys of model_dict are strings giving model names; values are
-waltlabtools.Model objects.
+Keys are strings giving model names; values are waltlabtools.Model 
+objects.
 
 Models
 ------
@@ -169,6 +346,8 @@ Models
 "Hill" : Hill function.
 
 "logistic" : Logistic function.
+
+"3PL" : Four-parameter logistic (3PL) function.
 
 "4PL" : Four-parameter logistic (4PL) function.
 

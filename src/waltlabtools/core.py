@@ -1,8 +1,5 @@
 """Core functionality for the waltlabtools module.
 
-Includes the classes Model and CalCurve, and core functions for assay
-analysis.
-
 Everything in waltlabtools.core is automatically imported with
 waltlabtools, so it can be accessed via, e.g.,
 
@@ -18,195 +15,180 @@ waltlabtools, so it can be accessed via, e.g.,
 
 """
 
-import importlib
-import sys
+import inspect
+import warnings
+from functools import wraps
+from typing import Any, Callable, Iterable, Literal, Optional
 
-import scipy.special as spec
-
-_optional_dependencies = {
-    package_name: (importlib.util.find_spec(package_name) is not None)
-    for package_name in ["sklearn", "numba"]
-}
-
-if "jax" in sys.modules:
-    import jax.numpy as np
-    from jax import jit
-
-    _optional_dependencies["jax"] = True
-else:
-    import numpy as np
-
-    if _optional_dependencies["numba"]:
-        from numba import jit
-    else:
-
-        def jit(func):
-            """Dummy jit decorator for when numba/jax is not installed."""
-            return func
-
-    _optional_dependencies["jax"] = False
+from ._backend import gammaln, gmean, jit, np
 
 
-__all__ = ["flatten", "dropna", "aeb", "fon", "c4", "std", "gmnd"]
+def deprecate(replace_with: Optional[str] = None) -> Callable:
+    """Decorator to issue a DeprecationWarning with an optional replacement function."""
 
-_DDOFS = {"n": 0, "n-1": 1, "n-1.5": 1.5, "c4": 1}
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            warning_message = f"{func.__name__} is deprecated as of version 1.0."
+            if replace_with:
+                warning_message += f" Please use {replace_with} instead."
+            warnings.warn(warning_message, DeprecationWarning)
+            return func(*args, **kwargs)
 
+        return wrapper
 
-def _flatten_helper(data, order: str = "C") -> np.ndarray:
-    """Flattens data structures that can easily be flattened.
-
-    Raises
-    ------
-    AssertionError
-        If the numpy.ravel returns an array with dtype=object.
-
-    """
-    flat_data = np.ravel(np.array(data), order=order)
-    assert flat_data.dtype != np.dtype("O")
-    return flat_data
+    return decorator
 
 
-def flatten(data, order: str = "C") -> np.ndarray:
-    """Flattens most data structures.
+def _flatten_recursively(a) -> list:
+    """Recursively flatten a primitive or nested iterable.
 
     Parameters
     ----------
-    data : any
-        The data structure to be flattened. Can also be a primitive.
+    a : Any
+        The iterable to be flattened.
 
     Returns
     -------
-    flat_data : array
-        Flattened version of **data**.
+    flat_a : list
+        A flattened list of the input iterable's elements.
 
-    Other Parameters
-    ----------------
-    order : {"C","F", "A", "K"}, default "C"
-        The elements of data are read using this index order. "C" means
+    Examples
+    --------
+    >>> _flatten_recursively([1, [2, [3]], 4])
+    [1, 2, 3, 4]
+
+    >>> _flatten_recursively({'a': [1, 2], 'b': {'c': 3, 'd': 4}})
+    [1, 2, 3, 4]
+
+    >>> _flatten_recursively(1)
+    [1]
+
+    """
+    flat_a = []
+    iterator = a.values() if isinstance(a, dict) else a
+    try:
+        for datum in iterator:
+            flattened_datum = _flatten_recursively(datum)
+            flat_a.extend(flattened_datum)
+    except TypeError:
+        return [a]
+    else:
+        return flat_a
+
+
+def flatten(a, order: Literal["C", "F", "A", "K"] = "K") -> np.ndarray:
+    """Flatten almost anything into a 1-dimensional numpy array.
+
+    In simple cases, this function is a wrapper for numpy.ravel. In more
+    complex cases, it recursively flattens nested iterables.
+
+    Parameters
+    ----------
+    a : any
+        The object to be flattened.
+    order : {'C', 'F', 'A', 'K'}, optional
+        The elements of `a` are read using this index order. 'C' means
         to index the elements in row-major, C-style order,
         with the last axis index changing fastest, back to the first
-        axis index changing slowest. For full details, see
-        numpy.ravel.
+        axis index changing slowest.  'F' means to index the elements
+        in column-major, Fortran-style order, with the
+        first index changing fastest, and the last index changing
+        slowest. Note that the 'C' and 'F' options take no account of
+        the memory layout of the underlying array, and only refer to
+        the order of axis indexing.  'A' means to read the elements in
+        Fortran-like index order if `a` is Fortran *contiguous* in
+        memory, C-like order otherwise.  'K' means to read the
+        elements in the order they occur in memory, except for
+        reversing the data when strides are negative.  By default, 'C'
+        index order is used.
+
+    Returns
+    -------
+    numpy.ndarray
+        A 1-dimensional numpy array containing the flattened elements.
 
     See Also
     --------
-    numpy.array : Returns a new array from an array-like object.
+    numpy.ravel : Flatten a numpy array.
 
-    numpy.ravel : Flattens a numpy array.
+    Notes
+    -----
+    When jax has been loaded as a backend, this function will raise an
+    error if `a` has non-numerical elements.
+
+    Examples
+    --------
+    >>> a = [[1, 2, 3], [4, 5, 6]]
+    >>> flatten(a)
+    array([1, 2, 3, 4, 5, 6])
+
+    >>> b = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
+    >>> flatten(b)
+    array([1, 2, 3, 4, 5, 6, 7, 8])
 
     """
     try:
-        return _flatten_helper(data, order=order)
-    except (TypeError, RuntimeError, AssertionError, ValueError):
-        flat_data: list = []
-        for datum in data:
-            try:
-                flat_data.extend(flatten(datum, order=order))
-            except TypeError:
-                flat_data.append(flatten(datum, order=order))
-    return _flatten_helper(flat_data, order=order)
+        y = np.ravel(np.asarray(a, order=order), order=order)
+        if y.dtype.kind == "O":
+            raise ValueError("Cannot flatten object arrays.")
+        return y
+    except (TypeError, ValueError):
+        return np.ravel(np.asarray(_flatten_recursively(a), order=order), order=order)
 
 
-def _na_sieve(
-    arrayed_datasets: list, common_size: int, common_dims: list, drop_inf: bool = True
-) -> list:
-    """Compresses away the rows where any dataset has a NaN value.
+def coerce_array(func: Callable) -> Callable:
+    """Coerce the argument to an array upon TypeError.
 
-    Helper function for dropna.
-
-    Parameters
-    ----------
-    arrayed_datasets : list
-        The data structures to be flattened. They must be the same size
-        along their first axis or share one common dimension.
-    common_size : int
-        The length of the common axis that all arrays share.
-    common_dims : list
-        A list of the dimension in each array which is the dimension
-        along which to drop NaNs.
-    drop_inf : bool, optional
-        If True (default), drop with non-finite or NaN values. If False,
-        drop only rows with NaN values.
-
-    Returns
-    -------
-    list of arrays
-        The datasets provided, with rows removed in which
-        any of the arrays has a non-finite value.
-
-    """
-    notna_array = np.ones(common_size, dtype=bool)
-    keep_fn = np.isfinite if drop_inf else lambda x: np.invert(np.isnan(x))
-    for a, arrayed_data in enumerate(arrayed_datasets):
-        axis_list = list(range(arrayed_data.ndim))
-        axis_list.remove(common_dims[a])
-        axis = tuple(axis_list)
-        data_finitude = np.all(keep_fn(arrayed_data), axis=axis)
-        notna_array = np.logical_and(notna_array, data_finitude)
-    return [
-        np.compress(condition=notna_array, a=arrayed_datasets[i], axis=common_dims[i])
-        for i in range(len(common_dims))
-    ]
-
-
-def dropna(datasets, drop_inf: bool = True):
-    """Drops rows in which any dataset has a missing values.
+    This decorator is intended to wrap functions that are primarily
+    called with a first argument that is compatible with `numpy.array`.
+    If calling the function results in a `TypeError`, it tries coercing
+    the first argument to a numpy array and calling the function again.
+    This is particularly useful for functions that might be passed
+    lists or other array-like objects but are designed to work with
+    numpy arrays.
 
     Parameters
     ----------
-    datsets : iterable of array-likes
-        The data structures to be flattened. They must be the same size
-        along their first axis or share one common dimension.
-    drop_inf : bool, default True
-        If True (default), drop with non-finite or NaN values. If False,
-        drop only rows with NaN values.
+    func : callable
+        The function to be decorated.
 
     Returns
     -------
-    list of arrays
-        The datasets provided, now as arrays, with rows removed in which
-        any of the arrays has a non-finite value.
+    callable
+        The wrapped function which coerces its first argument to a
+        numpy array upon TypeError.
+
+    Examples
+    --------
+    >>> @coerce_array
+    ... def add_one(arr):
+    ...     return arr + 1
+
+    >>> add_one([1, 2, 3])
+    array([2, 3, 4])
 
     """
-    arrayed_datasets = [np.array(dataset) for dataset in datasets]
-    dataset_shapes = [dataset.shape for dataset in arrayed_datasets]
 
-    # First option: along any dimension, every dataset is the same size.
-    max_dim = max(len(shape) for shape in dataset_shapes)
-    possible_dims = {}
-    for dim in range(1 - max_dim, max_dim):
-        possible_sizes = {shape[dim] for shape in dataset_shapes}
-        if len(possible_sizes) == 1:
-            possible_dims[dim] = possible_sizes.pop()
-    if len(possible_dims) == 1:
-        common_dim, common_size = possible_dims.popitem()
-        common_dims = [common_dim] * len(arrayed_datasets)
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except TypeError:
+            if args:  # if the first argument is positional
+                args = (np.asarray(args[0]),) + args[1:]
+            else:  # if the first argument is keyword
+                sig = inspect.signature(func)
+                first_arg_name = next(iter(sig.parameters.keys()))
+                kwargs[first_arg_name] = np.asarray(kwargs[first_arg_name])
+            return func(*args, **kwargs)
 
-    # Second option: there is one size shared by all datasets.
-    else:
-        possible_sizes = (set(dataset_shapes[0]) - {0, 1}).intersection(*dataset_shapes)
-        if len(possible_sizes) == 0:
-            raise ValueError("The datasets do not have any common sizes.")
-        if len(possible_sizes) > 1:
-            raise ValueError("The datasets have multiple common sizes.")
-
-        common_size = possible_sizes.pop()
-        common_dims = []
-        for shape in dataset_shapes:
-            if shape.count(common_size) == 1:
-                raise ValueError("A dataset has multiple dimensions of the same size.")
-            common_dims.append(shape.index(common_size))
-
-    return _na_sieve(
-        arrayed_datasets=arrayed_datasets,
-        common_size=common_size,
-        common_dims=common_dims,
-        drop_inf=drop_inf,
-    )
+    return wrapper
 
 
+@coerce_array
 def aeb(fon_):
-    """The average number of enzymes per bead.
+    """Compute the average number of enzymes per bead.
 
     Converts the fraction of on-beads (fon) to the average number of
     enzymes per bead (AEB) using Poisson statistics. The formula used
@@ -227,14 +209,12 @@ def aeb(fon_):
     fon : inverse of ``aeb``
 
     """
-    try:
-        return -np.log(1 - fon_)
-    except TypeError:
-        return -np.log(1 - np.array(fon_))
+    return -np.log(1 - fon_)
 
 
+@coerce_array
 def fon(aeb_):
-    """The fraction of beads which are on.
+    """Compute the fraction of beads which are on.
 
     Converts the average enzymes per bead (AEB) to the fraction of
     on-beads (fon) using Poisson statistics. The formula used is
@@ -252,23 +232,23 @@ def fon(aeb_):
 
     See Also
     --------
-    aeb : inverse of fon
+    aeb : inverse of ``fon``
 
     """
-    try:
-        return 1 - np.exp(-aeb_)
-    except TypeError:
-        return 1 - np.exp(-np.array(aeb_))
+    return 1 - np.exp(-aeb_)
 
 
+@coerce_array
 def c4(n):
-    """Factor `c4` for unbiased estimation of the standard deviation.
+    """Factor `c4` for unbiased estimation of normal standard deviation.
 
     For a finite sample, the sample standard deviation tends to
     underestimate the population standard deviation. See, e.g.,
     https://www.spcpress.com/pdf/DJW353.pdf for details. Dividing the
     sample standard deviation by the correction factor `c4` gives an
-    unbiased estimator of the population standard deviation.
+    unbiased estimator of the population standard deviation. This
+    correction factor should be applied on top of Bessel's correction,
+    so n-1 is used as the degrees of freedom.
 
     Parameters
     ----------
@@ -289,22 +269,28 @@ def c4(n):
     lod : limit of detection
 
     """
-    return np.sqrt(2 / (n - 1)) * spec.gamma(n / 2) / spec.gamma((n - 1) / 2)
+    return np.sqrt(2 / (n - 1)) * np.exp(gammaln(n / 2) - gammaln((n - 1) / 2))
 
 
-def std(data, corr="c4") -> float:
-    """Unbiased estimate of the population standard deviation.
+_DDOFS = {"n": 0, "n-1": 1, "n-1.5": 1.5, "c4": 1}
 
-    Unlike the corresponding function in numpy, this function allows
-    specifying of the correction factor more generally in order to
-    provide an unbiased estimate of the standard deviation.
+
+@coerce_array
+def std(
+    a, corr: str | int = "c4", axis: Optional[int | tuple[int, ...]] = None, **kwargs
+):
+    """Compute (an unbiased estimate of) the standard deviation.
+
+    For a finite sample, the sample standard deviation tends to
+    underestimate the population standard deviation. This function
+    divides the sample standard deviation by the correction factor
+    `c4` to give an unbiased estimator of the population standard
+    deviation.
 
     Parameters
     ----------
-    data : numeric or array
-        The data for which to take the standard deviation. Will be
-        coerced to a 1-D numpy array via flatten.
-
+    a : array-like
+        The array of values.
     corr : {"n", "n-1", "n-1.5", "c4"} or numeric, default "c4"
         The sample standard deviation under-estimates the population
         standard deviation for a normally distributed variable.
@@ -323,36 +309,92 @@ def std(data, corr="c4") -> float:
               exact unbiased sample standard deviation.
 
             - If numeric, gives the delta degrees of freedom.
+    axis : None or int or tuple of ints, optional
+        Axis or axes along which the standard deviation is computed. The
+        default is to compute the standard deviation of the flattened array.
+        If this is a tuple of ints, a standard deviation is performed over
+        multiple axes, instead of a single axis or all the axes as before.
 
     Returns
     -------
-    float
-        Unbiased estimate of the standard deviation.
+    numeric
+        The unbiased standard deviation.
 
     See Also
     --------
-    c4 : correction factor used when corr="c4"
-
     numpy.std : standard deviation
 
+    c4 : correction factor used when corr="c4"
+
     """
-    flat_data = flatten(data)
-    try:
-        ddof = _DDOFS[corr]
-    except KeyError:
-        try:
-            ddof = float(corr)
-        except ValueError as exc:
-            error_text = (
-                str(corr) + " is not a valid correction factor. Please try another one."
-            )
-            raise ValueError(error_text) from exc
-    corr_factor = c4(len(flat_data)) if (corr == "c4") else 1
-    return float(np.std(flat_data, ddof=ddof) / corr_factor)
+    ddof = _DDOFS.get(corr, corr)  # type: ignore
+    ret = np.std(a, axis=axis, ddof=ddof, **kwargs)  # type: ignore
+
+    if corr == "c4":
+        n = np.prod(np.shape(a))
+        if isinstance(axis, int):
+            n /= np.prod(np.shape(a)[axis])
+        elif isinstance(axis, Iterable):
+            n /= np.prod([np.shape(a)[ax] for ax in axis])
+        return ret / c4(n)
+    else:
+        return ret
 
 
-def gmnd(data, rtol: float = 1e-05, atol: float = 1e-08) -> float:
-    """Geometric meandian.
+@jit
+def _gmnd_f_step(
+    previous_values: np.ndarray, rtol: float = 1e-05, atol: float = 1e-08
+) -> tuple[np.ndarray, bool]:
+    """Compute one step of the Geothmetic Meandian algorithm.
+
+    Parameters
+    ----------
+    previous_values : numpy.ndarray
+        An array containing the previous values of the Geothmetic
+        Meandian algorithm.
+    rtol : float, default 1e-05
+        The relative tolerance parameter used to determine convergence.
+    atol : float, default 1e-08
+        The absolute tolerance parameter used to determine convergence.
+
+    Returns
+    -------
+    next_values : numpy.ndarray
+        The next values of the Geothmetic Meandian algorithm.
+
+    converged : bool
+        Whether the algorithm has converged.
+
+    Notes
+    -----
+    This function is decomposed this way in order to make use of
+    just-in-time (JIT) compilation with Numba or Jax.
+    """
+    next_values = np.asarray(
+        (
+            np.mean(previous_values),
+            gmean(previous_values),
+            np.median(previous_values),
+        )
+    )
+    converged = np.allclose(
+        next_values,
+        np.full_like(next_values, fill_value=next_values[2]),
+        rtol=rtol,
+        atol=atol,
+    )
+    return next_values, converged
+
+
+@coerce_array
+def geothmetic_meandian(
+    a,
+    weights=None,
+    rtol: float = 1e-05,
+    atol: float = 1e-08,
+    nan_policy="omit",
+) -> float:
+    """Compute he Geothmetic Meandian of the input data, as per XKCD.
 
     For details, see https://xkcd.com/2435/. This function compares
     the three most common measures of central tendency: the arithmetic
@@ -363,70 +405,241 @@ def gmnd(data, rtol: float = 1e-05, atol: float = 1e-08) -> float:
 
     Parameters
     ----------
-    data : array-like
-        The data for which to take the measure of central tendency.
+    data : array_like
+        The input data, which can be any array-like object.
     rtol : float, default 1e-05
-        The relative tolerance parameter.
+        The relative tolerance parameter used to determine convergence.
     atol : float, default 1e-08
-        The absolute tolerance parameter.
+        The absolute tolerance parameter used to determine convergence.
 
     Returns
     -------
-    gmnd_ : float
-        Geometric meandian.
+    float
+        The Geothmetic Meandian of the input data.
 
-    Notes
-    -----
-    The purpose of this function is to demonstrate the functional
-    decomposition necessary to perform just-in-time compilation (jit)
-    using jax or numba.
-
+    Examples
+    --------
+    >>> geothmetic_meandian([1, 1, 2, 3, 5])
+    2.089440951883
     """
-    flat_data = flatten(data)
-    mean_ = np.mean(flat_data)
-    geomean_ = np.exp(np.mean(np.log(flat_data)))
-    median_ = np.median(flat_data)
-    data_i = np.array((mean_, geomean_, median_))
+    if nan_policy == "omit":
+        a = dropna(a)
+
+    current_values = np.asarray(
+        (np.average(a, weights=weights), gmean(a, weights=weights), np.median(a))
+    )
+
     converged = False
     while not converged:
-        data_i, converged = _gmnd_f(data_i, rtol=rtol, atol=atol)
-    gmnd_ = data_i[0]
-    return float(gmnd_)
+        current_values, converged = _gmnd_f_step(current_values, rtol=rtol, atol=atol)
+    return float(current_values[2])
 
 
-@jit
-def _gmnd_f(data_i: np.ndarray, rtol: float = 1e-05, atol: float = 1e-08) -> tuple:
-    """Backend for geometric meandian.
+def match_kwargs(
+    func: Callable | Iterable[Callable] | str,
+    kwargs: dict[str, Any],
+) -> dict[str, Any]:
+    """Match keyword arguments to the parameters of a given function.
+
+    Given a function and a dictionary of keyword arguments, return a
+    dictionary of only those keyword arguments that match the parameters
+    of the function. Typical usage is
 
     Parameters
     ----------
-    data_i : array of length 3
-        The current iteration's arithmetic mean, geometric mean, and
-        median.
-    rtol : float, default 1e-05
-        The relative tolerance parameter.
-    atol : float, default 1e-08
-        The absolute tolerance parameter.
+    func : callable or iterable of callable
+        The function or functions to match keyword arguments against.
+        If multiple functions, keywords will be matched against any
+        of them (i.e., the union of all the functions' parameter names).
+    kwargs : dict[str, Any]
+        The dictionary of keyword arguments to match.
 
     Returns
     -------
-    data_iplus1 : array of length 3
-        The next iteration's arithmetic mean, geometric mean, and
-        median.
-    converged : bool
-        Whether the next iteration has converged within the given
-        tolerance.
+    dict
+        A dictionary of keyword arguments that match the parameters of
+        the function, or the parameters of any of the functions.
+
+    Notes
+    -----
+    The implementation of this function is based on inspect.signature.
+    Some functions accept a generic `**kwargs` parameter, which is
+    not included in the signature. This function does not handle such
+    cases.
+
+    Examples
+    --------
+    To call a function `func` on only the `kwargs` it accepts:
+
+    >>> func(..., **_match_kwargs(func, kwargs))
 
     """
-    mean_ = np.mean(data_i)
-    geomean_ = np.exp(np.mean(np.log(data_i)))
-    median_ = np.median(data_i)
-    data_iplus1 = np.array((mean_, geomean_, median_))
-    if np.isnan(data_iplus1).any():
-        return np.array((np.nan, np.nan, np.nan)), True
-    converged = (
-        np.isclose(data_iplus1[0], data_i[1], rtol=rtol, atol=atol)
-        & np.isclose(data_iplus1[1], data_i[2], rtol=rtol, atol=atol)
-        & np.isclose(data_iplus1[2], data_i[0], rtol=rtol, atol=atol)
+    if isinstance(func, str):
+        return {
+            key.removeprefix(func): value
+            for key, value in kwargs.items()
+            if key.startswith(func)
+        }
+    elif callable(func):
+        params = [inspect.signature(func).parameters.keys()]
+    else:
+        params = [inspect.signature(f).parameters.keys() for f in func]
+    intersected_kw_names = set(kwargs.keys()).intersection(set().union(*params))
+    return {kw_name: kwargs[kw_name] for kw_name in intersected_kw_names}
+
+
+def _dims_occurring_once(shape: tuple[int, ...]) -> set[int]:
+    """Get dimensions that occur only once in the provided shape.
+
+    Parameters
+    ----------
+    shape : Tuple[int]
+        A tuple representing the shape of a numpy array.
+
+    Returns
+    -------
+    set[int]
+        A set of dimensions that occur only once in the input shape.
+    """
+    unique, counts = np.unique(np.asarray(shape), return_counts=True)
+    return set(unique[counts == 1].tolist())
+
+
+def _find_common_dimension(*args: np.ndarray, common_len=None) -> tuple[int, list[int]]:
+    """Find the unique, common dimension length in all given arrays.
+
+    This function identifies dimensions that appear only once in each shape
+    and are common to all provided arrays.
+
+    Parameters
+    ----------
+    *args : np.ndarray
+        Variable length argument list of numpy arrays.
+
+    Returns
+    -------
+    Tuple[int, List[int]]
+        A tuple containing the common dimension length that occurs only
+        once in all the arrays and a list of indices where this common
+        dimension length occurs in each array's shape.
+
+    Raises
+    ------
+    ValueError
+        If no unique non-zero, non-unitary common dimensions are found
+        between the arrays.
+    """
+    shapes = [arg.shape for arg in args]
+
+    if common_len is None:
+        individual_unique_dims = [_dims_occurring_once(shp) for shp in shapes]
+        # Find common dimensions
+        common_len = set.intersection(*individual_unique_dims) - {0, 1}
+        if len(common_len) != 1:
+            raise ValueError(
+                "No unique non-zero, non-unitary common dimensions found "
+                f"between arrays of shapes {shapes}."
+            )
+
+        common_len = common_len.pop()
+
+    indices = [shape.index(common_len) for shape in shapes]
+    return common_len, indices
+
+
+def dropna(*args: Any, drop_inf: bool = False, common_len=None) -> tuple:
+    """Drop rows containing NA values in any of the provided arrays.
+
+    This function is designed for multi-dimensional numpy arrays (and objects convertible
+    to them, like pandas Series). It assumes that the arrays share a common dimension
+    (like rows in a 2D array) and drops any "row" with NaN or Inf values across the arrays.
+
+    Parameters
+    ----------
+    *args : array-like
+        Variable length argument list of objects. Expected to be numpy arrays
+        or objects convertible to numpy arrays (e.g., pandas Series).
+    drop_inf : bool, default False
+        Whether to drop Inf values in addition to NaN values.
+
+    Returns
+    -------
+    Tuple[Union[np.ndarray, pd.Series]]
+        Tuple of arrays with the same dimensions as the input arrays, but with
+        rows containing NaN or Inf values dropped. If the input was a pandas
+        Series, the return type for that specific input will also be a pandas Series.
+
+    Examples
+    --------
+    Consider two numpy arrays of shape (2, 3) and (2,):
+    >>> a = np.array([[1, 2, np.nan], [4, 5, 6]])
+    >>> b = np.array([7, np.nan])
+    >>> dropna(a, b)
+    (array([[4., 5., 6.]]), array([7.]))
+
+    For arrays with a shape like (1, 14):
+    The output retains the same number of dimensions, so an input of (1, 14)
+    will produce an output shape like (1, n) depending on the number of NaN/Inf values.
+
+    Note
+    ----
+    The function identifies a "common row dimension" which it uses to check for
+    NaN or Inf values. This dimension is identified as a unique size that's present
+    in all provided arrays.
+    """
+    arrs = [np.asarray(arg) for arg in args]
+
+    common_len, common_dims = _find_common_dimension(*arrs, common_len=common_len)
+
+    keep_func = np.isfinite if drop_inf else lambda x: np.logical_not(np.isnan(x))
+
+    # Build masks for each array separately
+    masks = []
+    for arr, dim in zip(arrs, common_dims):
+        moved_arr = np.moveaxis(arr, dim, 0)
+        mask = keep_func(moved_arr).all(axis=tuple(range(1, arr.ndim)))
+        masks.append(mask)
+
+    # Combine masks to determine rows to keep
+    keep_mask = np.all(masks, axis=0)
+
+    arrs_na_dropped = (
+        np.compress(keep_mask, arr, axis=dim) for arr, dim in zip(arrs, common_dims)
     )
-    return data_iplus1, converged
+
+    return tuple(arrs_na_dropped)
+
+
+def _get_value_or_key(d: dict, key: Any, t: Optional[type | tuple] = None) -> Any:
+    """Look up a value, or return the key if it is of a matching type.
+
+    If the key is found in the dictionary, its value is returned. If
+    not, the key itself is returned if it is of type t (if specified) or
+    the same type as any of the dictionary's values (if not). If the key
+    is not found and not of the specified type(s), a KeyError is raised.
+
+    Parameters
+    ----------
+    d : dict
+        The dictionary from which to retrieve the value.
+    key : Any
+        The key to look up in the dictionary.
+    t : type or tuple of types, optional
+        The expected type or types of the key. If not provided
+        (default), the type(s) will be inferred from the values in the
+        dictionary.
+
+    Returns
+    -------
+    Any
+        The value associated with the key in the dictionary, or the key
+        itself if the key is not found and is of the specified type(s).
+    """
+    try:
+        return d[key]
+    except (TypeError, KeyError) as e:
+        if t is None:
+            t = tuple({type(v) for v in d.values()})
+        if isinstance(key, t):
+            return key
+        raise KeyError(f"key {key} not recognized and not of type {t}") from e

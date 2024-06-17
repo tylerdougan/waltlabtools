@@ -97,7 +97,6 @@ Usage
 .. code-block:: python
    
    import waltlabtools as wlt  # waltlabtools main functionality
-   import waltlabtools.read_quanterix  # if using a Quanterix instrument
 
 -----
 

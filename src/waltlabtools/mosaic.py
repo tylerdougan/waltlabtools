@@ -33,25 +33,13 @@ import re
 import warnings
 from tkinter import filedialog
 
-from numpy.random import default_rng
 import pandas as pd
-import sklearn as sk
-import sklearn.mixture
+from numpy.random import default_rng
+from sklearn.mixture import GaussianMixture
 
-from .core import flatten, c4, _optional_dependencies, _DDOFS
+from ._backend import jit, np
 from .cal_curve import CalCurve, limit_of_detection
-
-if _optional_dependencies["jax"]:
-    import jax.numpy as np
-    from jax import jit
-else:
-    import numpy as np
-
-    if _optional_dependencies["numba"]:
-        from numba import jit
-    else:
-        from .core import jit
-
+from .core import _DDOFS, c4, flatten
 
 __all__ = [
     "PlateFileCollection",
@@ -126,11 +114,11 @@ class PlateFileCollection:
         name = re.split("[/\\\\]", dir_path_)[-1].replace(" FINAL", "")
 
         file_map = {}
-        conc_map = pd.read_excel(
-            layout_file, header=None, index_col=0, squeeze=True
-        ).to_dict()
+        conc_map = (
+            pd.read_excel(layout_file, header=None, index_col=0).squeeze().to_dict()
+        )
         for file_entry in well_files:
-            split_filename = re.split("[-–—_ .()\[\]|,*]", file_entry.name)
+            split_filename = re.split("[-–—_ .()\[\]|,*]", file_entry.name)  # type: ignore  # noqa: RUF001
             for well in conc_map:
                 if well in split_filename:
                     if file_entry.path not in file_map.values():
@@ -164,7 +152,7 @@ class PlateFileCollection:
                     del file_map[key]
 
         self.name = name
-        self.wells = sorted(list(conc_map.keys()))
+        self.wells = sorted(conc_map.keys())
         self.file_map = file_map
         self.conc_map = conc_map
         self.dir_path = dir_path_
@@ -298,7 +286,7 @@ def mixture_aeb(
     """
     mi = [np.amin(flat_data), np.amax(flat_data)] if means_init is None else means_init
     means_init_ = np.array(mi).reshape(-1, 1)
-    mixture = sk.mixture.GaussianMixture(
+    mixture = GaussianMixture(
         n_components=2,
         means_init=means_init_,
         tol=TOL,
@@ -361,7 +349,7 @@ def well_to_aeb(well_entry=None, log: bool = True, threshold_sds=5):
     elif hasattr(well_entry, "__iter__"):
         return {
             entry: well_to_aeb(entry, log=log, threshold_sds=threshold_sds)
-            for entry in well_entry
+            for entry in well_entry  # type: ignore
         }
     elif isinstance(well_entry, os.DirEntry):
         data = pd.read_csv(well_entry.path)
@@ -432,14 +420,16 @@ def extended_coefs(concs, aebs, corr="c4", cal_curve=None) -> dict:
         new_cal_curve = cal_curve
         calibratible = True
     else:
+        new_cal_curve = CalCurve()
         try:
-            new_cal_curve = CalCurve.from_data(model="4PL", x=concs, y=aebs)
-            calibratible = True
+            new_cal_curve.fit(concs, aebs)
         except Exception:
             calibratible = False
+        else:
+            calibratible = True
     if calibratible:
-        coefs = {key: value for key, value in new_cal_curve.coefs.items()}
-        coefs["LOD"] = new_cal_curve.lod
+        coefs = dict(zip("ABCDEFG", new_cal_curve.coef_.items()))
+        coefs["LOD"] = new_cal_curve.lod_
         coefs["LLOQ"] = limit_of_detection(
             blank_array, new_cal_curve, sds=10, corr=corr
         )
@@ -543,9 +533,7 @@ def plate_subsets(
         aebs.append(mixture_aeb(flat_data=flat_data, threshold_sds=threshold_sds))
     concs_flat = flatten(concs)
     aebs_flat = flatten(aebs)
-    cal_curve = CalCurve.from_data(
-        model=model, x=concs_flat, y=aebs_flat, lod_sds=lod_sds, corr=corr
-    )
+    cal_curve = CalCurve(model=model, lod_sds=lod_sds).fit(concs_flat, aebs_flat)
     coefs = extended_coefs(concs_flat, aebs_flat, corr, cal_curve)
     coef_table = pd.DataFrame.from_dict(coefs, orient="index")
     aeb_table = pd.DataFrame.from_dict(
@@ -566,12 +554,12 @@ def plate_subsets(
             if dlens[w] > size:
                 for subset in range(subsets):
                     subset_data = rng.choice(datasets[w], size, replace=False)
-                    subset_aebs[size].at[plate_files.wells[w], subset] = mixture_aeb(
+                    subset_aebs[size].loc[plate_files.wells[w], subset] = mixture_aeb(
                         flat_data=subset_data, threshold_sds=threshold_sds
                     )
             else:
                 for subset in range(subsets):
-                    subset_aebs[size].at[plate_files.wells[w], subset] = aebs_flat[w]
+                    subset_aebs[size].loc[plate_files.wells[w], subset] = aebs_flat[w]
         subset_aebs[size]["mean"] = subset_aebs[size][range(subsets)].mean(
             axis=1, skipna=False
         )
@@ -610,7 +598,7 @@ def plate_subsets(
                 concs_flat, subset_aebs[size][subset], corr
             )
             for key, value in one_subset_coefs.items():
-                subset_coefs[size].at[key, subset] = value
+                subset_coefs[size].loc[key, subset] = value
         subset_coefs[size]["mean"] = (
             subset_coefs[size][range(subsets)].fillna(np.inf).mean(axis=1, skipna=False)
         )

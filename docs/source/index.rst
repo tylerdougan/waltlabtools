@@ -22,6 +22,7 @@ A collection of tools for biomedical research assay analysis in Python.
    waltlabtools.plot
    waltlabtools.read
    waltlabtools.mosaic
+   waltlabtools
 
 
 * :ref:`genindex`

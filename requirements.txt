@@ -1,0 +1,11 @@
+# Required
+python >= 3.8
+scikit-learn
+numpy
+scipy
+matplotlib
+pandas
+
+# Optional
+jax
+numba
