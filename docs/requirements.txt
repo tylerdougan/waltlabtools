@@ -1,2 +1,9 @@
 sphinx
 sphinx_rtd_theme
+scikit-learn
+numpy
+scipy
+matplotlib
+pandas
+jax
+numba
