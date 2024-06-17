@@ -1,5 +1,5 @@
 # Required
-python
+python >= 3.8
 scikit-learn
 numpy
 scipy
@@ -9,7 +9,3 @@ pandas
 # Optional
 jax
 numba
-
-# Documentation
-sphinx
-sphinx_rtd_theme
