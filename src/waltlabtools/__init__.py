@@ -1,4 +1,4 @@
-from . import mosaic, skwalt
+from . import mosaic
 from .cal_curve import *
 from .core import *
 from .model import *

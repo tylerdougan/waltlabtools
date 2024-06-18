@@ -41,6 +41,20 @@ class Model:
         The natural scaling transformations for `x` and `y`. For
         example, "log" means that the data may be distributed
         log-normally and are best visualized on a log scale.
+    jac : {'2-point', '3-point', 'cs', callable}, optional
+        Method of computing the Jacobian matrix (an m-by-n matrix, where
+        element (i, j) is the partial derivative of f[i] with respect to
+        x[j]) of the loss function. The keywords select a finite
+        difference scheme for numerical estimation. The scheme '3-point'
+        is more accurate, but requires twice as many operations as
+        '2-point' (default). The scheme 'cs' uses complex steps, and
+        while potentially the most accurate, it is applicable only when
+        `func` correctly handles complex inputs and can be analytically
+        continued to the complex plane. If callable, it is used as
+        ``jac(x, *args, **kwargs)`` and should return a good approximation
+        (or the exact value) for the Jacobian as an array_like (np.atleast_2d
+        is applied), a sparse matrix (csr_matrix preferred for performance) or
+        a `scipy.sparse.linalg.LinearOperator`.
 
     """
 
@@ -53,7 +67,7 @@ class Model:
         plaintext_formula: str = "",
         xscale: str | ScaleBase = "linear",
         yscale: str | ScaleBase = "linear",
-        jac: Optional[Callable] = None,
+        jac: str | Callable = "2-point",
     ):
         self.func = func
         self.inverse = inverse
@@ -77,7 +91,9 @@ def linear_inverse(y, a: float = 1, b: float = 0):
     return (y - b) / a
 
 
-def jac_linear(coef, X, y, sample_weight):
+def jac_linear(
+    coef: np.ndarray, *, X: np.ndarray, sample_weight: np.ndarray
+) -> np.ndarray:
     J_a = X * sample_weight
     J_b = sample_weight
     return np.column_stack((J_a, J_b))
@@ -106,13 +122,13 @@ def power_inverse(y, a: float = 1, b: float = 1):
     return (y / b) ** (1 / a)
 
 
-def jac_power(coef, X: np.ndarray, y: np.ndarray, sample_weight: np.ndarray):
-    a, b = coef  # Unpack the coefficients
-    # Derivative with respect to a
-    J_a = b * X**a * np.log(X + EPS) * sample_weight
-    # Derivative with respect to b
+def jac_power(
+    coef: np.ndarray, *, X: np.ndarray, sample_weight: np.ndarray
+) -> np.ndarray:
+    a, b = coef
+    J_a = b * X**a * np.where(X > 0, np.log(X), 0) * sample_weight
     J_b = X**a * sample_weight
-    return np.column_stack((J_a, J_b))  # Shape (n_samples, 2)
+    return np.column_stack((J_a, J_b))
 
 
 power_model = Model(
@@ -136,16 +152,18 @@ def hill_inverse(y, a: float = 1, b: float = 1, c: float = 1):
     return c * (a / y - 1) ** (-1 / b)
 
 
-def jac_hill(coef, X, y, sample_weight):
-    a, b, c = coef  # Unpack the coefficients
-    denominator = c**b + X**b
-    # Derivative with respect to a
-    J_a = (X**b / (denominator)) * sample_weight
-    # Derivative with respect to b
-    J_b = a * (c * X) ** b * np.log((X + EPS) / c) / (denominator**2) * sample_weight
-    # Derivative with respect to c
-    J_c = (-a * X**b * b * c ** (b - 1) / (denominator**2)) * sample_weight
-    return np.column_stack((J_a, J_b, J_c))  # Shape (n_samples, 3)
+def jac_hill(
+    coef: np.ndarray, *, X: np.ndarray, sample_weight: np.ndarray
+) -> np.ndarray:
+    a, b, c = coef
+    X_b = X**b
+    c_b = c**b
+    denom = (c_b + X_b) ** 2
+
+    J_a = X_b / (c_b + X_b)
+    J_b = a * X_b * np.where(X > 0, np.log(X), 0) * (c_b - X_b) / denom
+    J_c = -a * X_b * b * c ** (b - 1) / denom
+    return np.column_stack((J_a, J_b, J_c)) * sample_weight[:, np.newaxis]
 
 
 hill_model = Model(
@@ -171,6 +189,21 @@ def logistic_inverse(y, a: float = 1, b: float = 1, c: float = 0, d: float = 0):
     return c - np.log((a - d) / (y - d) - 1) / b
 
 
+def jac_logistic(
+    coef: np.ndarray, *, X: np.ndarray, sample_weight: np.ndarray
+) -> np.ndarray:
+    a, b, c, d = coef
+    exp_term = np.exp(-b * (X - c))
+    denom = 1 + exp_term
+    denom2 = denom**2
+
+    J_a = 1 / denom
+    J_b = (a - d) * (X - c) * exp_term / denom2
+    J_c = (a - d) * b * exp_term / denom2
+    J_d = exp_term / denom
+    return np.column_stack((J_a, J_b, J_c, J_d)) * sample_weight[:, np.newaxis]
+
+
 logistic_model = Model(
     func=logistic,
     inverse=logistic_inverse,
@@ -179,6 +212,7 @@ logistic_model = Model(
     plaintext_formula="y = d + (a - d) / {1 + exp[-b (x - c)]}",
     xscale="linear",
     yscale="linear",
+    jac=jac_logistic,
 )
 
 
@@ -193,20 +227,17 @@ def three_param_logistic_inverse(y, a: float = 0, c: float = 1, d: float = 30):
     return c * ((a - d) / (y - d) - 1)
 
 
-def jac_three_param_logistic(coef, X, y, sample_weight):
+def jac_three_param_logistic(
+    coef: np.ndarray, *, X: np.ndarray, sample_weight: np.ndarray
+) -> np.ndarray:
     a, c, d = coef
-    one_plus_X_over_c = 1 + X / c
+    denom = 1 + X / c
 
-    # Derivative with respect to a
-    J_a = (1 / one_plus_X_over_c) * sample_weight
+    J_a = 1 / denom
+    J_c = (a - d) * X / (c**2 * denom**2)
+    J_d = X / (c + X)
 
-    # Derivative with respect to c
-    J_c = ((a - d) * X) / (c**2 * one_plus_X_over_c**2) * sample_weight
-
-    # Derivative with respect to d
-    J_d = (1 - 1 / one_plus_X_over_c) * sample_weight
-
-    return np.column_stack((J_a, J_c, J_d))
+    return np.column_stack((J_a, J_c, J_d)) * sample_weight[:, np.newaxis]
 
 
 three_param_logistic_model = Model(
@@ -234,26 +265,20 @@ def four_param_logistic_inverse(
     return c * ((a - d) / (y - d) - 1) ** (1 / b)
 
 
-def jac_four_param_logistic(coef, X, y, sample_weight):
+def jac_four_param_logistic(
+    coef: np.ndarray, *, X: np.ndarray, sample_weight: np.ndarray
+) -> np.ndarray:
     a, b, c, d = coef
-    X_over_c_b = (X / c) ** b
-    one_plus_X_over_c_b = 1 + X_over_c_b
+    X_div_c = X / c
+    X_div_c_b = X_div_c**b
+    denom = 1 + X_div_c_b
+    denom2 = denom**2
 
-    # Derivative with respect to a
-    J_a = (1 / one_plus_X_over_c_b) * sample_weight
-
-    # Derivative with respect to b
-    J_b = (
-        (a - d) * X_over_c_b * np.log((X + EPS) / c) / one_plus_X_over_c_b**2
-    ) * sample_weight
-
-    # Derivative with respect to c
-    J_c = ((a - d) * b * X**b / (c ** (b + 1) * one_plus_X_over_c_b**2)) * sample_weight
-
-    # Derivative with respect to d
-    J_d = (1 - 1 / one_plus_X_over_c_b) * sample_weight
-
-    return np.column_stack((J_a, J_b, J_c, J_d))
+    J_a = 1 / denom
+    J_b = -(a - d) * np.where(X > 0, X_div_c_b * np.log(X_div_c) / denom2, 0)
+    J_c = (a - d) * b * X**b / (c ** (b + 1) * denom2)
+    J_d = 1 - J_a
+    return np.column_stack((J_a, J_b, J_c, J_d)) * sample_weight[:, np.newaxis]
 
 
 four_param_logistic_model = Model(
@@ -283,32 +308,32 @@ def five_param_logistic_inverse(
     return c * (((a - d) / (y - d)) ** (1 / g) - 1) ** (1 / b)
 
 
-def jac_five_param_logistic(coef, X, y, sample_weight):
+def jac_five_param_logistic(
+    coef: np.ndarray, *, X: np.ndarray, sample_weight: np.ndarray
+) -> np.ndarray:
     a, b, c, d, g = coef
-    X_over_c_b = (X / c) ** b
-    one_plus_X_over_c_b = 1 + X_over_c_b
-    # Derivative with respect to a
-    J_a = (1 / one_plus_X_over_c_b**g) * sample_weight
-    # Derivative with respect to b
+    X_div_c = X / c
+    X_div_c_b = X_div_c**b
+    denom = (1 + X_div_c_b) ** g
+    denom_g_plus_1 = (1 + X_div_c_b) ** (g + 1)
+
+    J_a = 1 / denom
     J_b = (
-        g
-        * (a - d)
-        * X_over_c_b
-        * np.log((X + EPS) / c)
-        / one_plus_X_over_c_b ** (g + 1)
-    ) * sample_weight
-    # Derivative with respect to c
-    J_c = (
-        g * (a - d) * b * X**b / (c ** (b + 1) * one_plus_X_over_c_b ** (g + 1))
-    ) * sample_weight
-    # Derivative with respect to d
-    J_d = (1 - 1 / one_plus_X_over_c_b**g) * sample_weight
-    # Derivative with respect to g
-    J_g = (
-        -((a - d) * np.log(one_plus_X_over_c_b) / one_plus_X_over_c_b**g)
-        * sample_weight
+        -(a - d) * g * X_div_c_b * np.where(X > 0, np.log(X_div_c), 0) / denom_g_plus_1
     )
-    return np.column_stack((J_a, J_b, J_c, J_d, J_g))
+
+    # Derivative with respect to c
+    J_c = (a - d) * g * b * X**b / (c ** (b + 1) * denom_g_plus_1)
+
+    # Derivative with respect to d
+    J_d = 1 - J_a
+
+    # Derivative with respect to g
+    J_g = -(a - d) * np.log(1 + X_div_c_b) / denom
+
+    # Stack the derivatives and apply sample weights
+    J = np.column_stack((J_a, J_b, J_c, J_d, J_g))
+    return J * sample_weight[:, np.newaxis]
 
 
 five_param_logistic_model = Model(

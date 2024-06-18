@@ -9,6 +9,7 @@ Welcome to waltlabtools's documentation!
 .. toctree::
    :caption: Contents:
 
+   README
    modules
 
 Indices and tables

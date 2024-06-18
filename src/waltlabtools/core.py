@@ -20,6 +20,8 @@ import warnings
 from functools import wraps
 from typing import Any, Callable, Iterable, Literal, Optional
 
+from sklearn.utils.validation import indexable
+
 from ._backend import gammaln, gmean, jit, np
 
 
@@ -608,6 +610,27 @@ def dropna(*args: Any, drop_inf: bool = False, common_len=None) -> tuple:
     )
 
     return tuple(arrs_na_dropped)
+
+
+def dropna(
+    *args,
+    drop_inf: bool = False,
+    axis: Optional[int | Iterable[int]] = 0,
+    common_len: Optional[int] = None,
+):
+    keep_func = np.isfinite if drop_inf else lambda x: np.logical_not(np.isnan(x))
+
+    if axis == 0:
+        args = indexable(*args)  # type: ignore
+        masks = []
+        for arg in args:
+            mask = np.all(keep_func(arg), axis=tuple(range(1, np.ndim(arg))))
+            masks.append(mask)
+        keep_mask = np.all(masks, axis=0)
+        args_na_dropped = (np.compress(keep_mask, arg, axis=0) for arg in args)
+    else:
+        raise NotImplementedError
+    return tuple(args_na_dropped)
 
 
 def _get_value_or_key(d: dict, key: Any, t: Optional[type | tuple] = None) -> Any:

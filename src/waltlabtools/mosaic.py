@@ -111,14 +111,14 @@ class PlateFileCollection:
         if layout_file is None:
             raise OSError("Could not find layout file in folder " + dir_path_ + ".")
 
-        name = re.split("[/\\\\]", dir_path_)[-1].replace(" FINAL", "")
+        name = re.split(r"[/\\\\]", dir_path_)[-1].replace(" FINAL", "")
 
         file_map = {}
         conc_map = (
             pd.read_excel(layout_file, header=None, index_col=0).squeeze().to_dict()
         )
         for file_entry in well_files:
-            split_filename = re.split("[-–—_ .()\[\]|,*]", file_entry.name)  # type: ignore  # noqa: RUF001
+            split_filename = re.split(r"[-–—_ .()\[\]|,*]", file_entry.name)
             for well in conc_map:
                 if well in split_filename:
                     if file_entry.path not in file_map.values():

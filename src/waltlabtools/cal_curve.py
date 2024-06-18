@@ -14,8 +14,10 @@ from sklearn.exceptions import DataConversionWarning
 from sklearn.utils._param_validation import Interval, StrOptions
 from sklearn.utils.validation import (
     _check_sample_weight,  # type: ignore
+    check_array,
     check_is_fitted,
     check_non_negative,
+    column_or_1d,
 )
 
 from ._backend import gmean, np
@@ -168,6 +170,7 @@ class CalCurve(BaseEstimator, RegressorMixin, TransformerMixin):
         "lod_sds": [Interval(Real, 0, None, closed="left")],
         "max_iter": [Interval(Integral, 0, None, closed="left"), None],
         "ensure_2d": ["boolean"],
+        "sample_weight": [StrOptions(set(_WEIGHTING_SCHEMES)), None],
     }
 
     def __init__(
@@ -180,6 +183,7 @@ class CalCurve(BaseEstimator, RegressorMixin, TransformerMixin):
         lod_sds: float = 3,
         max_iter: Optional[int] = None,
         ensure_2d: bool = False,
+        sample_weight: Optional[str] = "1/y",
         **kwargs,
     ):
         self.model = model
@@ -190,6 +194,7 @@ class CalCurve(BaseEstimator, RegressorMixin, TransformerMixin):
         self.lod_sds = lod_sds
         self.max_iter = max_iter
         self.ensure_2d = ensure_2d
+        self.sample_weight = sample_weight
 
         if kwargs:
             warnings.warn(
@@ -199,27 +204,12 @@ class CalCurve(BaseEstimator, RegressorMixin, TransformerMixin):
                 DeprecationWarning,
             )
 
-    def _validate_data(
-        self,
-        X="no_validation",
-        y="no_validation",
-        reset=True,
-        validate_separately=False,
-        cast_to_ndarray=True,
-        **check_params,
-    ):
-        check_params = {
-            "ensure_2d": self.ensure_2d,
-            "force_all_finite": False,
-        } | check_params
-        return super()._validate_data(  # type: ignore
-            X=X,
-            y=y,
-            reset=reset,
-            validate_separately=validate_separately,
-            cast_to_ndarray=cast_to_ndarray,
-            **check_params,
-        )
+    def _get_sample_weight(self, X, y, sample_weight=None):
+        if sample_weight is None:
+            sample_weight = self.sample_weight
+        if isinstance(sample_weight, str) and sample_weight in _WEIGHTING_SCHEMES:
+            sample_weight = _WEIGHTING_SCHEMES[sample_weight](X, y)
+        return column_or_1d(sample_weight, warn=True)
 
     def _aggregate_replicates(
         self, X: np.ndarray, y: np.ndarray, sample_weight: np.ndarray
@@ -242,10 +232,36 @@ class CalCurve(BaseEstimator, RegressorMixin, TransformerMixin):
 
         return unique_X, unique_y, unique_weight, blank
 
-    def _get_sample_weight(self, X, y, sample_weight=None):
-        if isinstance(sample_weight, str) and sample_weight in _WEIGHTING_SCHEMES:
-            sample_weight = _WEIGHTING_SCHEMES[sample_weight](X, y)
-        return _check_sample_weight(sample_weight, X)
+    def _preprocess_fit_data(self, X, y, sample_weight=None):
+        # check X, y
+        X = self._validate_data(
+            X=X,
+            force_all_finite=False,
+            ensure_2d=self.ensure_2d,
+            ensure_min_samples=len(self._model.coef_init),
+        )
+        y = check_array(
+            y, force_all_finite=False, ensure_2d=False, estimator=self, input_name="y"
+        )
+        if np.ndim(X) > 1:
+            if self.n_features_in_ > 1 and not self.ensure_2d:  # type: ignore
+                warnings.warn(
+                    "CalCurve input X should be a 1d array or 2d array with 1 feature; "
+                    f"using only the first of {self.n_features_in_} features.",  # type: ignore
+                    DataConversionWarning,
+                )
+            X = X[:, 0]
+
+        # get sample weight
+        sample_weight = self._get_sample_weight(X, y, sample_weight)
+
+        # drop NANs and aggregate replicates
+        X, y, sample_weight = dropna(X, y, sample_weight)
+        self.X_, self.y_ = self._validate_data(X, y, ensure_2d=False)
+        if self.ensure_2d:
+            check_non_negative(self.X_, whom=self.__class__.__name__)
+        sample_weight = _check_sample_weight(sample_weight, self.X_)
+        return self._aggregate_replicates(self.X_, self.y_, sample_weight)
 
     def fit(self, X, y, sample_weight=None):
         """Fit the model to data.
@@ -271,28 +287,7 @@ class CalCurve(BaseEstimator, RegressorMixin, TransformerMixin):
         self._model = _get_value_or_key(MODELS, self.model)
 
         # data
-        X, y = self._validate_data(  # type: ignore
-            X,
-            y,
-            ensure_min_samples=len(self._model.coef_init),
-            y_numeric=True,
-        )
-        if self.ensure_2d:
-            check_non_negative(X, whom=self.__class__.__name__)
-        if np.ndim(X) > 1:
-            if self.n_features_in_ > 1 and not self.ensure_2d:  # type: ignore
-                warnings.warn(
-                    "CalCurve input X should be a 1d array or 2d array with 1 feature; "
-                    f"using only the first of {self.n_features_in_} features.",  # type: ignore
-                    DataConversionWarning,
-                )
-            X = X[:, 0]
-        self.X_, self.y_, sample_weight = dropna(
-            X, y, self._get_sample_weight(X, y, sample_weight)
-        )
-        X, y, sample_weight, blank = self._aggregate_replicates(
-            self.X_, self.y_, sample_weight
-        )
+        X, y, sample_weight, blank = self._preprocess_fit_data(X, y, sample_weight)
 
         # coef_init
         if self.warm_start and hasattr(self, "coef_"):
@@ -303,23 +298,20 @@ class CalCurve(BaseEstimator, RegressorMixin, TransformerMixin):
             coef_init = self.coef_init
 
         # optimization
-        def loss_func(coefs):
+        def loss_func(coefs, *, X, sample_weight):
             predictions = self._model.func(X, *coefs)
             residuals = predictions - y
             return residuals * sample_weight
 
-        if self._model.jac is not None:
-            jac = partial(self._model.jac, X=X, y=y, sample_weight=sample_weight)
-        else:
-            jac = "2-point"
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             result = least_squares(
                 loss_func,
                 x0=coef_init,
-                jac=jac,  # type: ignore
+                jac=self._model.jac,
                 max_nfev=self.max_iter,
                 method=self.solver,
+                kwargs={"X": X, "sample_weight": sample_weight},
             )
         self.coef_ = result.x
         self.n_iter_ = result.nfev
@@ -371,7 +363,9 @@ class CalCurve(BaseEstimator, RegressorMixin, TransformerMixin):
             Predicted signal values.
         """
         check_is_fitted(self)
-        X = self._validate_data(X=X, reset=False)
+        X = self._validate_data(
+            X=X, reset=False, force_all_finite=False, ensure_2d=self.ensure_2d
+        )
         if np.ndim(X) == 1:
             return self.signal(X)
         else:
@@ -391,12 +385,14 @@ class CalCurve(BaseEstimator, RegressorMixin, TransformerMixin):
             Transformed signal values.
         """
         check_is_fitted(self)
-        X = self._validate_data(X=X, reset=False)
+        X = self._validate_data(
+            X=X, reset=False, force_all_finite=False, ensure_2d=self.ensure_2d
+        )
         # if self.ensure_2d:
         #     X = X[:, 0].reshape(-1, 1)
         return self.signal(X)
 
-    def inverse_transform(self, y):
+    def inverse_transform(self, X):
         """Estimate the concentration for given signal values.
 
         Parameters
@@ -411,8 +407,10 @@ class CalCurve(BaseEstimator, RegressorMixin, TransformerMixin):
         """
         # (n_samples, n_features) -> (n_samples, n_features)
         check_is_fitted(self)
-        y = self._validate_data(y=y, reset=False, y_numeric=True)
-        return self.conc(y)
+        X = self._validate_data(
+            X=X, reset=False, force_all_finite=False, ensure_2d=self.ensure_2d
+        )
+        return self.conc(X)
 
     def _make_curve_points(self, **kwargs):
         """Make the points to interpolate for plotting a calibration curve.
@@ -512,7 +510,7 @@ class CalCurve(BaseEstimator, RegressorMixin, TransformerMixin):
             "label": f"limit of detection: {self.lod_:.2g}",
         } | match_kwargs("lod_", kwargs)
         if np.isfinite(lod_kwargs["x"]):
-            ax.axvline(**lod_kwargs)
+            ax.axvline(lod_kwargs.pop("x"), **lod_kwargs)
 
         curve_kwargs = {
             "x": X_curve,
@@ -520,7 +518,7 @@ class CalCurve(BaseEstimator, RegressorMixin, TransformerMixin):
             "color": "tab:green",
             "label": f"{self._model.name} calibration curve",
         } | match_kwargs("curve_", kwargs)
-        ax.plot(**curve_kwargs)
+        ax.plot(curve_kwargs.pop("x"), curve_kwargs.pop("y"), **curve_kwargs)
 
         point_kwargs = {
             "x": self.X_,
@@ -531,7 +529,7 @@ class CalCurve(BaseEstimator, RegressorMixin, TransformerMixin):
             "alpha": 0.5,
             "label": "calibrator points",
         } | match_kwargs("point_", kwargs)
-        ax.plot(**point_kwargs)
+        ax.plot(point_kwargs.pop("x"), point_kwargs.pop("y"), **point_kwargs)
 
         ax_kwargs = (
             {

@@ -44,14 +44,6 @@ waltlabtools.read module
    :undoc-members:
    :show-inheritance:
 
-waltlabtools.skwalt module
---------------------------
-
-.. automodule:: waltlabtools.skwalt
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Module contents
 ---------------
 
