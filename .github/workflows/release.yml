@@ -25,9 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install build twine sphinx cibuildwheel
-          python -m pip install anaconda-client --only-binary :all:
-          # Install project dependencies
+          python -m pip install build twine sphinx cibuildwheel anaconda-client
           pip install -r requirements.txt
 
 
