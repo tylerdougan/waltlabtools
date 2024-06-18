@@ -8,7 +8,10 @@
 
 name: Upload Python Package
 
-on: push
+on:
+  push:
+    tags:
+      - 'v*'
 
 permissions:
   contents: read
@@ -43,3 +46,38 @@ jobs:
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
+      # - name: Upload to Anaconda
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   env:
+      #     ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
+      #   run: |
+      #     anaconda login --username tylerdougan --password $ANACONDA_API_TOKEN
+      #     anaconda upload dist/*.whl
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+          body: |
+            Release notes for version ${{ github.ref }}
+
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/
+          asset_name: $(basename $dist/*)
+          asset_content_type: application/zip
