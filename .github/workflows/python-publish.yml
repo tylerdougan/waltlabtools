@@ -55,7 +55,7 @@ jobs:
       #     anaconda upload dist/*.whl
 
   release:
-    needs: build
+    needs: deploy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
