@@ -38,8 +38,8 @@ all = [
     "numexpr",
     "bottleneck",
     "jinja2",
-    "openpyxl"
-    "xlrd"
+    "openpyxl",
+    "xlrd",
 ]
 
 [project.urls]
