@@ -1,12 +1,10 @@
 from collections.abc import Callable
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from matplotlib.scale import ScaleBase
 
 from .core import coerce_array
-
-EPS = np.finfo(float).resolution
 
 
 class Model:
