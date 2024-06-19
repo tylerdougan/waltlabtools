@@ -39,6 +39,7 @@ all = [
     "bottleneck",
     "jinja2",
     "openpyxl"
+    "xlrd"
 ]
 
 [project.urls]

@@ -4,4 +4,4 @@ from .core import *
 from .model import *
 from .read import *
 
-__version__ = "v1.0.0b25"
+__version__ = "v1.0.0b26"
