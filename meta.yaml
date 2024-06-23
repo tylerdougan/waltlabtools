@@ -1,5 +1,5 @@
 {% set name = "waltlabtools" %}
-{% set version = "1.0.0b26" %}
+{% set version = "1.0.0b27" %}
 
 package:
   name: {{ name|lower }}
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/waltlabtools-{{ version }}.tar.gz
-  sha256: d38888eab34192924a264309c258ab0451a55b28f23bb08e35124e9ffd6ffa24
+  sha256: 192fe2c5c13cf59a254ca6520dab57bd1fc62e0c00dd40d80b5ff759e5e79ba0
 
 build:
   noarch: python

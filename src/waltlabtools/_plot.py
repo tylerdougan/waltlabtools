@@ -37,8 +37,12 @@ def get_fig_ax(
 
 
 def subplots(
-    nrows: int = 1, ncols: int = 1, fig: Optional[Figure] = None, **kwargs
-) -> tuple[Figure, np.ndarray]:
+    nrows: int = 1,
+    ncols: int = 1,
+    fig: Optional[Figure] = None,
+    squeeze=False,
+    **kwargs,
+) -> tuple[Figure, np.ndarray | Axes]:
     figsize = (
         ncols * rcParams["figure.figsize"][0],
         nrows * rcParams["figure.figsize"][1],
@@ -48,7 +52,7 @@ def subplots(
     axs = fig.subplots(
         nrows=nrows,
         ncols=ncols,
-        squeeze=False,
+        squeeze=squeeze,
         **match_kwargs(fig.subplots, kwargs),
     )
     return fig, axs

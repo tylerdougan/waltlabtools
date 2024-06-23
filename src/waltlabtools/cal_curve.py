@@ -796,9 +796,7 @@ class _CalCurveSeries(pd.Series):
             cols = self.index.get_level_values(levels[0]).unique()
             ncols = self.index.get_level_values(levels[0]).nunique()
             nrows = self.index.get_level_values(0).value_counts().max()
-            fig, axs = subplots(
-                nrows=nrows, ncols=ncols, fig=fig, squeeze=False, **kwargs
-            )
+            fig, axs = subplots(nrows=nrows, ncols=ncols, fig=fig, **kwargs)
 
             ax_s = pd.Series(index=self.index.sort_values(), dtype=object)
             for c, col in enumerate(cols):
