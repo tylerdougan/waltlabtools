@@ -12,6 +12,7 @@ numexpr
 bottleneck
 jinja2
 openpyxl
+xlrd
 
 [jax]
 jax

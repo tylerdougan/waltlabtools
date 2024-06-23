@@ -14,7 +14,7 @@ dependencies = [
 ]
 requires-python = ">= 3.8"
 authors = [
-    {name = "Tyler Dougan", email = "tyler_dougan@hst.harvard.edu"}
+    {name = "Tyler Dougan", email = "tylerdougan@harvard.simplelogin.com"}
 ]
 description = "A collection of tools for biomedical research assay analysis in Python."
 readme = "README.rst"
@@ -29,8 +29,6 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-jax = ["jax"]
-numba = ["numba"]
 all = [
     "jax",
     "numba",
@@ -43,11 +41,11 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/tylerdougan/waltlabtools/"
-Documentation = "https://waltlabtools.readthedocs.io/en/latest/"
-PyPI = "https://pypi.org/project/waltlabtools/"
-"Issue Tracker" = "https://github.com/tylerdougan/waltlabtools/issues"
 Anaconda = "https://anaconda.org/tylerdougan/waltlabtools"
+Documentation = "https://waltlabtools.readthedocs.io/en/latest/"
+Homepage = "https://github.com/tylerdougan/waltlabtools/"
+"Issue Tracker" = "https://github.com/tylerdougan/waltlabtools/issues"
+PyPI = "https://pypi.org/project/waltlabtools/"
 
 [tool.setuptools.dynamic]
 version = {attr = "waltlabtools.__version__"}

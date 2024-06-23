@@ -444,11 +444,10 @@ class CalCurve(BaseEstimator, RegressorMixin, TransformerMixin):
             )
 
         trans = xscale.get_transform()
-        vmin = np.amin(self.X_)
-        vmax = np.amax(self.X_)
-        minpos = np.amin(self.X_[self.X_ > 0])
-        if np.isfinite(self.lod_):
-            vmin = min(vmin, self.lod_)
+        vmin = min(np.min(self.X_), self.lod_)
+        vmax = np.max(self.X_)
+        minpos = np.min(self.X_[self.X_ > 0])
+        if self.lod_ > 0:
             minpos = min(minpos, self.lod_)
         vmin, vmax = xscale.limit_range_for_scale(vmin=vmin, vmax=vmax, minpos=minpos)
         trvmin = trans.transform(vmin)
@@ -797,77 +796,22 @@ class _CalCurveSeries(pd.Series):
             cols = self.index.get_level_values(levels[0]).unique()
             ncols = self.index.get_level_values(levels[0]).nunique()
             nrows = self.index.get_level_values(0).value_counts().max()
-            fig, axs = subplots(nrows=nrows, ncols=ncols, fig=fig, **kwargs)
+            fig, axs = subplots(
+                nrows=nrows, ncols=ncols, fig=fig, squeeze=False, **kwargs
+            )
 
-            ax_s = pd.Series(index=self.index)
+            ax_s = pd.Series(index=self.index.sort_values(), dtype=object)
             for c, col in enumerate(cols):
-                # idx = sorted(self.index[self.index.get_level_values(levels[0]) == col])
-                # ax_s[col] = dict(zip(idx, axs[:, c]))
                 ax_s[col] = axs[: len(ax_s[col]), c]
         else:
             nrows = int(np.ceil(len(self) / max_cols))
             ncols = int(np.ceil(len(self) / nrows))
             fig, axs = subplots(nrows=nrows, ncols=ncols, fig=fig, **kwargs)
-            ax_s = pd.Series(dict(zip(self.index, np.ravel(axs))))
+            ax_s = pd.Series(dict(zip(self.index.sort_values(), np.ravel(axs))))
 
         for i, ax in ax_s.items():
-            title = "\n".join(str(a) for a in i) if isinstance(i, tuple) else i
-            self[i].plot(ax=ax, title=title, **match_kwargs(self[i].plot, kwargs))
+            if isinstance(self[i], CalCurve):
+                title = "\n".join(str(a) for a in i) if isinstance(i, tuple) else i
+                self[i].plot(ax=ax, title=title, **kwargs)
 
-        return ax_s.item() if len(ax_s) == 1 else axs  # type: ignore
-        # self_notna = self[self.notna()]
-
-        # if len(self_notna) == 0:
-        #     # empty series
-        #     ax_map = {}
-
-        # elif len(self_notna) == 1:
-        #     # only one CalCurve in series
-        #     if ax is not None and isinstance(ax, Axes):
-        #         if fig is None:
-        #             fig = ax.figure
-        #     elif fig is not None:
-        #         ax = fig.subplots(**match_kwargs(plt.subplots, kwargs))
-        #     else:
-        #         fig, ax = self.subplots(**kwargs)
-        #     ax_map = {self.index[0]: ax}
-
-        # elif self.index.nlevels == 1:
-        #     # only one assay or only one plex
-        #     if len(self) <= max_cols:
-        #         fig, axs = self.subplots(ncols=len(self_notna), **kwargs)
-        #         ax_map = {self_notna.index[i]: axs[i] for i in range(len(self_notna))}
-        #     else:
-        #         nrows = int(np.ceil(len(self) / max_cols))
-        #         fig, axs = self.subplots(nrows=nrows, ncols=max_cols, **kwargs)
-        #         ax_map = {
-        #             self_notna.index[i]: axs[divmod(i, max_cols)]
-        #             for i in range(len(self_notna))
-        #         }
-
-        # else:
-        #     # try to lay out cal curves according to assay and plex
-        #     ncols = self.index.get_level_values(0).nunique()
-        #     nrows = self.index.get_level_values(0).value_counts().max()
-        #     fig, axs = self.subplots(nrows=nrows, ncols=ncols, **kwargs)
-        #     ax_map = {}
-        #     for a0, assay_level_0 in enumerate(
-        #         sorted(self_notna.index.get_level_values(0).unique())
-        #     ):
-        #         for a1, assay_level_1 in enumerate(
-        #             sorted(self_notna[assay_level_0].index)
-        #         ):
-        #             ax_map[(assay_level_0, assay_level_1)] = axs[a1, a0]
-
-        # for assay, ax in ax_map.items():
-        #     if hasattr(assay, "__iter__") and not isinstance(assay, str):
-        #         title = "\n".join([str(a) for a in assay])
-        #     else:
-        #         title = assay
-        #     self[assay].plot(
-        #         ax=ax, title=title, **match_kwargs(self[assay].plot, kwargs)
-        #     )  # type: ignore
-        # return
-
-        # # if tight_layout:
-        # #     plt.tight_layout()
+        return ax_s.item() if len(ax_s) == 1 else axs

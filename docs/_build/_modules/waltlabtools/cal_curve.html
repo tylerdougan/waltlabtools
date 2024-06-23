@@ -537,11 +537,10 @@
             <span class="p">)</span>
 
         <span class="n">trans</span> <span class="o">=</span> <span class="n">xscale</span><span class="o">.</span><span class="n">get_transform</span><span class="p">()</span>
-        <span class="n">vmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">)</span>
-        <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">)</span>
-        <span class="n">minpos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lod_</span><span class="p">):</span>
-            <span class="n">vmin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">vmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lod_</span><span class="p">)</span>
+        <span class="n">vmin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">lod_</span><span class="p">)</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">)</span>
+        <span class="n">minpos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">X_</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lod_</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">minpos</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">minpos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lod_</span><span class="p">)</span>
         <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="n">xscale</span><span class="o">.</span><span class="n">limit_range_for_scale</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">minpos</span><span class="o">=</span><span class="n">minpos</span><span class="p">)</span>
         <span class="n">trvmin</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">vmin</span><span class="p">)</span>
@@ -915,80 +914,25 @@
             <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="n">levels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
             <span class="n">ncols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="n">levels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
             <span class="n">nrows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-            <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">subplots</span><span class="p">(</span>
+                <span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">squeeze</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
 
-            <span class="n">ax_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="n">ax_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
-                <span class="c1"># idx = sorted(self.index[self.index.get_level_values(levels[0]) == col])</span>
-                <span class="c1"># ax_s[col] = dict(zip(idx, axs[:, c]))</span>
                 <span class="n">ax_s</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">ax_s</span><span class="p">[</span><span class="n">col</span><span class="p">]),</span> <span class="n">c</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">nrows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">/</span> <span class="n">max_cols</span><span class="p">))</span>
             <span class="n">ncols</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">/</span> <span class="n">nrows</span><span class="p">))</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="n">ax_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">axs</span><span class="p">))))</span>
+            <span class="n">ax_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">axs</span><span class="p">))))</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">ax_s</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">i</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="n">i</span>
-            <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="o">**</span><span class="n">match_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">CalCurve</span><span class="p">):</span>
+                <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">i</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="n">i</span>
+                <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">ax_s</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ax_s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">axs</span>  <span class="c1"># type: ignore</span>
-        <span class="c1"># self_notna = self[self.notna()]</span>
-
-        <span class="c1"># if len(self_notna) == 0:</span>
-        <span class="c1">#     # empty series</span>
-        <span class="c1">#     ax_map = {}</span>
-
-        <span class="c1"># elif len(self_notna) == 1:</span>
-        <span class="c1">#     # only one CalCurve in series</span>
-        <span class="c1">#     if ax is not None and isinstance(ax, Axes):</span>
-        <span class="c1">#         if fig is None:</span>
-        <span class="c1">#             fig = ax.figure</span>
-        <span class="c1">#     elif fig is not None:</span>
-        <span class="c1">#         ax = fig.subplots(**match_kwargs(plt.subplots, kwargs))</span>
-        <span class="c1">#     else:</span>
-        <span class="c1">#         fig, ax = self.subplots(**kwargs)</span>
-        <span class="c1">#     ax_map = {self.index[0]: ax}</span>
-
-        <span class="c1"># elif self.index.nlevels == 1:</span>
-        <span class="c1">#     # only one assay or only one plex</span>
-        <span class="c1">#     if len(self) &lt;= max_cols:</span>
-        <span class="c1">#         fig, axs = self.subplots(ncols=len(self_notna), **kwargs)</span>
-        <span class="c1">#         ax_map = {self_notna.index[i]: axs[i] for i in range(len(self_notna))}</span>
-        <span class="c1">#     else:</span>
-        <span class="c1">#         nrows = int(np.ceil(len(self) / max_cols))</span>
-        <span class="c1">#         fig, axs = self.subplots(nrows=nrows, ncols=max_cols, **kwargs)</span>
-        <span class="c1">#         ax_map = {</span>
-        <span class="c1">#             self_notna.index[i]: axs[divmod(i, max_cols)]</span>
-        <span class="c1">#             for i in range(len(self_notna))</span>
-        <span class="c1">#         }</span>
-
-        <span class="c1"># else:</span>
-        <span class="c1">#     # try to lay out cal curves according to assay and plex</span>
-        <span class="c1">#     ncols = self.index.get_level_values(0).nunique()</span>
-        <span class="c1">#     nrows = self.index.get_level_values(0).value_counts().max()</span>
-        <span class="c1">#     fig, axs = self.subplots(nrows=nrows, ncols=ncols, **kwargs)</span>
-        <span class="c1">#     ax_map = {}</span>
-        <span class="c1">#     for a0, assay_level_0 in enumerate(</span>
-        <span class="c1">#         sorted(self_notna.index.get_level_values(0).unique())</span>
-        <span class="c1">#     ):</span>
-        <span class="c1">#         for a1, assay_level_1 in enumerate(</span>
-        <span class="c1">#             sorted(self_notna[assay_level_0].index)</span>
-        <span class="c1">#         ):</span>
-        <span class="c1">#             ax_map[(assay_level_0, assay_level_1)] = axs[a1, a0]</span>
-
-        <span class="c1"># for assay, ax in ax_map.items():</span>
-        <span class="c1">#     if hasattr(assay, &quot;__iter__&quot;) and not isinstance(assay, str):</span>
-        <span class="c1">#         title = &quot;\n&quot;.join([str(a) for a in assay])</span>
-        <span class="c1">#     else:</span>
-        <span class="c1">#         title = assay</span>
-        <span class="c1">#     self[assay].plot(</span>
-        <span class="c1">#         ax=ax, title=title, **match_kwargs(self[assay].plot, kwargs)</span>
-        <span class="c1">#     )  # type: ignore</span>
-        <span class="c1"># return</span>
-
-        <span class="c1"># # if tight_layout:</span>
-        <span class="c1"># #     plt.tight_layout()</span>
+        <span class="k">return</span> <span class="n">ax_s</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ax_s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">axs</span>
 </pre></div>
 
            </div>

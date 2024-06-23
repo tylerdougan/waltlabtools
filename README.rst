@@ -3,17 +3,16 @@ waltlabtools
 
 .. image:: https://img.shields.io/conda/vn/tylerdougan/waltlabtools?label=Anaconda
    :target: https://anaconda.org/tylerdougan/waltlabtools
-   :alt: Conda
+   :alt: Anaconda
 .. image:: https://img.shields.io/pypi/v/waltlabtools?label=PyPI
    :target: https://pypi.org/project/waltlabtools
    :alt: PyPI
 .. image:: https://img.shields.io/readthedocs/waltlabtools?label=Documentation
    :target: https://waltlabtools.readthedocs.io/en/latest/
    :alt: Documentation
-.. image:: https://img.shields.io/github/repo-size/tylerdougan/waltlabtools?label=GitHub
+.. image:: https://img.shields.io/github/issues/tylerdougan/waltlabtools?label=GitHub
    :target: https://github.com/tylerdougan/waltlabtools
    :alt: GitHub
-
 
 A collection of tools for biomedical research assay analysis in Python.
 
@@ -49,46 +48,6 @@ first install Anaconda or
 ``pip install waltlabtools`` (requires
 `pip <https://pip.pypa.io/en/stable/getting-started/>`__, which should come
 with Python).
-
-
-Dependencies
-^^^^^^^^^^^^
-
-- waltlabtools requires
-
-  - `numpy <https://numpy.org/doc/stable/index.html>`__ ≥ 1.10
-
-  - `scipy <https://docs.scipy.org/doc/scipy/getting_started.html>`__ ≥ 1.3
- 
-- If installing with pip or conda, numpy and scipy will be installed
-  automatically
-
-- Specific modules have additional requirements:
-
-  - `waltlabtools.read <https://waltlabtools.readthedocs.io/en/latest/waltlabtools.read.html>`__
-    (for importing data from Quanterix instruments) requires
-
-    - `pandas <https://pandas.pydata.org>`__ ≥ 0.25
-
-- waltlabtools also plays well with
-
-  - `JAX <https://jax.readthedocs.io/en/latest/index.html>`__
-    for accelerated numerical computing – waltlabtools will use jax.numpy
-    instead of numpy if jax is loaded
-
-  - `JupyterLab <https://jupyterlab.readthedocs.io/en/stable/>`__
-    for interactively writing code
-
-  - `pandas <https://pandas.pydata.org>`__
-    for data import/export and organization
-
-  - `matplotlib <https://matplotlib.org>`__ for plotting
-
-  - `scikit-learn <https://scikit-learn.org/stable/>`__ for data analysis
-
-All of these packages can all be installed using
-`conda <https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html>`__
-or `pip <https://pypi.org>`__.
 
 
 Usage

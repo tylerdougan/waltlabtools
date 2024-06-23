@@ -49,6 +49,7 @@ def subplots(
         nrows=nrows,
         ncols=ncols,
         squeeze=False,
+        **match_kwargs(fig.subplots, kwargs),
     )
     return fig, axs
 

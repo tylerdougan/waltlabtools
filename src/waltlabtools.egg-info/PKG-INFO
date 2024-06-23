@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: waltlabtools
-Version: 1.0.0b25
+Version: 1.0.0b26
 Summary: A collection of tools for biomedical research assay analysis in Python.
 Author-email: Tyler Dougan <tyler_dougan@hst.harvard.edu>
 Project-URL: Homepage, https://github.com/tylerdougan/waltlabtools/
@@ -35,6 +35,7 @@ Requires-Dist: numexpr; extra == "all"
 Requires-Dist: bottleneck; extra == "all"
 Requires-Dist: jinja2; extra == "all"
 Requires-Dist: openpyxl; extra == "all"
+Requires-Dist: xlrd; extra == "all"
 
 waltlabtools
 ============
